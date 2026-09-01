@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 04 Section 2.8.1 Mastery - Basic Network Concepts</title>
+    
+    <!-- Load Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load HTML2Canvas for Certificate Download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Load Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Qwitcher+Grypen:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0fdf4; 
+            color: #1f2937;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* Interactive Elements CSS */
+        .io-dropzone { min-height: 70px; min-width: 130px; border: 2px dashed #9ca3af; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f9fafb; transition: all 0.2s; text-align: center; padding: 10px;}
+        .io-dropzone.drag-over { background: #e5e7eb; border-color: #16a34a; box-shadow: inset 0 0 10px rgba(22, 163, 74, 0.2);}
+        
+        .io-item { cursor: grab; transition: transform 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .io-item:active { cursor: grabbing; transform: scale(0.95); }
+        
+        .cat-dropzone { transition: background-color 0.2s ease; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e5e7eb; }
+        ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #059669; }
+
+        /* Retro Game Canvas */
+        #game-canvas {
+            background-color: #111827;
+            border: 4px solid #374151;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+            max-width: 100%;
+            height: auto;
+            cursor: crosshair;
+        }
+        .game-btn { touch-action: manipulation; user-select: none; }
+
+        /* --- CERTIFICATE STYLES --- */
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .font-body { font-family: 'Lora', serif; }
+        .font-script { font-family: 'Qwitcher Grypen', cursive; }
+        
+        .cert-preview-container {
+            width: 100%;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            background: #e5e7eb;
+            padding: 2rem;
+            border-radius: 0.5rem;
+        }
+
+        #certificate {
+            width: 1056px !important;
+            height: 816px !important;
+            flex-shrink: 0;
+            background-color: #ffffff;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1056" height="816"><polygon points="0,0 250,0 0,650" fill="%23fcd34d"/><polygon points="0,0 350,0 0,900" fill="%23d97706" opacity="0.8"/><polygon points="0,0 120,0 0,300" fill="%23fcd34d"/><polygon points="0,450 650,816 0,816" fill="%23fcd34d"/><polygon points="0,550 450,816 0,816" fill="%23d97706" opacity="0.8"/><polygon points="800,0 1056,0 1056,256" fill="%23f3f4f6"/><polygon points="1056,500 1056,816 750,816" fill="%23f3f4f6"/></svg>');
+            background-size: cover;
+            border: 4px solid #e5e7eb;
+        }
+
+        .gold-seal {
+            position: absolute;
+            left: 110px;
+            top: 350px;
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c, #fcf6ba);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3), inset 0 0 15px rgba(255,255,255,0.7), inset 0 0 25px rgba(139,105,20,0.9);
+            z-index: 10;
+        }
+        .gold-seal::before {
+            content: '';
+            position: absolute;
+            top: -4px; bottom: -4px; left: -4px; right: -4px;
+            border-radius: 50%;
+            border: 6px dashed #d4af37;
+        }
+        .gold-seal-inner-1 {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 2px solid rgba(139, 105, 20, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #e8c678, #dbab46);
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.2), 0 2px 5px rgba(255,255,255,0.7);
+            z-index: 1;
+        }
+        .gold-seal-inner-2 {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: radial-gradient(circle, #fcf6ba, #d4af37);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+            padding: 10px;
+        }
+        .embossed-text {
+            color: #b38728;
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.7), -1px -1px 0px rgba(0,0,0,0.2);
+            font-family: 'Playfair Display', serif;
+            font-weight: 800;
+            line-height: 1.1;
+            text-transform: uppercase;
+        }
+        .embossed-text-large { font-size: 14px; letter-spacing: 1px; }
+        .embossed-text-small { font-size: 11px; letter-spacing: 2px; margin: 2px 0; }
+        .embossed-star { font-size: 12px; color: #b38728; text-shadow: 1px 1px 0px rgba(255,255,255,0.7), -1px -1px 0px rgba(0,0,0,0.2); margin: 2px 0; }
+
+        @media (max-width: 1100px) {
+            #certificate { transform: scale(0.7); transform-origin: top left; margin-bottom: -240px; margin-right: -310px; }
+        }
+        @media (max-width: 768px) {
+            #certificate { transform: scale(0.4); transform-origin: top left; margin-bottom: -490px; margin-right: -630px; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <nav class="bg-green-700 text-white shadow-lg sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-network-wired text-2xl"></i>
+                    <span class="font-bold text-xl tracking-wider hidden sm:inline-block">Tech+ Unit 04 Section 2.8.1</span>
+                    <span class="font-bold text-xl tracking-wider sm:hidden">2.8.1</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-2">
+                        <button onclick="switchTab('briefing')" class="nav-btn bg-green-900 px-3 py-2 rounded-md text-sm font-medium hover:bg-green-600 transition" id="nav-briefing"><i class="fa-solid fa-book-open mr-1"></i>Briefing</button>
+                        <button onclick="switchTab('activity')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-green-600 transition" id="nav-activity"><i class="fa-solid fa-flask mr-1"></i>Lab Activity</button>
+                        <button onclick="switchTab('quiz')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-green-600 transition" id="nav-quiz"><i class="fa-solid fa-clipboard-check mr-1"></i>Quiz</button>
+                        <button onclick="switchTab('game')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-gray-400 cursor-not-allowed transition" id="nav-game" disabled><i class="fa-solid fa-lock mr-1"></i>Game</button>
+                        <button onclick="switchTab('cert')" class="nav-btn hidden px-3 py-2 rounded-md text-sm font-medium text-yellow-300 hover:bg-green-600 transition" id="nav-cert"><i class="fa-solid fa-award mr-1"></i>Certificate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Nav -->
+        <div class="md:hidden flex flex-wrap justify-center gap-2 py-2 px-2 bg-green-800">
+            <button onclick="switchTab('briefing')" class="nav-btn-mobile px-3 py-1 text-sm rounded bg-green-900" id="nav-briefing-mobile">Briefing</button>
+            <button onclick="switchTab('activity')" class="nav-btn-mobile px-3 py-1 text-sm rounded" id="nav-activity-mobile">Lab</button>
+            <button onclick="switchTab('quiz')" class="nav-btn-mobile px-3 py-1 text-sm rounded" id="nav-quiz-mobile">Quiz</button>
+            <button onclick="switchTab('game')" class="nav-btn-mobile px-3 py-1 text-sm rounded text-gray-400 cursor-not-allowed" id="nav-game-mobile" disabled><i class="fa-solid fa-lock"></i></button>
+            <button onclick="switchTab('cert')" id="nav-cert-mobile" class="hidden px-2 py-1 text-sm text-yellow-300 rounded"><i class="fa-solid fa-award"></i></button>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <!-- BRIEFING SECTION -->
+        <div id="briefing-section" class="tab-content active no-print">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">Basic Network Concepts (IoT & Connectivity)</h1>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">Discover the foundational rules, identifiers, and hardware that allow computers, IoT devices, and global servers to find each other and communicate seamlessly across the internet.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Tile 1 -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-blue-500 overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-blue-700"><i class="fa-solid fa-map-location-dot mr-2"></i>Protocols & Addresses</h2>
+                        <ul class="space-y-3 text-gray-700 mb-4">
+                            <li><strong>Protocols:</strong> The standardized "languages" and rules devices follow to send and receive data reliably.</li>
+                            <li><strong>IP Address:</strong> The logical, software-assigned mailing address of a device on a network (e.g., 192.168.1.5).</li>
+                            <li><strong>MAC Address:</strong> The permanent, physical fingerprint burned into a device's network card at the factory.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-50 border-t border-gray-100 p-4">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('protocols-details')" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('protocols-usecase')" class="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-900 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-lightbulb text-yellow-600 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tile 2 -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-green-500 overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-green-700"><i class="fa-solid fa-door-open mr-2"></i>Ports & Services</h2>
+                        <ul class="space-y-3 text-gray-700 mb-4">
+                            <li><strong>Ports:</strong> Virtual doorways that direct incoming data to the correct application (e.g., Port 80 for websites).</li>
+                            <li><strong>DNS:</strong> The internet's phonebook. Translates human-readable names (cyber.org) into IP addresses.</li>
+                            <li><strong>DHCP:</strong> A service that automatically leases out IP addresses to devices as they join a network.</li>
+                        </ul>
+                    </div>
+                     <div class="bg-gray-50 border-t border-gray-100 p-4">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('ports-details')" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('ports-usecase')" class="flex-1 bg-green-100 hover:bg-green-200 text-green-900 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-lightbulb text-yellow-600 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tile 3 -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-purple-500 overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-purple-700"><i class="fa-solid fa-server mr-2"></i>Networking Hardware</h2>
+                        <ul class="space-y-3 text-gray-700 mb-4">
+                            <li><strong>Router:</strong> Directs traffic between different networks (like your home and the ISP) and performs NAT.</li>
+                            <li><strong>Switch:</strong> Connects devices within the same Local Area Network (LAN) using their MAC addresses.</li>
+                            <li><strong>Firewall:</strong> The digital bouncer that monitors and filters incoming and outgoing traffic based on security rules.</li>
+                        </ul>
+                    </div>
+                     <div class="bg-gray-50 border-t border-gray-100 p-4">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('hardware-details')" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('hardware-usecase')" class="flex-1 bg-purple-100 hover:bg-purple-200 text-purple-900 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-lightbulb text-yellow-600 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tile 4 -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-orange-500 overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-orange-700"><i class="fa-solid fa-sitemap mr-2"></i>Network Types & Models</h2>
+                        <ul class="space-y-3 text-gray-700 mb-4">
+                            <li><strong>LAN vs WAN:</strong> Local Area Networks cover small spaces (homes). Wide Area Networks connect LANs across cities or countries.</li>
+                            <li><strong>Client/Server:</strong> A centralized model where powerful servers provide resources to multiple client devices.</li>
+                            <li><strong>Peer-to-Peer (P2P):</strong> A decentralized model where all devices are equal and share data directly with one another.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-50 border-t border-gray-100 p-4">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('models-details')" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('models-usecase')" class="flex-1 bg-orange-100 hover:bg-orange-200 text-orange-900 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-lightbulb text-yellow-600 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 flex justify-center">
+                <button onclick="switchTab('activity')" class="bg-green-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-green-500 shadow-lg transition transform hover:scale-105">Proceed to Lab Activity <i class="fa-solid fa-arrow-right ml-2"></i></button>
+            </div>
+        </div>
+
+        <!-- LAB ACTIVITY SECTION -->
+        <div id="activity-section" class="tab-content no-print">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Interactive Lab Activity</h1>
+                <p class="text-gray-600">Apply your understanding of basic networking components, identifiers, and logical ports.</p>
+            </div>
+
+            <!-- Lab 1: Networking Components Categorization -->
+            <div class="bg-white p-6 rounded-xl shadow-md mb-8 border border-gray-200">
+                <h2 class="text-xl font-bold mb-4 text-blue-700"><i class="fa-solid fa-layer-group mr-2"></i>Lab 1: The Network Blueprint</h2>
+                <p class="text-sm text-gray-600 mb-4">Drag and drop the network concepts into their correct functional category: Logical/Addressing, Hardware Device, or Service/Port.</p>
+                
+                <div class="flex flex-wrap gap-3 mb-6" id="cat-items">
+                    <div class="io-item px-4 py-2 bg-indigo-100 border border-indigo-300 rounded font-bold text-sm" draggable="true" data-type="address">IP Address (192.168.1.5)</div>
+                    <div class="io-item px-4 py-2 bg-indigo-100 border border-indigo-300 rounded font-bold text-sm" draggable="true" data-type="hardware">Router</div>
+                    <div class="io-item px-4 py-2 bg-indigo-100 border border-indigo-300 rounded font-bold text-sm" draggable="true" data-type="port">Port 443 (HTTPS)</div>
+                    <div class="io-item px-4 py-2 bg-indigo-100 border border-indigo-300 rounded font-bold text-sm" draggable="true" data-type="hardware">Network Switch</div>
+                    <div class="io-item px-4 py-2 bg-indigo-100 border border-indigo-300 rounded font-bold text-sm" draggable="true" data-type="address">MAC Address (08:8E:90:12:34:56)</div>
+                    <div class="io-item px-4 py-2 bg-indigo-100 border border-indigo-300 rounded font-bold text-sm" draggable="true" data-type="port">DNS (Domain Name System)</div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="cat-dropzone border-2 border-dashed border-blue-400 bg-blue-50 rounded-lg p-3 min-h-[150px] flex flex-col items-center" data-target="address">
+                        <h3 class="font-bold text-blue-800 mb-1 border-b border-blue-200 w-full text-center pb-1"><i class="fa-solid fa-location-dot mr-1"></i>Addressing / Identifiers</h3>
+                    </div>
+                    <div class="cat-dropzone border-2 border-dashed border-gray-400 bg-gray-50 rounded-lg p-3 min-h-[150px] flex flex-col items-center" data-target="hardware">
+                        <h3 class="font-bold text-gray-800 mb-1 border-b border-gray-200 w-full text-center pb-1"><i class="fa-solid fa-server mr-1"></i>Hardware Devices</h3>
+                    </div>
+                    <div class="cat-dropzone border-2 border-dashed border-green-400 bg-green-50 rounded-lg p-3 min-h-[150px] flex flex-col items-center" data-target="port">
+                        <h3 class="font-bold text-green-800 mb-1 border-b border-green-200 w-full text-center pb-1"><i class="fa-solid fa-door-open mr-1"></i>Services & Ports</h3>
+                    </div>
+                </div>
+                <div id="lab1-feedback" class="text-center font-bold mt-4 h-6 text-green-600"></div>
+            </div>
+
+            <!-- Lab 2: Scenario Matcher -->
+            <div class="bg-white p-6 rounded-xl shadow-md mb-8 border border-gray-200">
+                <h2 class="text-xl font-bold mb-4 text-red-700"><i class="fa-solid fa-users-gear mr-2"></i>Lab 2: Diagnostic Scenario Matcher</h2>
+                <p class="text-sm text-gray-600 mb-4">Click the scenario or definition on the left, then match it to the correct networking term or tool on the right.</p>
+                
+                <div class="flex flex-col md:flex-row justify-around items-stretch gap-6">
+                    <div class="flex flex-col gap-3 flex-1">
+                        <button class="scenario-btn px-4 py-3 bg-gray-100 border-2 border-gray-300 rounded text-left hover:bg-red-50 text-sm font-semibold transition" data-match="dhcp">"I automatically hand out temporary IP addresses to new smartphones when they connect to the Wi-Fi."</button>
+                        <button class="scenario-btn px-4 py-3 bg-gray-100 border-2 border-gray-300 rounded text-left hover:bg-red-50 text-sm font-semibold transition" data-match="dns">"When a user types 'youtube.com', I tell their computer exactly which IP address to connect to."</button>
+                        <button class="scenario-btn px-4 py-3 bg-gray-100 border-2 border-gray-300 rounded text-left hover:bg-red-50 text-sm font-semibold transition" data-match="nat">"I allow multiple devices in a home to share a single public IP address by keeping track of who requested what data."</button>
+                        <button class="scenario-btn px-4 py-3 bg-gray-100 border-2 border-gray-300 rounded text-left hover:bg-red-50 text-sm font-semibold transition" data-match="ping">"I send an ICMP Echo Request to test if a specific target computer is reachable and active on the network."</button>
+                        <button class="scenario-btn px-4 py-3 bg-gray-100 border-2 border-gray-300 rounded text-left hover:bg-red-50 text-sm font-semibold transition" data-match="ipconfig">"I am the Windows command used to reveal your device's current IP address and MAC address."</button>
+                    </div>
+                    
+                    <div class="flex flex-col gap-3 flex-1 justify-center">
+                        <button class="tool-btn px-4 py-3 bg-white border-2 border-gray-300 rounded text-center hover:bg-gray-100 font-bold text-gray-700 shadow-sm transition" data-match="nat"><i class="fa-solid fa-arrows-split-up-and-left text-orange-500 mr-2"></i>NAT (Network Address Translation)</button>
+                        <button class="tool-btn px-4 py-3 bg-white border-2 border-gray-300 rounded text-center hover:bg-gray-100 font-bold text-gray-700 shadow-sm transition" data-match="dhcp"><i class="fa-solid fa-hand-holding-hand text-purple-500 mr-2"></i>DHCP Server</button>
+                        <button class="tool-btn px-4 py-3 bg-white border-2 border-gray-300 rounded text-center hover:bg-gray-100 font-bold text-gray-700 shadow-sm transition" data-match="ping"><i class="fa-solid fa-satellite-dish text-green-500 mr-2"></i>ping Command</button>
+                        <button class="tool-btn px-4 py-3 bg-white border-2 border-gray-300 rounded text-center hover:bg-gray-100 font-bold text-gray-700 shadow-sm transition" data-match="dns"><i class="fa-solid fa-book-atlas text-blue-600 mr-2"></i>DNS (Domain Name System)</button>
+                        <button class="tool-btn px-4 py-3 bg-white border-2 border-gray-300 rounded text-center hover:bg-gray-100 font-bold text-gray-700 shadow-sm transition" data-match="ipconfig"><i class="fa-solid fa-terminal text-gray-800 mr-2"></i>ipconfig /all</button>
+                    </div>
+                </div>
+                <div id="lab2-feedback" class="text-center font-bold mt-4 h-6 text-green-600"></div>
+            </div>
+
+            <div class="text-center">
+                <button onclick="switchTab('quiz')" class="bg-green-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-green-500 shadow-lg transition transform hover:scale-105">Take the Mastery Quiz <i class="fa-solid fa-clipboard-check ml-2"></i></button>
+            </div>
+        </div>
+
+        <!-- QUIZ SECTION -->
+        <div id="quiz-section" class="tab-content no-print">
+            <div class="bg-white p-6 sm:p-10 rounded-2xl shadow-xl max-w-4xl mx-auto">
+                <div class="text-center mb-8 border-b pb-4">
+                    <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Unit 04 Section 2.8.1 Mastery Quiz</h1>
+                    <p class="text-gray-600">Score 90% or higher (18/20) to earn your Certificate of Mastery and unlock the Retro Game!</p>
+                </div>
+
+                <div id="quiz-container" class="space-y-8">
+                    <!-- Questions injected via JS -->
+                </div>
+
+                <div class="mt-10 text-center border-t pt-6 flex flex-col md:flex-row justify-center items-center gap-4">
+                    <button id="submit-quiz-btn" onclick="gradeQuiz()" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-blue-700 shadow-lg transition w-full md:w-auto">Submit Quiz</button>
+                    <button id="proceed-game-btn" onclick="switchTab('game')" class="hidden bg-purple-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-purple-700 shadow-lg transition w-full md:w-auto">Play Retro Game <i class="fa-solid fa-gamepad ml-2"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RETRO GAME SECTION -->
+        <div id="game-section" class="tab-content no-print">
+            <div class="bg-gray-900 p-6 sm:p-8 rounded-2xl shadow-xl max-w-4xl mx-auto border-4 border-gray-700 flex flex-col items-center">
+                <div class="text-center mb-4 w-full">
+                    <h1 class="text-3xl font-extrabold text-red-500 mb-2 tracking-widest uppercase" style="font-family: monospace;">Port Defender</h1>
+                    <p class="text-gray-300 text-sm">Defend your network ports (bottom) from the incoming DDoS packets! Click or tap on the canvas to launch firewall bursts that destroy packets in the blast radius.</p>
+                </div>
+                
+                <div class="flex justify-between items-center w-full max-w-[400px] sm:max-w-[500px] mb-2 px-4 text-white font-mono text-xl">
+                    <div>Score: <span id="game-score" class="text-green-400 font-bold">0</span></div>
+                    <div>Ports: <span id="game-lives" class="text-blue-400 font-bold">4</span></div>
+                </div>
+
+                <div class="relative flex justify-center w-full">
+                    <!-- Game Canvas -->
+                    <canvas id="game-canvas" width="400" height="400" class="w-full max-w-[400px] sm:max-w-[500px]"></canvas>
+                    
+                    <!-- Overlay Start Button -->
+                    <div id="game-overlay" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 rounded-lg max-w-[400px] sm:max-w-[500px] mx-auto z-10">
+                        <button id="start-game-btn" class="bg-red-600 hover:bg-red-500 text-white font-bold font-mono py-3 px-6 rounded-lg text-xl border-4 border-red-800 uppercase transform transition hover:scale-105">Enable Firewall (Start)</button>
+                    </div>
+                </div>
+
+                <div class="mt-8 text-center w-full border-t border-gray-700 pt-6">
+                    <button onclick="switchTab('cert')" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-blue-700 shadow-lg transition w-full md:w-auto">View Certificate <i class="fa-solid fa-award ml-2"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CERTIFICATE SECTION -->
+        <div id="cert-section" class="tab-content">
+            <div class="max-w-5xl mx-auto">
+                
+                <!-- Controls -->
+                <div class="bg-white p-6 rounded shadow mb-6 no-print text-center border border-gray-200">
+                    <h2 class="text-2xl font-bold text-green-600 mb-2">🎉 Congratulations! 🎉</h2>
+                    <p class="text-gray-700 mb-4">You have achieved mastery of Basic Network Concepts.</p>
+                    <div class="flex flex-col md:flex-row justify-center items-center gap-4">
+                        <input type="text" id="student-name-input" value="Student" placeholder="Enter your first name" class="border-2 border-gray-300 rounded px-4 py-2 w-full md:w-64 focus:border-green-500 focus:outline-none">
+                        <button onclick="updateCertName()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">Update Name</button>
+                        <button id="download-btn" onclick="downloadCert()" class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition flex items-center justify-center">
+                            <i class="fa-solid fa-download mr-2"></i>Download PNG
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Certificate Render Container -->
+                <div class="cert-preview-container print:p-0 print:bg-white">
+                    <div id="certificate">
+                        <div class="gold-seal">
+                            <div class="gold-seal-inner-1">
+                                <div class="gold-seal-inner-2">
+                                     <span class="embossed-text embossed-text-large">Certificate</span>
+                                     <i class="fa-solid fa-star embossed-star"></i>
+                                     <span class="embossed-text embossed-text-small">Of</span>
+                                     <i class="fa-solid fa-star embossed-star"></i>
+                                     <span class="embossed-text embossed-text-large">Excellence</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative z-20 w-full h-full flex flex-col pt-[48px] pl-[380px] pr-[48px]">
+                            <h1 class="text-[#1e3a8a] text-[4.5rem] leading-none font-serif font-bold tracking-wide uppercase mb-2">CERTIFICATE</h1>
+                            <h2 class="text-gray-800 text-3xl font-serif tracking-widest uppercase mb-10">Of Achievement</h2>
+                            
+                            <p class="text-[1.4rem] font-body text-gray-800 mb-4">This is to certify that</p>
+                            
+                            <div class="relative mb-8 w-full">
+                                <h3 id="cert-student-name" class="text-[4rem] text-[#1e3a8a] font-serif italic leading-none pb-2 relative z-10 text-center w-full block">Student</h3>
+                                <div class="w-full border-b-[2px] border-[#1e3a8a] absolute bottom-[4px] left-0 z-0"></div>
+                                <div class="w-full border-b-[2px] border-dotted border-red-500 absolute bottom-[0px] left-0 z-0"></div>
+                            </div>
+                            
+                            <p class="text-[1.3rem] font-body text-gray-800 leading-relaxed w-full pr-4">
+                                Has successfully completed the assessment for 
+                                <strong class="text-[1.8rem] text-[#1e3a8a] block mt-4 mb-2 font-serif">Cyber.org Tech+ Unit 04 Section 2.8.1</strong>
+                                <strong class="text-[1.5rem] text-black block mb-4 font-serif italic">Basic Network Concepts</strong>
+                                <span class="text-[1.1rem] text-gray-700 leading-snug block">Demonstrating proficiency in identifying basic networking components, explaining how devices communicate using protocols, understanding IP vs MAC addressing, analyzing ports, and utilizing diagnostic commands.</span>
+                            </p>
+                            
+                            <div class="flex justify-end gap-16 items-end mt-auto mb-[60px] w-full pr-8">
+                                <div class="w-64">
+                                    <div class="border-b border-gray-600 mb-2 h-20 flex items-end justify-center relative">
+                                        <span class="font-script text-[5rem] text-[#1e3a8a] absolute bottom-[-10px] transform -rotate-3 opacity-90">Dr. M. S</span>
+                                    </div>
+                                    <p class="font-serif text-xl text-gray-800 text-center">Administration</p>
+                                </div>
+                                
+                                <div class="w-64">
+                                    <div class="border-b border-gray-600 mb-2 text-center h-20 flex items-end justify-center">
+                                        <p id="cert-date" class="font-body text-2xl text-gray-800 pb-1">Date Here</p>
+                                    </div>
+                                    <p class="font-serif text-xl text-gray-800 text-center">Date</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Custom Modal for Alerts -->
+    <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex justify-center items-center backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+            <div class="text-center">
+                <div id="modal-icon" class="text-5xl mb-4"></div>
+                <h3 id="modal-title" class="text-2xl font-bold mb-2 text-gray-900"></h3>
+                <p id="modal-msg" class="text-gray-600 mb-6"></p>
+                <button onclick="closeModal()" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700 transition w-full">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Briefing Modal -->
+    <div id="briefing-modal" class="fixed inset-0 bg-black bg-opacity-70 z-[120] hidden flex justify-center items-center backdrop-blur-sm p-4 sm:p-6">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col transform transition-all overflow-hidden border-4 border-green-700">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                <div class="flex items-center gap-4">
+                    <div id="briefing-modal-icon" class="text-4xl"></div>
+                    <h3 id="briefing-modal-title" class="text-2xl md:text-3xl font-bold text-gray-900"></h3>
+                </div>
+                <button onclick="closeBriefing()" class="text-gray-400 hover:text-red-600 transition text-4xl leading-none">&times;</button>
+            </div>
+            <div id="briefing-modal-content" class="p-6 md:p-10 overflow-y-auto flex-grow text-gray-700 text-lg leading-relaxed bg-white">
+                <!-- Dynamic Content Injected Here -->
+            </div>
+            <div class="p-6 border-t border-gray-200 bg-gray-50 flex justify-end">
+                <button onclick="closeBriefing()" class="bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-green-800 transition shadow-md">Acknowledge & Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Briefing Content Data ---
+        const briefingData = {
+            'protocols-details': {
+                title: 'Protocols & Addresses: Detailed Breakdown',
+                icon: '<i class="fa-solid fa-map-location-dot text-blue-600"></i>',
+                html: `
+                    <p class="mb-5">In the vast, interconnected world of the internet, millions of devices manufactured by completely different companies run on entirely different operating systems. For a Windows PC in New York to successfully load a webpage hosted on a Linux server in Tokyo, both systems must agree on a shared, universal "language." In networking, this shared language is known as a <strong>protocol</strong>. A protocol is simply a highly specific set of mathematical rules that dictate exactly how data should be formatted, transmitted, received, and acknowledged across a network connection.</p>
+                    
+                    <p class="mb-5">The most fundamental suite of protocols governing the internet is <strong>TCP/IP</strong> (Transmission Control Protocol / Internet Protocol). When you send a large file over the network, it is not sent as one massive chunk. Instead, TCP breaks the file down into thousands of tiny, manageable pieces called <em>packets</em>. TCP ensures these packets are numbered, tracks their delivery, and guarantees that if a packet gets lost along the way, it will automatically be re-sent until the entire file is perfectly reassembled at the destination.</p>
+                    
+                    <p class="mb-5">While TCP prioritizes absolute reliability, another transport protocol called <strong>UDP</strong> (User Datagram Protocol) prioritizes pure speed. UDP does not bother checking if packets arrive successfully; it simply fires the data as fast as possible. If a packet is lost, it is ignored. UDP is the preferred protocol for real-time applications where a slight glitch is acceptable but waiting for delayed data is not, such as live video conferencing (Zoom), live streaming on Twitch, or fast-paced competitive online gaming.</p>
+                    
+                    <p class="mb-5">In order to actually deliver these packets, the network requires a logical addressing system. An <strong>Internet Protocol (IP) Address</strong> serves as the software-assigned "mailing address" for a device on a network. The classic IPv4 standard looks like four numbers separated by dots (e.g., 192.168.1.50). Because the world ran out of IPv4 addresses due to the explosion of mobile and IoT devices, the much longer, hexadecimal IPv6 standard (e.g., 2001:0db8:85a3:0000:0000:8a2e:0370:7334) was introduced to provide a nearly infinite supply of new addresses.</p>
+                    
+                    <p class="mb-5">It is vital to understand that IP addresses are completely temporary and flexible. When you take your laptop from your home to a coffee shop, your laptop discards its home IP address and is immediately assigned a brand new IP address by the coffee shop's router. This dynamic assignment process ensures that data is always routed to your exact current physical location on the internet.</p>
+                    
+                    <p class="mb-5">In stark contrast to the temporary nature of an IP address, every device capable of networking also possesses a <strong>MAC (Media Access Control) Address</strong>. A MAC address is a physical fingerprint that is permanently burned into the silicon of the device's Network Interface Card (NIC) at the factory during manufacturing. It is a 48-bit identifier represented by six pairs of hexadecimal digits (e.g., 00:1A:2B:3C:4D:5E). Unlike an IP address, a device's MAC address is meant to be permanent and never changes, regardless of where in the world the device travels.</p>
+                    
+                    <p>Understanding the interplay between these two addresses is the foundation of network troubleshooting. When data travels across the massive internet, routers use the logical IP address to figure out which country and building the data belongs in. But once that data finally arrives at the local building's switch, the switch ignores the IP address and relies entirely on the permanent physical MAC address to ensure the packets are delivered to the exact correct laptop sitting on a specific desk.</p>
+                `
+            },
+            'protocols-usecase': {
+                title: 'Protocols & Addresses: Practical Use Cases',
+                icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-blue-800 mb-2 border-b-2 border-blue-200 pb-1">Use Case 1: IP Address Management in an Office</h4>
+                        <p><strong>Example A (Dynamic IPs):</strong> When 50 employees walk into an office building every morning, the office network automatically assigns each of their smartphones a temporary, dynamic IP address so they can browse the internet. When they leave at 5:00 PM, those addresses are recycled.</p>
+                        <p><strong>Example B (Static IPs):</strong> However, the office's main shared printer is manually assigned a <em>Static IP address</em> (e.g., 10.0.0.100) by the IT administrator. This ensures the address never changes, so employee computers never lose their connection to the printer.</p>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-blue-800 mb-2 border-b-2 border-blue-200 pb-1">Use Case 2: Utilizing MAC Addresses for Security</h4>
+                        <p><strong>Example A (MAC Filtering):</strong> A homeowner wants to secure their Wi-Fi. They enable MAC Filtering on their router and type in the permanent MAC addresses of their specific laptop and phone. Even if a neighbor guesses the Wi-Fi password, the router will physically block the neighbor's device because its MAC address is not on the approved list.</p>
+                        <p><strong>Example B (Switching):</strong> Inside a school's computer lab, a Network Switch uses a massive internal table mapping every physical port on the wall to the specific MAC address of the desktop computer plugged into it. This allows the switch to instantly fire data to Computer A without accidentally sending it to Computer B.</p>
+                    </div>
+                    <div class="flex justify-center gap-4 mt-6">
+                        <img src="https://placehold.co/400x200/e0f2fe/0369a1?text=Dynamic+vs+Static+IPs" alt="Concept Image: IP Addressing" class="rounded-lg shadow-md border border-gray-200 w-1/2">
+                        <img src="https://placehold.co/400x200/e0f2fe/0369a1?text=Router+MAC+Filtering+List" alt="Usage Image: MAC Filtering" class="rounded-lg shadow-md border border-gray-200 w-1/2">
+                    </div>
+                `
+            },
+            'ports-details': {
+                title: 'Ports & Services: Detailed Breakdown',
+                icon: '<i class="fa-solid fa-door-open text-green-600"></i>',
+                html: `
+                    <p class="mb-5">If an IP address is the street address of a massive apartment building, <strong>ports</strong> are the individual apartment unit numbers inside that building. A modern computer or server is capable of running dozens of different network services simultaneously. It can host a website, receive incoming emails, transfer large video files, and handle remote login requests all at the exact same time over a single network cable. Ports are the virtual doorways that allow the computer's operating system to instantly sort incoming data packets and hand them to the correct software application without confusion.</p>
+                    
+                    <p class="mb-5">In the networking world, there are 65,535 available ports, but the first 1,024 are standardized "well-known ports" reserved for critical internet protocols. For example, standard, unencrypted web traffic utilizes <strong>Port 80 (HTTP)</strong>. However, because HTTP sends all data in plain text (making it incredibly easy for hackers to steal passwords), modern web browsers enforce the use of <strong>Port 443 (HTTPS)</strong>. The "S" stands for Secure; Port 443 utilizes SSL/TLS encryption to scramble data so that eavesdroppers only see meaningless gibberish.</p>
+                    
+                    <p class="mb-5">Other common ports include <strong>Port 22 (SSH)</strong>, which allows system administrators to securely log into remote servers and execute text commands as if they were sitting at the physical keyboard. <strong>Port 21 (FTP)</strong> is the traditional port for the File Transfer Protocol, used specifically to move large directories of files from one machine to another. For email, older insecure systems used Port 25, but modern secure email transmission (SMTP) relies entirely on <strong>Port 587</strong> to encrypt outgoing messages.</p>
+                    
+                    <p class="mb-5">None of these ports would be easy to navigate without the <strong>Domain Name System (DNS)</strong>. Humans are terrible at memorizing random strings of numbers, so instead of typing "104.21.96.40" into a browser, we type "cyber.org". Operating on Port 53, DNS acts as the massive, global phonebook of the internet. When you type a URL, your computer instantly queries a DNS server, which searches its directory, finds the matching IP address, and invisibly hands that number back to your browser so it can connect to the website.</p>
+                    
+                    <p class="mb-5">Another completely invisible but essential service is <strong>DHCP (Dynamic Host Configuration Protocol)</strong>. In the early days of computing, connecting a new computer to a network required an IT professional to manually type in an IP address, a subnet mask, and a gateway address by hand. Today, DHCP servers run constantly in the background. The millisecond your smartphone connects to a Wi-Fi access point, the DHCP server automatically "leases" it a valid, conflict-free IP address, allowing it to communicate immediately without zero human intervention.</p>
+                    
+                    <p class="mb-5">Because there are physically not enough IPv4 addresses in the world for every smartphone, smart TV, and IoT device to have its own public internet address, routers rely on <strong>NAT (Network Address Translation)</strong>. When you purchase internet for your home, your ISP only gives you ONE single public IP address. Your internal home router then uses DHCP to give private, fake IP addresses (like 192.168.1.x) to all fifty devices in your house.</p>
+                    
+                    <p>When your phone tries to load a YouTube video, the router intercepts the request, strips off your phone's private IP, stamps the request with the router's one public IP, and sends it out to the internet. When the video data returns, NAT remembers exactly which internal private IP (your phone) originally asked for the video and forwards it through the correct port. This brilliant piece of network magic is what allows entire schools and office buildings to operate online using only a handful of public addresses.</p>
+                `
+            },
+            'ports-usecase': {
+                title: 'Ports & Services: Practical Use Cases',
+                icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-green-800 mb-2 border-b-2 border-green-200 pb-1">Use Case 1: Web Browsing Infrastructure</h4>
+                        <p><strong>Example A (HTTPS Port 443):</strong> A user decides to buy a pair of shoes online. The moment they navigate to the checkout page to type in their credit card number, their browser automatically shifts communication to Port 443 (HTTPS), encrypting the credit card data before it leaves the computer.</p>
+                        <p><strong>Example B (DNS Resolution):</strong> Before the user's computer can even load the shoe store's website, it must first send a rapid, invisible request over Port 53 to a DNS server, asking "What is the exact IP address for www.shoestore.com?"</p>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-green-800 mb-2 border-b-2 border-green-200 pb-1">Use Case 2: Remote Server Management</h4>
+                        <p><strong>Example A (SSH Port 22):</strong> A cybersecurity engineer is sitting in a coffee shop in Chicago but needs to fix a broken database on a server located in London. They open a terminal and connect to the server via Port 22 (Secure Shell), allowing them to type commands securely across the globe.</p>
+                        <p><strong>Example B (SFTP via Port 22):</strong> Once the database is fixed, the engineer needs to securely download a 50GB backup file to their laptop. They utilize SFTP (Secure File Transfer Protocol), which piggybacks over Port 22 to encrypt the massive file transfer, protecting the sensitive company data from interception.</p>
+                    </div>
+                    <div class="flex justify-center gap-4 mt-6">
+                        <img src="https://placehold.co/400x200/dcfce7/166534?text=Port+443+Encryption+Diagram" alt="Concept Image: Ports" class="rounded-lg shadow-md border border-gray-200 w-1/2">
+                        <img src="https://placehold.co/400x200/dcfce7/166534?text=Command+Line+DNS+Lookup" alt="Usage Image: DNS Lookup" class="rounded-lg shadow-md border border-gray-200 w-1/2">
+                    </div>
+                `
+            },
+            'hardware-details': {
+                title: 'Networking Hardware: Detailed Breakdown',
+                icon: '<i class="fa-solid fa-server text-purple-600"></i>',
+                html: `
+                    <p class="mb-5">While invisible protocols and virtual ports govern the rules of communication, data ultimately requires physical hardware to actually travel from one point to another. In enterprise environments and large schools, the roles of networking hardware are strictly separated into dedicated, highly powerful, single-purpose appliances. Understanding exactly what each piece of hardware does is crucial for building and troubleshooting a functional network topology.</p>
+                    
+                    <p class="mb-5">The gateway to the outside world is the <strong>Modem</strong> (Modulator-Demodulator). The modem's sole responsibility is to take the digital signals understood by computers and translate them into a format that can travel over the physical infrastructure laid by the Internet Service Provider (ISP). If the ISP uses coaxial cables, the modem translates digital data into analog radio frequencies. If the ISP provides fiber optics, an Optical Network Terminal (ONT) converts the digital data into pulses of light.</p>
+                    
+                    <p class="mb-5">Sitting directly behind the modem is the true brain of the operation: the <strong>Router</strong>. A router's primary job is to connect completely different networks together—specifically, it connects your internal Local Area Network (LAN) to the massive, external Wide Area Network (WAN) known as the internet. The router examines the destination IP address of every packet and calculates the fastest possible path to get it there. Additionally, the router is responsible for running the DHCP service to hand out internal IP addresses and performing NAT (Network Address Translation) to hide those internal addresses from the outside world.</p>
+                    
+                    <p class="mb-5">While the router handles traffic leaving the building, the <strong>Network Switch</strong> handles all the traffic staying inside the building. A switch connects dozens of local devices (computers, printers, servers) together using physical Ethernet cables. Unlike a router which looks at logical IP addresses, a switch operates using physical MAC addresses. It memorizes exactly which MAC address is plugged into which physical port, allowing it to send data directly from Computer A to Computer B at incredible speeds without slowing down the rest of the network.</p>
+                    
+                    <p class="mb-5">To support modern mobile devices, networks rely on <strong>Wireless Access Points (APs)</strong>. An access point is essentially a radio antenna plugged directly into a network switch via a wire. It takes the wired network signal and broadcasts it as Wi-Fi into the air. In massive office buildings, dozens of separate access points are installed in the ceilings, all seamlessly tied together so an employee can walk from the lobby to the 5th floor without ever dropping their connection.</p>
+                    
+                    <p class="mb-5">Guarding all of this infrastructure is the <strong>Firewall</strong>. A hardware firewall acts as a strict digital bouncer sitting between the modem and the router. It constantly inspects every single packet of data trying to enter or leave the network. Based on a complex list of rules set by administrators, it can instantly block malicious traffic, stop unauthorized port access, and prevent internal employees from visiting unsafe websites.</p>
+                    
+                    <p>It is worth noting that while enterprise networks use separate, expensive boxes for each of these roles, consumer hardware is entirely different. The "router" you buy from an electronics store or rent from your ISP is actually an all-in-one combo device. Inside that single plastic shell is a router chip, a 4-port mini-switch, a Wi-Fi access point radio, a basic firewall, and sometimes even the modem itself, designed purely for home convenience.</p>
+                `
+            },
+            'hardware-usecase': {
+                title: 'Networking Hardware: Practical Use Cases',
+                icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-purple-800 mb-2 border-b-2 border-purple-200 pb-1">Use Case 1: Enterprise Office Deployment</h4>
+                        <p><strong>Example A (Core Routing & Switching):</strong> A new high school is built. The IT team installs one massive Core Router to connect the school to the internet. They then run thick fiber cables from the router to 10 massive 48-port Switches scattered in different closets around the school. These switches connect every single desktop computer in the building.</p>
+                        <p><strong>Example B (Access Points via PoE):</strong> To provide Wi-Fi for student iPads, the IT team mounts dozens of Wireless Access Points to the hallway ceilings. They utilize PoE (Power over Ethernet) switches, which send both internet data AND electrical power through a single Cat6 cable, entirely removing the need to hire an electrician to install wall outlets in the ceiling for the APs.</p>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-purple-800 mb-2 border-b-2 border-purple-200 pb-1">Use Case 2: Securing a Corporate Network</h4>
+                        <p><strong>Example A (Hardware Firewall):</strong> A bank installs a dedicated Hardware Firewall behind their modem. The administrator configures strict rules that immediately drop any incoming data packets attempting to scan Port 22 (SSH) from IP addresses originating outside of the United States.</p>
+                        <p><strong>Example B (Software Firewall):</strong> In addition to the hardware firewall protecting the building, the bank installs a Software Firewall directly onto every employee's Windows laptop. This ensures that even if a laptop is taken to a public coffee shop, its internal ports remain locked down and protected from local hackers.</p>
+                    </div>
+                    <div class="flex justify-center gap-4 mt-6">
+                        <img src="https://placehold.co/400x200/f3e8ff/6b21a8?text=Enterprise+Network+Topology" alt="Concept Image: Network Topology" class="rounded-lg shadow-md border border-gray-200 w-1/2">
+                        <img src="https://placehold.co/400x200/f3e8ff/6b21a8?text=Server+Rack+with+Switches" alt="Usage Image: Server Rack" class="rounded-lg shadow-md border border-gray-200 w-1/2">
+                    </div>
+                `
+            },
+            'models-details': {
+                title: 'Network Types & Models: Detailed Breakdown',
+                icon: '<i class="fa-solid fa-sitemap text-orange-600"></i>',
+                html: `
+                    <p class="mb-5">Networks are categorized not just by the physical hardware they use, but by the geographic scale they cover and the logical models they use to distribute power and resources among devices. Understanding these classifications allows architects to design systems that are scalable, secure, and appropriate for the specific needs of an organization.</p>
+                    
+                    <p class="mb-5">The most fundamental classification of scale is the <strong>Local Area Network (LAN)</strong>. A LAN is a network confined to a relatively small, specific geographic area. A family's home Wi-Fi is a LAN. A single school building is a LAN. A corporate office floor is a LAN. Devices within a LAN connect at incredibly high speeds (often Gigabit speeds or higher) because the infrastructure is entirely owned, maintained, and physically controlled by the local administrator without relying on outside telecom companies.</p>
+                    
+                    <p class="mb-5">In contrast, a <strong>Wide Area Network (WAN)</strong> is designed to connect smaller LANs across massive physical distances, such as different cities, states, or even continents. Because laying private cables across an entire country is impossible for a single company, WANs rely on leasing expensive infrastructure from major telecommunications providers or utilizing secure, encrypted VPN tunnels over public infrastructure. The internet itself is simply the world's largest public WAN.</p>
+                    
+                    <p class="mb-5">Within a physical LAN, security and traffic flow can be further managed using a <strong>VLAN (Virtual Local Area Network)</strong>. A VLAN uses software to logically separate a single physical network into multiple isolated networks. For example, a hospital can use VLANs to ensure that the guest Wi-Fi network in the waiting room is completely, invisibly isolated from the secure network containing patient medical records, even though both networks are running through the exact same physical switches in the server room.</p>
+                    
+                    <p class="mb-5">Beyond physical scale, networks are defined by their structural model. The <strong>Client/Server Model</strong> is the dominant architecture of the modern internet and enterprise business. In this centralized model, a powerful, dedicated computer (the Server) holds all the resources, data, or applications. Smaller, less powerful devices (the Clients) connect to the server to request access to those resources. This allows for incredibly tight security, easy central backups, and strict administrative control.</p>
+                    
+                    <p class="mb-5">Alternatively, the <strong>Peer-to-Peer (P2P) Model</strong> is a completely decentralized architecture. In a P2P network, there is no central server. Every single device (node) is considered equal and acts as both a client and a server simultaneously. Devices share files and resources directly with one another. While P2P networks are incredibly cheap and easy to set up for a tiny group of people, they are notoriously difficult to secure and practically impossible to back up reliably.</p>
+                    
+                    <p>When a startup company is formed by three people in a garage, they will almost certainly use a simple P2P model to share documents. But the moment that company grows to fifty employees handling sensitive customer data, they are forced to migrate to a highly structured Client/Server model deployed over a secure enterprise LAN to maintain legal compliance and data integrity.</p>
+                `
+            },
+            'models-usecase': {
+                title: 'Network Types & Models: Practical Use Cases',
+                icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-orange-800 mb-2 border-b-2 border-orange-200 pb-1">Use Case 1: Scaling a Business Operations Network</h4>
+                        <p><strong>Example A (LAN to WAN):</strong> A successful bakery operates entirely on a single LAN within their storefront. When they open three new locations across the state, they must implement a WAN. This allows the point-of-sale registers in all three new distant LANs to securely communicate with the main inventory server located at the original headquarters.</p>
+                        <p><strong>Example B (VLAN Isolation):</strong> To pass strict credit card security audits, the bakery configures a VLAN inside their stores. This software rule guarantees that the Wi-Fi offered to customers drinking coffee is completely isolated and cannot intercept data from the VLAN used by the cash registers.</p>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-orange-800 mb-2 border-b-2 border-orange-200 pb-1">Use Case 2: Distributing Digital Resources</h4>
+                        <p><strong>Example A (Client/Server):</strong> A large high school uses a Client/Server model for its grading system. Teachers (Clients) log in from their laptops to enter grades into the central database (Server). If a teacher's laptop is destroyed, no grades are lost because all the actual data lives securely on the central server, not the local hard drive.</p>
+                        <p><strong>Example B (Peer-to-Peer):</strong> Three students working on a massive video project for a class are sitting at a library table. They don't have internet access, so they connect their laptops via a simple ad-hoc Peer-to-Peer Wi-Fi connection. They transfer the 10GB raw video files directly from laptop to laptop without needing a server or router in the middle.</p>
+                    </div>
+                    <div class="flex justify-center gap-4 mt-6">
+                        <img src="https://placehold.co/400x200/ffedd5/c2410c?text=LAN+vs+WAN+Diagram" alt="Concept Image: LAN vs WAN" class="rounded-lg shadow-md border border-gray-200 w-1/2">
+                        <img src="https://placehold.co/400x200/ffedd5/c2410c?text=Client+Requesting+from+Server" alt="Usage Image: Client/Server" class="rounded-lg shadow-md border border-gray-200 w-1/2">
+                    </div>
+                `
+            }
+        };
+
+        function openBriefing(key) {
+            const modal = document.getElementById('briefing-modal');
+            const data = briefingData[key];
+            if(data) {
+                document.getElementById('briefing-modal-icon').innerHTML = data.icon;
+                document.getElementById('briefing-modal-title').innerText = data.title;
+                document.getElementById('briefing-modal-content').innerHTML = data.html;
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; 
+            }
+        }
+
+        function closeBriefing() {
+            document.getElementById('briefing-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto'; 
+        }
+
+        document.getElementById('briefing-modal').addEventListener('click', function(e) {
+            if(e.target === this) closeBriefing();
+        });
+        
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId + '-section').classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-green-900'));
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if(activeBtn && tabId !== 'cert') activeBtn.classList.add('bg-green-900');
+            
+            document.querySelectorAll('.nav-btn-mobile').forEach(btn => btn.classList.remove('bg-green-900'));
+            const activeMobileBtn = document.getElementById('nav-' + tabId + '-mobile');
+            if(activeMobileBtn && tabId !== 'cert') activeMobileBtn.classList.add('bg-green-900');
+
+            window.scrollTo(0,0);
+
+            if (tabId === 'game' && !gameRunning) {
+                resetGame();
+                drawGame();
+            }
+        }
+
+        function showModal(title, message, type = 'info') {
+            const modal = document.getElementById('custom-modal');
+            const icon = document.getElementById('modal-icon');
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-msg').innerText = message;
+            
+            if(type === 'success') {
+                icon.innerHTML = '<i class="fa-solid fa-circle-check text-green-500"></i>';
+            } else if (type === 'error') {
+                icon.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-500"></i>';
+            } else if (type === 'warning') {
+                icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-yellow-500"></i>';
+            } else {
+                icon.innerHTML = '<i class="fa-solid fa-circle-info text-blue-500"></i>';
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        // --- Lab 1: Categorization Logic ---
+        let draggedCatItem = null;
+
+        document.querySelectorAll('.io-item').forEach(item => {
+            item.addEventListener('dragstart', function() {
+                draggedCatItem = this;
+                setTimeout(() => this.classList.add('opacity-50'), 0);
+            });
+            item.addEventListener('dragend', function() {
+                setTimeout(() => this.classList.remove('opacity-50'), 0);
+                draggedCatItem = null;
+            });
+        });
+
+        document.querySelectorAll('.cat-dropzone').forEach(zone => {
+            zone.addEventListener('dragover', e => e.preventDefault());
+            zone.addEventListener('dragenter', function(e) { e.preventDefault(); this.classList.add('brightness-95'); });
+            zone.addEventListener('dragleave', function() { this.classList.remove('brightness-95'); });
+            zone.addEventListener('drop', function() {
+                this.classList.remove('brightness-95');
+                if(draggedCatItem) {
+                    if(draggedCatItem.dataset.type === this.dataset.target) {
+                        this.appendChild(draggedCatItem);
+                        draggedCatItem.classList.remove('bg-indigo-100', 'cursor-grab');
+                        draggedCatItem.classList.add('bg-green-100', 'text-green-800', 'cursor-default', 'mt-2', 'w-[90%]');
+                        draggedCatItem.setAttribute('draggable', 'false');
+                        
+                        document.getElementById('lab1-feedback').innerText = "Correct Classification!";
+                        document.getElementById('lab1-feedback').className = "text-center font-bold mt-4 h-6 text-green-600";
+                        
+                        if(document.getElementById('cat-items').children.length === 0) {
+                            setTimeout(() => showModal('Excellent!', 'You successfully categorized all the networking components!', 'success'), 500);
+                        }
+                    } else {
+                        document.getElementById('lab1-feedback').innerText = "Incorrect. Think about what function this term serves.";
+                        document.getElementById('lab1-feedback').className = "text-center font-bold mt-4 h-6 text-red-600";
+                    }
+                }
+            });
+        });
+
+        // --- Lab 2: Scenario Matcher Logic ---
+        let selectedScenario = null;
+        let selectedTool = null;
+        let lab2Matches = 0;
+
+        document.querySelectorAll('.scenario-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if(this.classList.contains('matched')) return;
+                document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('ring-4', 'ring-red-300', 'bg-red-50'));
+                this.classList.add('ring-4', 'ring-red-300', 'bg-red-50');
+                selectedScenario = this;
+                checkMatch2();
+            });
+        });
+
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if(this.classList.contains('matched')) return;
+                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('ring-4', 'ring-red-300', 'bg-gray-100'));
+                this.classList.add('ring-4', 'ring-red-300', 'bg-gray-100');
+                selectedTool = this;
+                checkMatch2();
+            });
+        });
+
+        function checkMatch2() {
+            if(selectedScenario && selectedTool) {
+                if(selectedScenario.dataset.match === selectedTool.dataset.match) {
+                    selectedScenario.classList.add('matched', 'bg-green-100', 'text-green-800', 'border-green-500');
+                    selectedScenario.classList.remove('ring-4', 'ring-red-300');
+                    selectedTool.classList.add('matched', 'bg-green-100', 'text-green-800', 'border-green-500');
+                    selectedTool.classList.remove('ring-4', 'ring-red-300');
+                    
+                    document.getElementById('lab2-feedback').innerText = "Correct Definition Match!";
+                    document.getElementById('lab2-feedback').className = "text-center font-bold mt-4 h-6 text-green-600";
+                    lab2Matches++;
+                    
+                    if(lab2Matches === 5) {
+                        setTimeout(() => showModal('Great Job!', 'You properly identified all the diagnostic network concepts.', 'success'), 500);
+                    }
+                } else {
+                    document.getElementById('lab2-feedback').innerText = "Incorrect. Read the definition carefully.";
+                    document.getElementById('lab2-feedback').className = "text-center font-bold mt-4 h-6 text-red-600";
+                    selectedScenario.classList.remove('ring-4', 'ring-red-300', 'bg-red-50');
+                    selectedTool.classList.remove('ring-4', 'ring-red-300', 'bg-gray-100');
+                }
+                selectedScenario = null;
+                selectedTool = null;
+            }
+        }
+
+        // --- Quiz Logic (20 Questions - Supports Checkboxes for Multiple Answers) ---
+        const quizData = [
+            // Original 10 Questions from Document
+            { q: "What is the primary purpose of a protocol on a network?", options: ["To assign IP addresses", "To physically connect devices", "To define rules for communication between devices", "To increase data storage"], answer: 2 },
+            { q: "Which of the following is a permanent physical identifier assigned to a device at the factory?", options: ["IP address", "Port number", "MAC address", "Subnet mask"], answer: 2 },
+            { q: "Which command can you use in Windows to view your IP and MAC addresses?", options: ["traceroute", "ipconfig /all", "netstat -r", "ping -c 4"], answer: 1 },
+            { q: "What two things does HTTPS do to secure your web connection? (Choose two)", options: ["It uses port 80", "It encrypts traffic with SSL/TLS", "It uses port 443", "It blocks access to websites"], answer: [1, 2] }, // Multi-select
+            { q: "Which port is used by modern, secure email sending protocols (SMTP)?", options: ["25", "587", "110", "80"], answer: 1 },
+            { q: "Which of the following processes is responsible for translating private internal IP addresses into a single public IP address for internet access?", options: ["DNS", "MAC Filtering", "NAT (Network Address Translation)", "Subnetting"], answer: 2 },
+            { q: "Which of the following are valid reasons why a ping to another device might fail? (Choose all that apply)", options: ["The target device’s firewall blocks ICMP", "The device is turned off", "The device has a MAC address conflict", "The IP address is incorrect"], answer: [0, 1, 3] }, // Multi-select
+            { q: "A user types 'nslookup cyber.org' in a terminal. What information will they most likely receive?", options: ["The MAC address of the site", "The subnet mask of the local network", "The IP address of the cyber.org website", "A list of secure open ports"], answer: 2 },
+            { q: "Fill in the blank: A _____ connects devices within the same LAN and directs traffic using MAC addresses.", options: ["Router", "Switch", "Access point", "Modem"], answer: 1 },
+            { q: "Which of the following are benefits of using DHCP on a network? (Choose all that apply)", options: ["IP addresses are assigned automatically", "Reduces risk of manual configuration errors", "Encrypts web traffic", "Simplifies network setup"], answer: [0, 1, 3] }, // Multi-select
+            
+            // 10 Additional Rigorous Questions
+            { q: "Which device is primarily responsible for directing traffic between entirely different networks (like your home LAN and the internet WAN)?", options: ["Switch", "Router", "Modem", "Access Point"], answer: 1 },
+            { q: "What is the primary difference between TCP and UDP?", options: ["UDP is used for wired networks; TCP is used for wireless networks.", "TCP requires a static IP; UDP requires a dynamic IP.", "TCP guarantees reliable delivery; UDP prioritizes pure speed without checking delivery.", "TCP is encrypted; UDP is unencrypted."], answer: 2 },
+            { q: "Why do modern web browsers strongly enforce the use of Port 443 over Port 80?", options: ["Port 80 cannot transmit images.", "Port 443 encrypts the data using SSL/TLS, preventing hackers from reading it.", "Port 80 is too slow for modern broadband.", "Port 443 uses MAC addresses instead of IPs."], answer: 1 },
+            { q: "What is the key characteristic of a Peer-to-Peer (P2P) network model?", options: ["A central server controls all resources.", "It is highly secure and easy to back up centrally.", "All devices are equal and share resources directly with one another.", "It requires a fiber optic connection to function."], answer: 2 },
+            { q: "Which technology allows a single physical network to be logically separated into multiple isolated networks via software rules?", options: ["WAN", "VLAN", "NAT", "DHCP"], answer: 1 },
+            { q: "If you need to securely remotely manage a Linux server by typing text commands across the internet, which port/service should you use?", options: ["Port 80 (HTTP)", "Port 21 (FTP)", "Port 22 (SSH)", "Port 53 (DNS)"], answer: 2 },
+            { q: "What is the primary function of a Hardware Firewall on a corporate network?", options: ["To automatically assign IP addresses to new laptops.", "To convert analog signals from the ISP into digital data.", "To inspect and filter incoming and outgoing traffic based on strict security rules.", "To translate domain names into IP addresses."], answer: 2 },
+            { q: "Which of the following best describes an IPv6 address?", options: ["Four numbers separated by dots (e.g., 192.168.1.1).", "Six pairs of hexadecimal digits assigned to a physical NIC.", "A 128-bit address represented by hexadecimal groups to provide nearly infinite unique addresses.", "A port number used for secure file transfer."], answer: 2 },
+            { q: "What is the primary role of a Modem?", options: ["To block malicious hackers.", "To translate digital computer signals into a format that can travel over the ISP's physical cables (and vice versa).", "To assign internal private IP addresses.", "To broadcast Wi-Fi signals into the air."], answer: 1 },
+            { q: "If your computer has the IP address 10.0.0.5 and tries to load a website, what technology allows it to reach the internet since 10.0.0.5 is a private, non-routable address?", options: ["The router performs NAT to substitute the private IP with a public IP.", "The switch changes the private IP into a MAC address.", "DNS translates the private IP into a public URL.", "The firewall encrypts the IP address."], answer: 0 }
+        ];
+
+        const quizContainer = document.getElementById('quiz-container');
+        
+        quizData.forEach((item, index) => {
+            const isMulti = Array.isArray(item.answer);
+            const qDiv = document.createElement('div');
+            qDiv.className = "bg-gray-50 p-6 rounded-lg border border-gray-200 transition-all";
+            qDiv.id = `q-block-${index}`;
+            
+            const qTitle = document.createElement('h3');
+            qTitle.className = "font-bold text-lg text-gray-800 mb-4";
+            qTitle.innerText = `${index + 1}. ${item.q}`;
+            qDiv.appendChild(qTitle);
+            
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = "space-y-3";
+            
+            item.options.forEach((opt, optIndex) => {
+                const label = document.createElement('label');
+                label.className = "flex items-center space-x-3 p-3 rounded bg-white border border-gray-300 hover:bg-green-50 cursor-pointer transition";
+                
+                const input = document.createElement('input');
+                input.type = isMulti ? "checkbox" : "radio";
+                input.name = `q${index}`;
+                input.value = optIndex;
+                input.className = isMulti ? "form-checkbox h-5 w-5 text-green-600 rounded" : "form-radio h-5 w-5 text-green-600";
+                
+                const span = document.createElement('span');
+                span.className = "text-gray-700";
+                span.innerText = opt;
+                
+                label.appendChild(input);
+                label.appendChild(span);
+                optionsDiv.appendChild(label);
+            });
+            
+            qDiv.appendChild(optionsDiv);
+            quizContainer.appendChild(qDiv);
+        });
+
+        function gradeQuiz() {
+            let score = 0;
+            let allAnswered = true;
+
+            for(let i = 0; i < quizData.length; i++) {
+                const item = quizData[i];
+                const isMulti = Array.isArray(item.answer);
+                
+                if (isMulti) {
+                    const selectedEls = document.querySelectorAll(`input[name="q${i}"]:checked`);
+                    if(selectedEls.length === 0) {
+                        allAnswered = false;
+                    } else {
+                        const selectedVals = Array.from(selectedEls).map(el => parseInt(el.value)).sort();
+                        const correctVals = item.answer.slice().sort();
+                        if (JSON.stringify(selectedVals) === JSON.stringify(correctVals)) {
+                            score++;
+                        }
+                    }
+                } else {
+                    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                    if(selected) {
+                        if(parseInt(selected.value) === item.answer) score++;
+                    } else {
+                        allAnswered = false;
+                    }
+                }
+            }
+            
+            if(!allAnswered) {
+                showModal('Incomplete Quiz', 'Please select an answer for all 20 questions before submitting.', 'warning');
+                return;
+            }
+            
+            const percentage = (score / quizData.length) * 100;
+            
+            if(score >= 18) { 
+                const navGame = document.getElementById('nav-game');
+                const navGameMobile = document.getElementById('nav-game-mobile');
+                
+                navGame.classList.remove('text-gray-400', 'cursor-not-allowed');
+                navGame.classList.add('text-white', 'hover:bg-green-600');
+                navGame.disabled = false;
+                navGame.innerHTML = '<i class="fa-solid fa-gamepad mr-1"></i>Game';
+                
+                navGameMobile.classList.remove('text-gray-400', 'cursor-not-allowed');
+                navGameMobile.classList.add('text-white', 'hover:bg-green-600');
+                navGameMobile.disabled = false;
+                navGameMobile.innerHTML = '<i class="fa-solid fa-gamepad"></i> Game';
+
+                document.getElementById('nav-cert').classList.remove('hidden');
+                document.getElementById('nav-cert-mobile').classList.remove('hidden');
+                
+                document.getElementById('proceed-game-btn').classList.remove('hidden');
+                document.getElementById('submit-quiz-btn').classList.add('hidden');
+
+                showModal('Outstanding!', `You scored ${score}/20 (${percentage}%). You have unlocked your Certificate of Mastery AND the Retro Game!`, 'success');
+            } else {
+                // Clear answers
+                quizData.forEach((item, i) => {
+                    document.querySelectorAll(`input[name="q${i}"]:checked`).forEach(el => el.checked = false);
+                });
+                showModal('Keep Trying!', `You scored ${score}/20 (${percentage}%). You need 90% (18/20) to earn the certificate. Your answers have been reset so you can try again.`, 'error');
+                document.getElementById('quiz-section').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // --- Retro Game Logic (Port Defender / Missile Command Clone) ---
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let score = 0;
+        let ports = 4;
+        let gameRunning = false;
+        let animationId;
+        
+        const cities = [
+            { x: 50, y: 380, active: true },
+            { x: 150, y: 380, active: true },
+            { x: 250, y: 380, active: true },
+            { x: 350, y: 380, active: true }
+        ];
+
+        let missiles = []; // Incoming packets
+        let explosions = []; 
+        
+        let frames = 0;
+        let difficulty = 1;
+
+        const overlay = document.getElementById('game-overlay');
+        const startBtn = document.getElementById('start-game-btn');
+        startBtn.addEventListener('click', startGame);
+
+        // Click to shoot firewall
+        canvas.addEventListener('mousedown', function(e) {
+            if(!gameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            // Calculate scale to account for responsive resizing
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = (e.clientX - rect.left) * scaleX;
+            const y = (e.clientY - rect.top) * scaleY;
+            
+            // Limit height so they can't shoot too low and instantly win
+            if (y < 350) {
+                explosions.push({ x: x, y: y, radius: 0, maxRadius: 35, expanding: true });
+            }
+        });
+
+        // Touch support
+        canvas.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            if(!gameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const touch = e.touches[0];
+            const x = (touch.clientX - rect.left) * scaleX;
+            const y = (touch.clientY - rect.top) * scaleY;
+            
+            if (y < 350) {
+                explosions.push({ x: x, y: y, radius: 0, maxRadius: 35, expanding: true });
+            }
+        }, {passive: false});
+
+        function resetGame() {
+            score = 0;
+            ports = 4;
+            frames = 0;
+            difficulty = 1;
+            missiles = [];
+            explosions = [];
+            cities.forEach(c => c.active = true);
+            document.getElementById('game-score').innerText = score;
+            document.getElementById('game-lives').innerText = ports;
+        }
+
+        function startGame() {
+            overlay.classList.add('hidden');
+            if(!gameRunning) {
+                resetGame();
+                gameRunning = true;
+                drawGame();
+            }
+        }
+
+        function spawnMissile() {
+            // Target an active city
+            let activeCities = cities.filter(c => c.active);
+            if(activeCities.length === 0) return; // All dead
+            
+            let target = activeCities[Math.floor(Math.random() * activeCities.length)];
+            let startX = Math.random() * canvas.width;
+            
+            let dx = target.x - startX;
+            let dy = target.y - 0;
+            let distance = Math.sqrt(dx*dx + dy*dy);
+            
+            let speed = (0.5 + Math.random() * 1.5) * difficulty;
+            
+            missiles.push({
+                x: startX,
+                y: 0,
+                targetX: target.x,
+                targetY: target.y,
+                vx: (dx / distance) * speed,
+                vy: (dy / distance) * speed,
+                active: true
+            });
+        }
+
+        function drawCities() {
+            ctx.fillStyle = "#3b82f6"; // Blue ports
+            cities.forEach((c, index) => {
+                if(c.active) {
+                    ctx.fillRect(c.x - 20, c.y, 40, 20);
+                    // Add text
+                    ctx.fillStyle = "#ffffff";
+                    ctx.font = "10px monospace";
+                    ctx.fillText("PORT", c.x - 12, c.y + 12);
+                    ctx.fillStyle = "#3b82f6";
+                } else {
+                    ctx.fillStyle = "#ef4444"; // Destroyed
+                    ctx.fillRect(c.x - 20, c.y + 10, 40, 10);
+                    ctx.fillStyle = "#3b82f6";
+                }
+            });
+        }
+
+        function updateAndDrawExplosions() {
+            for(let i = explosions.length - 1; i >= 0; i--) {
+                let exp = explosions[i];
+                if(exp.expanding) {
+                    exp.radius += 1.5;
+                    if(exp.radius >= exp.maxRadius) exp.expanding = false;
+                } else {
+                    exp.radius -= 1.0;
+                }
+                
+                if(exp.radius <= 0) {
+                    explosions.splice(i, 1);
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(exp.x, exp.y, exp.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = "rgba(16, 185, 129, 0.7)"; // Firewall green blast
+                    ctx.fill();
+                    ctx.closePath();
+                }
+            }
+        }
+
+        function updateAndDrawMissiles() {
+            ctx.fillStyle = "#ef4444"; // Red DDoS packets
+            for(let i = missiles.length - 1; i >= 0; i--) {
+                let m = missiles[i];
+                if(!m.active) {
+                    missiles.splice(i, 1);
+                    continue;
+                }
+                
+                // Draw tail
+                ctx.beginPath();
+                ctx.moveTo(m.x, m.y);
+                ctx.lineTo(m.x - m.vx*5, m.y - m.vy*5);
+                ctx.strokeStyle = "#fca5a5";
+                ctx.stroke();
+                
+                // Draw head
+                ctx.fillRect(m.x - 2, m.y - 2, 4, 4);
+                
+                m.x += m.vx;
+                m.y += m.vy;
+                
+                // Collision with explosions
+                let hitExp = false;
+                for(let j = 0; j < explosions.length; j++) {
+                    let exp = explosions[j];
+                    let dx = m.x - exp.x;
+                    let dy = m.y - exp.y;
+                    if(Math.sqrt(dx*dx + dy*dy) < exp.radius) {
+                        hitExp = true;
+                        break;
+                    }
+                }
+                
+                if(hitExp) {
+                    m.active = false;
+                    score += 10;
+                    document.getElementById('game-score').innerText = score;
+                    // chain reaction
+                    explosions.push({ x: m.x, y: m.y, radius: 0, maxRadius: 20, expanding: true });
+                    continue;
+                }
+                
+                // Collision with city
+                if(m.y >= m.targetY) {
+                    m.active = false;
+                    explosions.push({ x: m.x, y: m.y, radius: 0, maxRadius: 25, expanding: true }); // Damage explosion
+                    // Check which city
+                    cities.forEach(c => {
+                        if(c.active && Math.abs(c.x - m.x) < 25) {
+                            c.active = false;
+                            ports--;
+                            document.getElementById('game-lives').innerText = ports;
+                        }
+                    });
+                }
+            }
+        }
+
+        function drawGame() {
+            if(!gameRunning) return;
+            
+            ctx.fillStyle = "rgba(17, 24, 39, 0.2)"; // Trail effect
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Ground
+            ctx.fillStyle = "#374151";
+            ctx.fillRect(0, 390, canvas.width, 10);
+            
+            frames++;
+            if(frames % Math.floor(60 / difficulty) === 0) {
+                spawnMissile();
+            }
+            if(frames % 600 === 0) {
+                difficulty += 0.2; // Increase speed/spawn rate over time
+            }
+
+            drawCities();
+            updateAndDrawMissiles();
+            updateAndDrawExplosions();
+
+            if(ports <= 0) {
+                gameOver();
+                return;
+            }
+
+            animationId = requestAnimationFrame(drawGame);
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            cancelAnimationFrame(animationId);
+            overlay.classList.remove('hidden');
+            startBtn.innerText = "Network Overrun! Try Again";
+            startBtn.classList.replace('bg-red-600', 'bg-gray-600');
+            startBtn.classList.replace('border-red-800', 'border-gray-800');
+        }
+
+        function updateCertName() {
+            let name = document.getElementById('student-name-input').value.trim();
+            if(name) {
+                if (name.includes(' ')) {
+                    name = name.split(' ')[0];
+                    document.getElementById('student-name-input').value = name;
+                    showModal('Notice', 'Only your first name has been applied to the certificate.', 'info');
+                }
+                document.getElementById('cert-student-name').innerText = name;
+            } else {
+                showModal('Wait!', 'Please enter your first name to update the certificate.', 'warning');
+            }
+        }
+
+        const today = new Date();
+        document.getElementById('cert-date').innerText = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        function downloadCert() {
+            const certEl = document.getElementById('certificate');
+            const name = document.getElementById('cert-student-name').innerText;
+            let filename = 'Certificate.png';
+            if (name && name !== 'Student') {
+                filename = `${name.replace(/\s+/g, '_')}_Certificate.png`;
+            }
+
+            const originalTransform = certEl.style.transform;
+            certEl.style.transform = 'none';
+
+            const btn = document.getElementById('download-btn');
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Generating...';
+            btn.disabled = true;
+
+            html2canvas(certEl, { 
+                scale: 2, 
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                certEl.style.transform = originalTransform;
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+                
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+            }).catch(err => {
+                console.error(err);
+                certEl.style.transform = originalTransform;
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+                showModal('Error', 'Failed to generate image. Try using a desktop browser.', 'error');
+            });
+        }
+
+        window.onload = () => {
+            // Initial clear to black
+            ctx.fillStyle = "#111827";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            drawCities();
+        }
+    </script>
+</body>
+</html>
+```eof

@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cyber Arcade - Retro Networking Games</title>
+    
+    <!-- Load Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { 
+            font-family: monospace; 
+            background-color: #0f172a; 
+            color: #f8fafc; 
+            overflow-x: hidden;
+            touch-action: none; /* Prevent pull-to-refresh on mobile gaming */
+        }
+        
+        .game-view { display: none; }
+        .game-view.active { display: block; }
+        
+        /* Retro Game Canvas */
+        canvas.game-canvas {
+            background-color: #111827;
+            border: 4px solid #334155;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            max-width: 100%;
+            height: auto;
+            image-rendering: pixelated;
+        }
+        
+        #g1-canvas { cursor: crosshair; box-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
+        #g2-canvas { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+        #g3-canvas { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+
+        .game-btn { touch-action: manipulation; user-select: none; }
+        .nav-btn.active { background-color: #3b82f6; color: white; border-color: #60a5fa; }
+        
+        /* CRT Scanline Effect Overlay */
+        .scanlines {
+            position: relative;
+        }
+        .scanlines::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 20;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="bg-gray-900 border-b-4 border-gray-700 shadow-xl z-50 p-4 sticky top-0">
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-3 text-yellow-400">
+                <i class="fa-solid fa-gamepad text-3xl"></i>
+                <h1 class="text-2xl font-black tracking-widest uppercase">Cyber Arcade</h1>
+            </div>
+            <div class="flex flex-wrap justify-center gap-2 w-full md:w-auto">
+                <button onclick="switchGame(1)" id="nav-btn-1" class="nav-btn active flex-1 md:flex-none border-2 border-gray-600 bg-gray-800 text-gray-300 px-4 py-2 rounded font-bold hover:bg-gray-700 transition uppercase text-sm">Port Defender</button>
+                <button onclick="switchGame(2)" id="nav-btn-2" class="nav-btn flex-1 md:flex-none border-2 border-gray-600 bg-gray-800 text-gray-300 px-4 py-2 rounded font-bold hover:bg-gray-700 transition uppercase text-sm">Packet-Man</button>
+                <button onclick="switchGame(3)" id="nav-btn-3" class="nav-btn flex-1 md:flex-none border-2 border-gray-600 bg-gray-800 text-gray-300 px-4 py-2 rounded font-bold hover:bg-gray-700 transition uppercase text-sm">Signal Centipede</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-4">
+        
+        <!-- ================= GAME 1: PORT DEFENDER (2.8.1) ================= -->
+        <div id="game-container-1" class="game-view active w-full max-w-lg">
+            <div class="bg-gray-800 p-4 sm:p-6 rounded-2xl border-4 border-red-900 flex flex-col items-center">
+                <div class="text-center mb-4 w-full">
+                    <h2 class="text-3xl font-extrabold text-red-500 mb-1 tracking-widest">PORT DEFENDER</h2>
+                    <p class="text-gray-400 text-xs">Defend your network ports (bottom) from DDoS packets! Tap/Click the sky to launch firewall bursts.</p>
+                </div>
+                
+                <div class="flex justify-between items-center w-full max-w-[400px] mb-2 px-2 text-white text-lg">
+                    <div>SCORE: <span id="g1-score" class="text-yellow-400 font-bold">0000</span></div>
+                    <div>PORTS: <span id="g1-lives" class="text-blue-400 font-bold">4</span></div>
+                </div>
+
+                <div class="relative flex justify-center w-full scanlines">
+                    <canvas id="g1-canvas" width="400" height="400" class="game-canvas w-full max-w-[400px]"></canvas>
+                    <div id="g1-overlay" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-80 rounded-lg max-w-[400px] mx-auto z-30 backdrop-blur-sm">
+                        <button id="g1-start-btn" class="bg-red-600 hover:bg-red-500 text-white font-bold py-4 px-8 rounded border-4 border-red-800 uppercase transform transition hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(220,38,38,0.7)] text-xl">Insert Coin</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= GAME 2: PACKET-MAN (2.9.1) ================= -->
+        <div id="game-container-2" class="game-view w-full max-w-lg">
+            <div class="bg-gray-800 p-4 sm:p-6 rounded-2xl border-4 border-blue-900 flex flex-col items-center">
+                <div class="text-center mb-4 w-full">
+                    <h2 class="text-3xl font-extrabold text-blue-400 mb-1 tracking-widest">PACKET-MAN</h2>
+                    <p class="text-gray-400 text-xs">Collect Bandwidth Dots. Use 6GHz Power Nodes to clear ghosts. Use Arrow Keys/D-Pad to move.</p>
+                </div>
+                
+                <div class="flex justify-between items-center w-full max-w-[390px] mb-2 px-2 text-white text-lg">
+                    <div>SCORE: <span id="g2-score" class="text-yellow-400 font-bold">0000</span></div>
+                    <div>LIVES: <span id="g2-lives" class="text-red-400 font-bold">3</span></div>
+                </div>
+
+                <div class="relative flex justify-center w-full scanlines">
+                    <canvas id="g2-canvas" width="390" height="390" class="game-canvas w-full max-w-[390px]"></canvas>
+                    <div id="g2-overlay" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-80 rounded-lg max-w-[390px] mx-auto z-30 backdrop-blur-sm">
+                        <button id="g2-start-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded border-4 border-blue-800 uppercase transform transition hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(37,99,235,0.7)] text-xl">Insert Coin</button>
+                    </div>
+                </div>
+
+                <!-- Touch D-Pad -->
+                <div class="grid grid-cols-3 gap-2 w-48 mx-auto mt-6 sm:hidden">
+                    <div></div>
+                    <button class="game-btn bg-gray-700 border-b-4 border-gray-900 text-white rounded p-4 active:bg-gray-500 active:border-b-0 active:translate-y-1" id="g2-btn-up"><i class="fa-solid fa-arrow-up"></i></button>
+                    <div></div>
+                    <button class="game-btn bg-gray-700 border-b-4 border-gray-900 text-white rounded p-4 active:bg-gray-500 active:border-b-0 active:translate-y-1" id="g2-btn-left"><i class="fa-solid fa-arrow-left"></i></button>
+                    <button class="game-btn bg-gray-700 border-b-4 border-gray-900 text-white rounded p-4 active:bg-gray-500 active:border-b-0 active:translate-y-1" id="g2-btn-down"><i class="fa-solid fa-arrow-down"></i></button>
+                    <button class="game-btn bg-gray-700 border-b-4 border-gray-900 text-white rounded p-4 active:bg-gray-500 active:border-b-0 active:translate-y-1" id="g2-btn-right"><i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= GAME 3: SIGNAL CENTIPEDE (6.5.1) ================= -->
+        <div id="game-container-3" class="game-view w-full max-w-lg">
+            <div class="bg-gray-800 p-4 sm:p-6 rounded-2xl border-4 border-emerald-900 flex flex-col items-center">
+                <div class="text-center mb-4 w-full">
+                    <h2 class="text-3xl font-extrabold text-emerald-400 mb-1 tracking-widest">SIGNAL CENTIPEDE</h2>
+                    <p class="text-gray-400 text-xs">Defend the network gateway! Use Arrows/Buttons to move and fire security patches at the malware segments.</p>
+                </div>
+                
+                <div class="flex justify-between items-center w-full max-w-[400px] mb-2 px-2 text-white text-lg">
+                    <div>SCORE: <span id="g3-score" class="text-yellow-400 font-bold">0000</span></div>
+                    <div>LIVES: <span id="g3-lives" class="text-red-400 font-bold">3</span></div>
+                </div>
+
+                <div class="relative flex justify-center w-full scanlines">
+                    <canvas id="g3-canvas" width="400" height="400" class="game-canvas w-full max-w-[400px]"></canvas>
+                    <div id="g3-overlay" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-80 rounded-lg max-w-[400px] mx-auto z-30 backdrop-blur-sm">
+                        <button id="g3-start-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 px-8 rounded border-4 border-emerald-800 uppercase transform transition hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(16,185,129,0.7)] text-xl">Initialize Defenses</button>
+                    </div>
+                </div>
+
+                <!-- Touch Controls -->
+                <div class="flex justify-center gap-4 w-full max-w-[400px] mt-6 sm:hidden">
+                    <button class="game-btn bg-gray-700 border-b-4 border-gray-900 text-white rounded font-bold px-6 py-4 active:bg-gray-500 active:border-b-0 active:translate-y-1 text-lg flex-1" id="g3-btn-left"><i class="fa-solid fa-arrow-left"></i></button>
+                    <button class="game-btn bg-emerald-700 border-b-4 border-emerald-900 text-white rounded font-bold px-6 py-4 active:bg-emerald-500 active:border-b-0 active:translate-y-1 text-lg flex-1" id="g3-btn-fire">FIRE</button>
+                    <button class="game-btn bg-gray-700 border-b-4 border-gray-900 text-white rounded font-bold px-6 py-4 active:bg-gray-500 active:border-b-0 active:translate-y-1 text-lg flex-1" id="g3-btn-right"><i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- GLOBAL STATE ---
+        let activeGame = 1;
+
+        function switchGame(gameId) {
+            activeGame = gameId;
+            
+            // UI Update
+            [1, 2, 3].forEach(id => {
+                const btn = document.getElementById('nav-btn-' + id);
+                const container = document.getElementById('game-container-' + id);
+                
+                if (id === gameId) {
+                    btn.classList.add('active');
+                    btn.classList.replace('bg-gray-800', 'bg-blue-600');
+                    container.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                    btn.classList.replace('bg-blue-600', 'bg-gray-800');
+                    container.classList.remove('active');
+                }
+            });
+
+            // Stop all game loops to save resources
+            if (g1_anim) cancelAnimationFrame(g1_anim); g1_running = false;
+            if (g2_anim) cancelAnimationFrame(g2_anim); g2_running = false;
+            if (g3_anim) cancelAnimationFrame(g3_anim); g3_running = false;
+
+            // Reset UI Overlays
+            document.getElementById('g1-overlay').classList.remove('hidden');
+            document.getElementById('g2-overlay').classList.remove('hidden');
+            document.getElementById('g3-overlay').classList.remove('hidden');
+            
+            // Draw initial static screens
+            if(gameId === 1) g1_reset();
+            if(gameId === 2) g2_reset();
+            if(gameId === 3) {
+                g3_ctx.clearRect(0, 0, g3_cvs.width, g3_cvs.height);
+                g3_reset();
+            }
+        }
+
+        // Global Keydown Handler (Routes to active game)
+        document.addEventListener('keydown', e => {
+            // Prevent scrolling when pressing arrow keys or space in a game
+            if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) {
+                
+                if (activeGame === 2 && g2_running) {
+                    e.preventDefault();
+                    if(e.key === "ArrowUp") { g2_p.ndx = 0; g2_p.ndy = -1; }
+                    if(e.key === "ArrowDown") { g2_p.ndx = 0; g2_p.ndy = 1; }
+                    if(e.key === "ArrowLeft") { g2_p.ndx = -1; g2_p.ndy = 0; }
+                    if(e.key === "ArrowRight") { g2_p.ndx = 1; g2_p.ndy = 0; }
+                }
+                
+                if (activeGame === 3 && g3_running) {
+                    e.preventDefault();
+                    if(e.key === "ArrowLeft" || e.key === "a") g3_keys.left = true;
+                    if(e.key === "ArrowRight" || e.key === "d") g3_keys.right = true;
+                    if(e.key === " " || e.key === "ArrowUp") g3_fireBeam();
+                }
+            }
+        }, {passive: false});
+
+        document.addEventListener('keyup', e => {
+            if (activeGame === 3 && g3_running) {
+                if(e.key === "ArrowLeft" || e.key === "a") g3_keys.left = false;
+                if(e.key === "ArrowRight" || e.key === "d") g3_keys.right = false;
+            }
+        });
+
+        // --- PADDING FUNCTION FOR SCORES ---
+        function padScore(num) {
+            return num.toString().padStart(4, '0');
+        }
+
+        // ================= GAME 1: PORT DEFENDER =================
+        const g1_cvs = document.getElementById('g1-canvas');
+        const g1_ctx = g1_cvs.getContext('2d');
+        
+        let g1_running = false, g1_anim, g1_score = 0, g1_lives = 4, g1_frames = 0, g1_diff = 1;
+        let g1_missiles = [], g1_explosions = [];
+        const g1_cities = [
+            { x: 50, y: 380, active: true },
+            { x: 150, y: 380, active: true },
+            { x: 250, y: 380, active: true },
+            { x: 350, y: 380, active: true }
+        ];
+
+        document.getElementById('g1-start-btn').addEventListener('click', () => {
+            document.getElementById('g1-overlay').classList.add('hidden');
+            if(!g1_running) { g1_reset(); g1_running = true; g1_loop(); }
+        });
+
+        function g1_handleTap(e) {
+            if(!g1_running || activeGame !== 1) return;
+            e.preventDefault();
+            const rect = g1_cvs.getBoundingClientRect();
+            const scaleX = g1_cvs.width / rect.width; 
+            const scaleY = g1_cvs.height / rect.height;
+            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const x = (clientX - rect.left) * scaleX; 
+            const y = (clientY - rect.top) * scaleY;
+            
+            if (y < 350) g1_explosions.push({ x: x, y: y, radius: 0, maxRadius: 35, expanding: true });
+        }
+        g1_cvs.addEventListener('mousedown', g1_handleTap);
+        g1_cvs.addEventListener('touchstart', g1_handleTap, {passive: false});
+
+        function g1_reset() {
+            g1_score = 0; g1_lives = 4; g1_frames = 0; g1_diff = 1; 
+            g1_missiles = []; g1_explosions = [];
+            g1_cities.forEach(c => c.active = true);
+            document.getElementById('g1-score').innerText = padScore(g1_score);
+            document.getElementById('g1-lives').innerText = g1_lives;
+            
+            // Draw static screen
+            g1_ctx.fillStyle = "#111827"; 
+            g1_ctx.fillRect(0, 0, 400, 400);
+            g1_ctx.fillStyle = "#374151"; g1_ctx.fillRect(0, 390, 400, 10);
+            g1_cities.forEach(c=>{
+                g1_ctx.fillStyle="#3b82f6"; g1_ctx.fillRect(c.x-20,c.y,40,20);
+                g1_ctx.fillStyle="#fff"; g1_ctx.font="10px monospace"; g1_ctx.fillText("PORT",c.x-12,c.y+12);
+            });
+        }
+
+        function g1_loop() {
+            if(!g1_running) return;
+            
+            // Trail effect
+            g1_ctx.fillStyle = "rgba(17, 24, 39, 0.25)"; 
+            g1_ctx.fillRect(0, 0, 400, 400);
+            
+            // Ground
+            g1_ctx.fillStyle = "#374151"; 
+            g1_ctx.fillRect(0, 390, 400, 10);
+            
+            g1_frames++;
+            
+            // Spawn logic
+            if(g1_frames % Math.floor(60 / g1_diff) === 0) {
+                let activeC = g1_cities.filter(c => c.active);
+                if(activeC.length > 0) {
+                    let target = activeC[Math.floor(Math.random() * activeC.length)];
+                    let sx = Math.random() * 400; 
+                    let dx = target.x - sx; let dy = target.y - 0;
+                    let dist = Math.sqrt(dx*dx + dy*dy); 
+                    let speed = (0.5 + Math.random() * 1.5) * g1_diff;
+                    g1_missiles.push({x:sx, y:0, tx:target.x, ty:target.y, vx:(dx/dist)*speed, vy:(dy/dist)*speed, active:true});
+                }
+            }
+            if(g1_frames % 600 === 0) g1_diff += 0.25; // Increase difficulty over time
+
+            // Draw Ports
+            g1_cities.forEach(c => {
+                if(c.active) { 
+                    g1_ctx.fillStyle="#3b82f6"; g1_ctx.fillRect(c.x-20,c.y,40,20); 
+                    g1_ctx.fillStyle="#fff"; g1_ctx.font="10px monospace"; g1_ctx.fillText("PORT",c.x-12,c.y+12); 
+                } else { 
+                    g1_ctx.fillStyle="#ef4444"; g1_ctx.fillRect(c.x-20,c.y+10,40,10); 
+                }
+            });
+
+            // Missiles update & draw
+            g1_ctx.fillStyle = "#ef4444";
+            for(let i = g1_missiles.length - 1; i >= 0; i--) {
+                let m = g1_missiles[i]; 
+                if(!m.active) { g1_missiles.splice(i, 1); continue; }
+                
+                // Trail
+                g1_ctx.beginPath(); g1_ctx.moveTo(m.x, m.y); g1_ctx.lineTo(m.x - m.vx*5, m.y - m.vy*5); 
+                g1_ctx.strokeStyle="#fca5a5"; g1_ctx.lineWidth=2; g1_ctx.stroke();
+                
+                // Head
+                g1_ctx.fillRect(m.x-2, m.y-2, 4, 4);
+                
+                m.x += m.vx; m.y += m.vy;
+                
+                // Hit explosion?
+                let hitExp = g1_explosions.some(exp => Math.hypot(m.x - exp.x, m.y - exp.y) < exp.radius);
+                if(hitExp) { 
+                    m.active = false; 
+                    g1_score += 10; 
+                    document.getElementById('g1-score').innerText = padScore(g1_score); 
+                    // Chain reaction explosion
+                    g1_explosions.push({x:m.x, y:m.y, radius:0, maxRadius:20, expanding:true}); 
+                    continue;
+                }
+                
+                // Hit ground/port?
+                if(m.y >= m.ty) {
+                    m.active = false; 
+                    g1_explosions.push({x:m.x, y:m.y, radius:0, maxRadius:30, expanding:true});
+                    g1_cities.forEach(c => { 
+                        if(c.active && Math.abs(c.x - m.x) < 25) {
+                            c.active = false; 
+                            g1_lives--; 
+                            document.getElementById('g1-lives').innerText = g1_lives;
+                        } 
+                    });
+                }
+            }
+
+            // Explosions update & draw
+            for(let i = g1_explosions.length - 1; i >= 0; i--) {
+                let exp = g1_explosions[i];
+                if(exp.expanding) { 
+                    exp.radius += 2.0; 
+                    if(exp.radius >= exp.maxRadius) exp.expanding = false; 
+                } else { 
+                    exp.radius -= 1.0; 
+                }
+                
+                if(exp.radius <= 0) {
+                    g1_explosions.splice(i, 1);
+                } else { 
+                    g1_ctx.beginPath(); g1_ctx.arc(exp.x, exp.y, exp.radius, 0, Math.PI*2); 
+                    g1_ctx.fillStyle="rgba(239, 68, 68, 0.7)"; // Reddish-orange explosion
+                    g1_ctx.fill(); 
+                    
+                    g1_ctx.beginPath(); g1_ctx.arc(exp.x, exp.y, exp.radius*0.6, 0, Math.PI*2); 
+                    g1_ctx.fillStyle="rgba(253, 224, 71, 0.8)"; // Yellow center
+                    g1_ctx.fill();
+                }
+            }
+
+            if(g1_lives <= 0) {
+                g1_running = false; 
+                document.getElementById('g1-overlay').classList.remove('hidden');
+                document.getElementById('g1-start-btn').innerText = "SYSTEM FAILURE - RETRY";
+                document.getElementById('g1-start-btn').classList.replace('bg-red-600', 'bg-gray-600');
+                document.getElementById('g1-start-btn').classList.replace('border-red-800', 'border-gray-800');
+                return;
+            }
+            
+            g1_anim = requestAnimationFrame(g1_loop);
+        }
+
+        // ================= GAME 2: PACKET-MAN =================
+        const g2_cvs = document.getElementById('g2-canvas');
+        const g2_ctx = g2_cvs.getContext('2d');
+        const g2_ts = 26; // Tile size
+        
+        let g2_running = false, g2_anim, g2_score = 0, g2_lives = 3;
+        let g2_powerMode = false, g2_powerTimer = 0;
+        let g2_map = [], g2_p, g2_ghosts = [];
+        
+        // 0=Dot, 1=Wall, 2=Power Pill, 3=Empty
+        const g2_initialMap = [
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,2,0,0,0,0,0,1,0,0,0,0,0,2,1],
+            [1,0,1,1,0,1,0,1,0,1,0,1,1,0,1],
+            [1,0,0,0,0,1,0,0,0,1,0,0,0,0,1],
+            [1,0,1,1,0,1,1,1,1,1,0,1,1,0,1],
+            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+            [1,1,1,0,1,1,3,3,3,1,1,0,1,1,1],
+            [3,3,3,0,1,3,3,3,3,3,1,0,3,3,3],
+            [1,1,1,0,1,1,1,1,1,1,1,0,1,1,1],
+            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+            [1,0,1,1,0,1,1,1,1,1,0,1,1,0,1],
+            [1,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+            [1,1,0,1,0,1,0,1,0,1,0,1,0,1,1],
+            [1,2,0,0,0,1,0,0,0,1,0,0,0,2,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        ];
+
+        document.getElementById('g2-start-btn').addEventListener('click', () => {
+            document.getElementById('g2-overlay').classList.add('hidden');
+            if(!g2_running) { g2_reset(); g2_running = true; g2_loop(); }
+        });
+
+        // Touch Setup for D-Pad
+        const g2_dirs = { 'g2-btn-up':[0,-1], 'g2-btn-down':[0,1], 'g2-btn-left':[-1,0], 'g2-btn-right':[1,0] };
+        for(let id in g2_dirs) {
+            let btn = document.getElementById(id);
+            let move = (e) => { 
+                e.preventDefault(); 
+                if(activeGame === 2 && g2_running) { g2_p.ndx = g2_dirs[id][0]; g2_p.ndy = g2_dirs[id][1]; }
+            };
+            btn.addEventListener('touchstart', move, {passive: false});
+            btn.addEventListener('mousedown', move);
+        }
+
+        function g2_initMap() { g2_map = g2_initialMap.map(row => [...row]); }
+        function g2_initEnts() {
+            g2_p = { c:7, r:11, x:7*g2_ts, y:11*g2_ts, dx:0, dy:0, ndx:0, ndy:0, s:2 };
+            g2_ghosts = [
+                {c:6, r:7, x:6*g2_ts, y:7*g2_ts, dx:1, dy:0, s:1.5, col:'#ef4444'},
+                {c:7, r:7, x:7*g2_ts, y:7*g2_ts, dx:-1, dy:0, s:1.5, col:'#f472b6'},
+                {c:8, r:7, x:8*g2_ts, y:7*g2_ts, dx:0, dy:-1, s:1.5, col:'#06b6d4'},
+                {c:7, r:6, x:7*g2_ts, y:6*g2_ts, dx:1, dy:0, s:1.5, col:'#f97316'}
+            ];
+            g2_powerMode = false;
+        }
+
+        function g2_reset() {
+            g2_score = 0; g2_lives = 3; 
+            document.getElementById('g2-score').innerText = padScore(g2_score); 
+            document.getElementById('g2-lives').innerText = g2_lives; 
+            g2_initMap(); 
+            g2_initEnts();
+            
+            // Draw static background
+            g2_ctx.clearRect(0,0,390,390);
+            for(let r=0;r<15;r++){
+                for(let c=0;c<15;c++){
+                    if(g2_map[r][c]===1) {
+                        g2_ctx.fillStyle='#1e3a8a'; g2_ctx.fillRect(c*g2_ts, r*g2_ts, g2_ts, g2_ts);
+                        g2_ctx.strokeStyle='#3b82f6'; g2_ctx.strokeRect(c*g2_ts, r*g2_ts, g2_ts, g2_ts);
+                    }
+                }
+            }
+        }
+
+        function g2_isWall(c, r) { 
+            if(c<0 || c>=15 || r<0 || r>=15) return false; // allows tunnels
+            return g2_map[r][c] === 1; 
+        }
+
+        function g2_updateEnt(e) {
+            if(e.x % g2_ts === 0 && e.y % g2_ts === 0) {
+                e.c = e.x / g2_ts; e.r = e.y / g2_ts;
+                
+                // Tunnel wrapping
+                if(e.c <= -1) { e.x = 14*g2_ts; e.c = 14; } 
+                if(e.c >= 15) { e.x = 0; e.c = 0; }
+                
+                // Apply player intent if possible
+                if(e === g2_p && (g2_p.ndx !== 0 || g2_p.ndy !== 0)) {
+                    if(!g2_isWall(e.c + g2_p.ndx, e.r + g2_p.ndy)) {
+                        e.dx = g2_p.ndx; e.dy = g2_p.ndy;
+                    }
+                }
+                
+                // Stop at walls
+                if(g2_isWall(e.c + e.dx, e.r + e.dy)) { e.dx = 0; e.dy = 0; }
+                
+                // Ghost AI (Random intersection)
+                if(e !== g2_p) {
+                    let possible = [];
+                    [[0,-1],[0,1],[-1,0],[1,0]].forEach(d => { 
+                        // Prevent instant 180 flip unless stuck
+                        if(!(d[0]===-e.dx && d[1]===-e.dy && (e.dx!==0||e.dy!==0))) {
+                            if(!g2_isWall(e.c+d[0], e.r+d[1])) possible.push(d); 
+                        }
+                    });
+                    if(possible.length > 0) {
+                        let pick = possible[Math.floor(Math.random() * possible.length)];
+                        e.dx = pick[0]; e.dy = pick[1];
+                    } else {
+                        e.dx *= -1; e.dy *= -1; // Dead end, reverse
+                    }
+                }
+            }
+            e.x += e.dx * e.s; e.y += e.dy * e.s;
+        }
+
+        function g2_loop() {
+            if(!g2_running) return;
+            g2_ctx.clearRect(0,0,390,390); 
+            
+            let dotsLeft = 0;
+
+            // Draw Map
+            for(let r=0; r<15; r++){
+                for(let c=0; c<15; c++){
+                    let t = g2_map[r][c], tx = c*g2_ts, ty = r*g2_ts;
+                    if(t === 1) {
+                        g2_ctx.fillStyle='#1e3a8a'; g2_ctx.fillRect(tx, ty, g2_ts, g2_ts);
+                        g2_ctx.strokeStyle='#3b82f6'; g2_ctx.strokeRect(tx, ty, g2_ts, g2_ts);
+                    } else if(t === 0) {
+                        dotsLeft++;
+                        g2_ctx.fillStyle='#fef08a'; g2_ctx.beginPath(); g2_ctx.arc(tx+g2_ts/2, ty+g2_ts/2, 3, 0, Math.PI*2); g2_ctx.fill();
+                    } else if(t === 2) {
+                        dotsLeft++;
+                        g2_ctx.fillStyle='#4ade80';
+                        if(Math.floor(Date.now()/200)%2 === 0) {
+                            g2_ctx.beginPath(); g2_ctx.arc(tx+g2_ts/2, ty+g2_ts/2, 8, 0, Math.PI*2); g2_ctx.fill();
+                        }
+                    }
+                }
+            }
+
+            // Next Level?
+            if(dotsLeft === 0) { g2_initMap(); g2_initEnts(); }
+
+            // Player Logic
+            g2_updateEnt(g2_p);
+            let pc = Math.floor((g2_p.x + g2_ts/2)/g2_ts), pr = Math.floor((g2_p.y + g2_ts/2)/g2_ts);
+            if(pc>=0 && pc<15 && pr>=0 && pr<15) {
+                if(g2_map[pr][pc] === 0) {
+                    g2_map[pr][pc] = 3; g2_score += 10; 
+                    document.getElementById('g2-score').innerText = padScore(g2_score);
+                } else if(g2_map[pr][pc] === 2) {
+                    g2_map[pr][pc] = 3; g2_score += 50; 
+                    document.getElementById('g2-score').innerText = padScore(g2_score);
+                    g2_powerMode = true; g2_powerTimer = 400; // Power pill duration
+                }
+            }
+
+            // Draw Player
+            g2_ctx.fillStyle='#facc15'; g2_ctx.beginPath();
+            let mouth = (Math.floor(Date.now()/150)%2===0) ? 0.2 : 0, ang=0;
+            if(g2_p.dx===1) ang=0; else if(g2_p.dx===-1) ang=Math.PI; else if(g2_p.dy===1) ang=Math.PI/2; else if(g2_p.dy===-1) ang=-Math.PI/2;
+            g2_ctx.arc(g2_p.x+g2_ts/2, g2_p.y+g2_ts/2, g2_ts/2*0.8, ang+mouth*Math.PI, ang+(2-mouth)*Math.PI);
+            g2_ctx.lineTo(g2_p.x+g2_ts/2, g2_p.y+g2_ts/2); g2_ctx.fill();
+
+            // Power Mode handling
+            if(g2_powerMode) {
+                g2_powerTimer--;
+                if(g2_powerTimer <= 0) g2_powerMode = false;
+            }
+
+            // Ghosts Logic
+            for(let i=0; i<g2_ghosts.length; i++) {
+                let g = g2_ghosts[i];
+                g2_updateEnt(g);
+                
+                // Draw Ghost
+                let blinkWhite = g2_powerTimer < 100 && Math.floor(g2_powerTimer/10)%2===0;
+                g2_ctx.fillStyle = g2_powerMode ? (blinkWhite ? '#ffffff' : '#2dd4bf') : g.col;
+                g2_ctx.beginPath(); 
+                g2_ctx.arc(g.x+g2_ts/2, g.y+g2_ts/2, g2_ts/2*0.8, Math.PI, 0); 
+                g2_ctx.lineTo(g.x+g2_ts*0.9, g.y+g2_ts*0.9); 
+                g2_ctx.lineTo(g.x+g2_ts*0.5, g.y+g2_ts*0.7); 
+                g2_ctx.lineTo(g.x+g2_ts*0.1, g.y+g2_ts*0.9); 
+                g2_ctx.fill();
+
+                // Collision Detection
+                if(Math.abs(g2_p.x - g.x) + Math.abs(g2_p.y - g.y) < g2_ts*0.7) {
+                    if(g2_powerMode) {
+                        // Eat ghost
+                        g2_score += 100; document.getElementById('g2-score').innerText = padScore(g2_score);
+                        g.x = 7*g2_ts; g.y = 7*g2_ts; // Send to center box
+                    } else {
+                        // Player dies
+                        g2_lives--; document.getElementById('g2-lives').innerText = g2_lives;
+                        if(g2_lives <= 0) {
+                            g2_running = false; 
+                            document.getElementById('g2-overlay').classList.remove('hidden'); 
+                            document.getElementById('g2-start-btn').innerText = "NETWORK CRASH";
+                            document.getElementById('g2-start-btn').classList.replace('bg-blue-600', 'bg-gray-600');
+                            document.getElementById('g2-start-btn').classList.replace('border-blue-800', 'border-gray-800');
+                        } else {
+                            g2_initEnts(); // reset positions
+                        }
+                    }
+                }
+            }
+            if(g2_running) g2_anim = requestAnimationFrame(g2_loop);
+        }
+
+        // ================= GAME 3: SIGNAL CENTIPEDE =================
+        const g3_cvs = document.getElementById('g3-canvas');
+        const g3_ctx = g3_cvs.getContext('2d');
+        
+        let g3_running = false, g3_anim, g3_score = 0, g3_lives = 3;
+        
+        // Player (Gateway)
+        const g3_player = { x: g3_cvs.width / 2 - 15, y: g3_cvs.height - 30, width: 30, height: 16, speed: 5 };
+        let g3_keys = { left: false, right: false };
+        
+        let g3_centipedeSegments = [];
+        let g3_beams = [];
+        let g3_obstacles = []; // Network nodes/interference blocks
+
+        document.getElementById('g3-start-btn').addEventListener('click', () => {
+            document.getElementById('g3-overlay').classList.add('hidden');
+            if(!g3_running) { g3_reset(); g3_running = true; g3_loop(); }
+        });
+
+        // Mobile Controls
+        const btnLeft3 = document.getElementById('g3-btn-left');
+        const btnRight3 = document.getElementById('g3-btn-right');
+        const btnFire3 = document.getElementById('g3-btn-fire');
+
+        btnLeft3.addEventListener("touchstart", (e) => { e.preventDefault(); if(activeGame === 3) g3_keys.left = true; });
+        btnLeft3.addEventListener("touchend", (e) => { e.preventDefault(); if(activeGame === 3) g3_keys.left = false; });
+        btnLeft3.addEventListener("mousedown", () => { if(activeGame === 3) g3_keys.left = true; });
+        btnLeft3.addEventListener("mouseup", () => { if(activeGame === 3) g3_keys.left = false; });
+
+        btnRight3.addEventListener("touchstart", (e) => { e.preventDefault(); if(activeGame === 3) g3_keys.right = true; });
+        btnRight3.addEventListener("touchend", (e) => { e.preventDefault(); if(activeGame === 3) g3_keys.right = false; });
+        btnRight3.addEventListener("mousedown", () => { if(activeGame === 3) g3_keys.right = true; });
+        btnRight3.addEventListener("mouseup", () => { if(activeGame === 3) g3_keys.right = false; });
+
+        btnFire3.addEventListener("touchstart", (e) => { e.preventDefault(); g3_fireBeam(); });
+        btnFire3.addEventListener("mousedown", () => g3_fireBeam());
+
+        function g3_fireBeam() {
+            if(!g3_running || activeGame !== 3) return;
+            // Limit active beams
+            if(g3_beams.length < 3) {
+                g3_beams.push({
+                    x: g3_player.x + g3_player.width / 2 - 2,
+                    y: g3_player.y,
+                    width: 4,
+                    height: 10,
+                    speed: 7,
+                    active: true
+                });
+            }
+        }
+
+        function g3_spawnCentipede() {
+            g3_centipedeSegments = [];
+            let startX = 40;
+            let startY = 30;
+            let length = 8 + Math.floor(g3_score / 50); // Gets longer as score increases
+            if(length > 14) length = 14;
+
+            for(let i = 0; i < length; i++) {
+                g3_centipedeSegments.push({
+                    x: startX + (i * 16), // Safely spaced to the right inside bounds
+                    y: startY,
+                    radius: 8,
+                    speed: 2,
+                    direction: 1, // 1 = right, -1 = left
+                    isHead: i === 0
+                });
+            }
+        }
+
+        function g3_reset() {
+            g3_score = 0;
+            g3_lives = 3;
+            g3_beams = [];
+            g3_player.x = g3_cvs.width / 2 - 15;
+            
+            // Create static obstacles (Network interference nodes)
+            g3_obstacles = [];
+            for(let i = 0; i < 12; i++) {
+                g3_obstacles.push({
+                    x: Math.floor(Math.random() * (g3_cvs.width - 40)) + 20,
+                    y: Math.floor(Math.random() * (g3_cvs.height - 160)) + 60,
+                    radius: 8,
+                    health: 3 // takes 3 hits to clear an interference node
+                });
+            }
+
+            document.getElementById('g3-score').innerText = padScore(g3_score);
+            document.getElementById('g3-lives').innerText = g3_lives;
+            g3_spawnCentipede();
+            
+            g3_ctx.clearRect(0,0,400,400);
+        }
+
+        function g3_update() {
+            // Player movement
+            if(g3_keys.left && g3_player.x > 0) g3_player.x -= g3_player.speed;
+            if(g3_keys.right && g3_player.x < g3_cvs.width - g3_player.width) g3_player.x += g3_player.speed;
+
+            // Update Beams
+            for(let b of g3_beams) {
+                if(b.active) {
+                    b.y -= b.speed;
+                    if(b.y < 0) b.active = false;
+
+                    // Check collision with obstacles (nodes)
+                    for(let o of g3_obstacles) {
+                        if(o.health > 0) {
+                            let dist = Math.hypot(b.x + b.width/2 - o.x, b.y - o.y);
+                            if(dist < b.width/2 + o.radius) {
+                                b.active = false;
+                                o.health--;
+                            }
+                        }
+                    }
+
+                    // Check collision with centipede segments
+                    for(let s of g3_centipedeSegments) {
+                        let dist = Math.hypot(b.x + b.width/2 - s.x, b.y - s.y);
+                        if(dist < b.width/2 + s.radius) {
+                            b.active = false;
+                            g3_score += 10;
+                            document.getElementById('g3-score').innerText = padScore(g3_score);
+                            
+                            // Turn segment into static interference node when hit
+                            g3_obstacles.push({ x: s.x, y: s.y, radius: 8, health: 1 });
+                            
+                            // Remove hit segment
+                            const index = g3_centipedeSegments.indexOf(s);
+                            if(index > -1) {
+                                g3_centipedeSegments.splice(index, 1);
+                                // If head was destroyed, make next segment a head
+                                if(s.isHead && g3_centipedeSegments.length > 0) {
+                                    g3_centipedeSegments[0].isHead = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            g3_beams = g3_beams.filter(b => b.active);
+            g3_obstacles = g3_obstacles.filter(o => o.health > 0);
+
+            // Update Centipede movement
+            if(g3_centipedeSegments.length === 0) {
+                // Respawn centipede if cleared
+                g3_spawnCentipede();
+            }
+
+            for(let s of g3_centipedeSegments) {
+                s.x += s.speed * s.direction;
+
+                let hitObstacle = false;
+                for(let o of g3_obstacles) {
+                    let d = Math.hypot(s.x - o.x, s.y - o.y);
+                    if(d < s.radius + o.radius) {
+                        hitObstacle = true;
+                        break;
+                    }
+                }
+
+                // Smooth wall/obstacle collision with explicit directional checks
+                if(s.x - s.radius <= 5 && s.direction === -1) {
+                    s.direction = 1;
+                    s.y += 12;
+                } else if(s.x + s.radius >= g3_cvs.width - 5 && s.direction === 1) {
+                    s.direction = -1;
+                    s.y += 12;
+                } else if(hitObstacle) {
+                    s.direction *= -1;
+                    s.y += 12;
+                }
+
+                // Keep segments within bounds vertically
+                if(s.y > g3_cvs.height - 40) {
+                    s.y = 40; // loop to top or could cause player damage
+                }
+
+                // Check collision with player gateway
+                let playerDist = Math.hypot(s.x - (g3_player.x + g3_player.width/2), s.y - (g3_player.y + g3_player.height/2));
+                if(playerDist < s.radius + g3_player.width/3) {
+                    g3_die();
+                }
+            }
+        }
+
+        function g3_die() {
+            g3_lives--;
+            document.getElementById('g3-lives').innerText = g3_lives;
+            g3_player.x = g3_cvs.width / 2 - 15;
+            g3_spawnCentipede();
+
+            if(g3_lives <= 0) {
+                g3_running = false;
+                cancelAnimationFrame(g3_anim);
+                document.getElementById('g3-overlay').classList.remove('hidden');
+                document.getElementById('g3-start-btn').innerText = "NETWORK BREACH";
+                document.getElementById('g3-start-btn').classList.replace('bg-emerald-600', 'bg-red-600');
+                document.getElementById('g3-start-btn').classList.replace('border-emerald-800', 'border-red-800');
+            }
+        }
+
+        function g3_loop() {
+            if(!g3_running) return;
+            
+            g3_ctx.clearRect(0, 0, 400, 400);
+
+            g3_update();
+
+            // Draw Obstacles (Interference Nodes)
+            for(let o of g3_obstacles) {
+                g3_ctx.fillStyle = o.health > 1 ? "#3b82f6" : "#60a5fa";
+                g3_ctx.beginPath();
+                g3_ctx.arc(o.x, o.y, o.radius, 0, Math.PI * 2);
+                g3_ctx.fill();
+                g3_ctx.strokeStyle = "#1d4ed8";
+                g3_ctx.lineWidth = 2;
+                g3_ctx.stroke();
+            }
+
+            // Draw Beams (Security Patches)
+            g3_ctx.fillStyle = "#10b981";
+            for(let b of g3_beams) {
+                g3_ctx.fillRect(b.x, b.y, b.width, b.height);
+            }
+
+            // Draw Player Gateway
+            g3_ctx.fillStyle = "#3b82f6";
+            g3_ctx.fillRect(g3_player.x, g3_player.y, g3_player.width, g3_player.height);
+            g3_ctx.fillStyle = "#93c5fd";
+            g3_ctx.fillRect(g3_player.x + 10, g3_player.y - 4, 10, 4); // Gateway antenna
+
+            // Draw Centipede (Malware Worm)
+            for(let s of g3_centipedeSegments) {
+                g3_ctx.fillStyle = s.isHead ? "#ef4444" : "#f87171";
+                g3_ctx.beginPath();
+                g3_ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                g3_ctx.fill();
+                g3_ctx.strokeStyle = "#b91c1c";
+                g3_ctx.lineWidth = 2;
+                g3_ctx.stroke();
+            }
+
+            g3_anim = requestAnimationFrame(g3_loop);
+        }
+
+        // Initialize first game on load
+        window.addEventListener('DOMContentLoaded', () => {
+            switchGame(1);
+        });
+
+    </script>
+</body>
+</html>
+```eof

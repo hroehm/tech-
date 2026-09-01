@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 05 Section 3.2.1 Mastery - Purposes of Operating Systems</title>
+    
+    <!-- Load Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load HTML2Canvas for Certificate Download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Load Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Qwitcher+Grypen:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0fdf4; 
+            color: #1f2937;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* Interactive Elements CSS */
+        .io-dropzone { min-height: 70px; min-width: 130px; border: 2px dashed #9ca3af; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f9fafb; transition: all 0.2s;}
+        .io-dropzone.drag-over { background: #e5e7eb; border-color: #16a34a; box-shadow: inset 0 0 10px rgba(22, 163, 74, 0.2);}
+        
+        .io-item { cursor: grab; transition: transform 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .io-item:active { cursor: grabbing; transform: scale(0.95); }
+        
+        .cat-dropzone { transition: background-color 0.2s ease; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e5e7eb; }
+        ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #059669; }
+
+        /* Retro Game Canvas */
+        #game-canvas {
+            background-color: #111827;
+            border: 4px solid #374151;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+            max-width: 100%;
+            height: auto;
+            touch-action: none; /* Prevent scrolling while slicing */
+            cursor: crosshair;
+        }
+        .game-btn { touch-action: manipulation; user-select: none; }
+
+        /* --- CERTIFICATE STYLES --- */
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .font-body { font-family: 'Lora', serif; }
+        .font-script { font-family: 'Qwitcher Grypen', cursive; }
+        
+        .cert-preview-container {
+            width: 100%;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            background: #e5e7eb;
+            padding: 2rem;
+            border-radius: 0.5rem;
+        }
+
+        #certificate {
+            width: 1056px !important;
+            height: 816px !important;
+            flex-shrink: 0;
+            background-color: #ffffff;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1056" height="816"><polygon points="0,0 250,0 0,650" fill="%23fcd34d"/><polygon points="0,0 350,0 0,900" fill="%23d97706" opacity="0.8"/><polygon points="0,0 120,0 0,300" fill="%23fcd34d"/><polygon points="0,450 650,816 0,816" fill="%23fcd34d"/><polygon points="0,550 450,816 0,816" fill="%23d97706" opacity="0.8"/><polygon points="800,0 1056,0 1056,256" fill="%23f3f4f6"/><polygon points="1056,500 1056,816 750,816" fill="%23f3f4f6"/></svg>');
+            background-size: cover;
+            border: 4px solid #e5e7eb;
+        }
+
+        .gold-seal {
+            position: absolute;
+            left: 110px;
+            top: 350px;
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c, #fcf6ba);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3), inset 0 0 15px rgba(255,255,255,0.7), inset 0 0 25px rgba(139,105,20,0.9);
+            z-index: 10;
+        }
+        .gold-seal::before {
+            content: '';
+            position: absolute;
+            top: -4px; bottom: -4px; left: -4px; right: -4px;
+            border-radius: 50%;
+            border: 6px dashed #d4af37;
+        }
+        .gold-seal-inner-1 {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 2px solid rgba(139, 105, 20, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #e8c678, #dbab46);
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.2), 0 2px 5px rgba(255,255,255,0.7);
+            z-index: 1;
+        }
+        .gold-seal-inner-2 {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: radial-gradient(circle, #fcf6ba, #d4af37);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+            padding: 10px;
+        }
+        .embossed-text {
+            color: #b38728;
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.7), -1px -1px 0px rgba(0,0,0,0.2);
+            font-family: 'Playfair Display', serif;
+            font-weight: 800;
+            line-height: 1.1;
+            text-transform: uppercase;
+        }
+        .embossed-text-large { font-size: 14px; letter-spacing: 1px; }
+        .embossed-text-small { font-size: 11px; letter-spacing: 2px; margin: 2px 0; }
+        .embossed-star { font-size: 12px; color: #b38728; text-shadow: 1px 1px 0px rgba(255,255,255,0.7), -1px -1px 0px rgba(0,0,0,0.2); margin: 2px 0; }
+
+        @media (max-width: 1100px) {
+            #certificate { transform: scale(0.7); transform-origin: top left; margin-bottom: -240px; margin-right: -310px; }
+        }
+        @media (max-width: 768px) {
+            #certificate { transform: scale(0.4); transform-origin: top left; margin-bottom: -490px; margin-right: -630px; }
+        }
+        
+        /* Lab Specific Styles */
+        .process-row { transition: background-color 0.2s; }
+        .process-row:hover { background-color: #fca5a5; cursor: pointer;}
+        
+        .disk-block { transition: all 0.2s; }
+        .disk-block.allocated { background-color: #3b82f6; border-color: #1e3a8a; }
+        
+        .acl-btn { transition: all 0.2s; }
+        .acl-btn.active { background-color: #10b981; color: white; border-color: #047857; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <nav class="bg-green-700 text-white shadow-lg sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-microchip text-2xl"></i>
+                    <span class="font-bold text-xl tracking-wider hidden sm:inline-block">Tech+ Unit 05 Section 3.2.1</span>
+                    <span class="font-bold text-xl tracking-wider sm:hidden">3.2.1</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-2">
+                        <button onclick="switchTab('briefing')" class="nav-btn bg-green-900 px-3 py-2 rounded-md text-sm font-medium hover:bg-green-600 transition" id="nav-briefing"><i class="fa-solid fa-book-open mr-1"></i>Briefing</button>
+                        <button onclick="switchTab('activity')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-green-600 transition" id="nav-activity"><i class="fa-solid fa-flask mr-1"></i>Lab Activity</button>
+                        <button onclick="switchTab('quiz')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-green-600 transition" id="nav-quiz"><i class="fa-solid fa-clipboard-check mr-1"></i>Quiz</button>
+                        <button onclick="switchTab('game')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-gray-400 cursor-not-allowed transition" id="nav-game" disabled><i class="fa-solid fa-lock mr-1"></i>Game</button>
+                        <button onclick="switchTab('cert')" class="nav-btn hidden px-3 py-2 rounded-md text-sm font-medium text-yellow-300 hover:bg-green-600 transition" id="nav-cert"><i class="fa-solid fa-award mr-1"></i>Certificate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Nav -->
+        <div class="md:hidden flex flex-wrap justify-center gap-2 py-2 px-2 bg-green-800">
+            <button onclick="switchTab('briefing')" class="nav-btn-mobile px-3 py-1 text-sm rounded bg-green-900" id="nav-briefing-mobile">Briefing</button>
+            <button onclick="switchTab('activity')" class="nav-btn-mobile px-3 py-1 text-sm rounded" id="nav-activity-mobile">Lab</button>
+            <button onclick="switchTab('quiz')" class="nav-btn-mobile px-3 py-1 text-sm rounded" id="nav-quiz-mobile">Quiz</button>
+            <button onclick="switchTab('game')" class="nav-btn-mobile px-3 py-1 text-sm rounded text-gray-400 cursor-not-allowed" id="nav-game-mobile" disabled><i class="fa-solid fa-lock"></i></button>
+            <button onclick="switchTab('cert')" id="nav-cert-mobile" class="hidden px-2 py-1 text-sm text-yellow-300 rounded"><i class="fa-solid fa-award"></i></button>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <!-- BRIEFING SECTION -->
+        <div id="briefing-section" class="tab-content active no-print">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">Purposes of Operating Systems</h1>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">Operating Systems are the invisible foundation of modern computing. They provide the critical interface between human users, software applications, and the physical hardware of the machine.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Tile 1 -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-blue-500 overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-blue-700"><i class="fa-solid fa-layer-group mr-2"></i>Interface & Abstraction</h2>
+                        <ul class="space-y-3 text-gray-700 mb-4">
+                            <li><strong>Hardware Abstraction:</strong> Translates high-level software commands into low-level hardware actions.</li>
+                            <li><strong>Graphical User Interface (GUI):</strong> Uses visual icons, buttons, and menus for user-friendly interaction.</li>
+                            <li><strong>Command Line Interface (CLI):</strong> Text-based system offering precise control for advanced users.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-50 border-t border-gray-100 p-4">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('interface-details')" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('interface-usecase')" class="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-900 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-lightbulb text-yellow-600 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tile 2 -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-green-500 overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-green-700"><i class="fa-solid fa-hard-drive mr-2"></i>Disk & Device Management</h2>
+                        <ul class="space-y-3 text-gray-700 mb-4">
+                            <li><strong>Disk Management:</strong> Handles partitioning, formatting, allocation, scheduling, and backups.</li>
+                            <li><strong>Device Management:</strong> Controls external hardware coordination via specialized device drivers.</li>
+                            <li><strong>I/O Handling:</strong> Manages data transfer rates between slow peripherals and fast processors.</li>
+                        </ul>
+                    </div>
+                     <div class="bg-gray-50 border-t border-gray-100 p-4">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('disk-details')" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('disk-usecase')" class="flex-1 bg-green-100 hover:bg-green-200 text-green-900 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-lightbulb text-yellow-600 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tile 3 -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-purple-500 overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-purple-700"><i class="fa-solid fa-microchip mr-2"></i>Task & App Management</h2>
+                        <ul class="space-y-3 text-gray-700 mb-4">
+                            <li><strong>Task Management:</strong> Oversees multitasking, concurrency, and resolves system deadlocks.</li>
+                            <li><strong>App Lifecycle:</strong> Controls loading, executing, isolating (sandboxing), and terminating software.</li>
+                            <li><strong>Dependencies:</strong> Ensures necessary background libraries and APIs are available for execution.</li>
+                        </ul>
+                    </div>
+                     <div class="bg-gray-50 border-t border-gray-100 p-4">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('task-details')" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('task-usecase')" class="flex-1 bg-purple-100 hover:bg-purple-200 text-purple-900 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-lightbulb text-yellow-600 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tile 4 -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-red-500 overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-red-700"><i class="fa-solid fa-shield-halved mr-2"></i>Access Control</h2>
+                        <ul class="space-y-3 text-gray-700 mb-4">
+                            <li><strong>Authentication:</strong> Verifying user identity (e.g., passwords, biometrics).</li>
+                            <li><strong>Authorization:</strong> Defining what actions an authenticated user is permitted to perform.</li>
+                            <li><strong>ACLs:</strong> Access Control Lists strictly regulate read, write, and execute permissions on files.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-50 border-t border-gray-100 p-4">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('access-details')" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('access-usecase')" class="flex-1 bg-red-100 hover:bg-red-200 text-red-900 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-lightbulb text-yellow-600 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 flex justify-center">
+                <button onclick="switchTab('activity')" class="bg-green-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-green-500 shadow-lg transition transform hover:scale-105">Proceed to Lab Activity <i class="fa-solid fa-arrow-right ml-2"></i></button>
+            </div>
+        </div>
+
+        <!-- LAB ACTIVITY SECTION -->
+        <div id="activity-section" class="tab-content no-print">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Interactive Lab Activity</h1>
+                <p class="text-gray-600">Apply your knowledge of OS functions across these 4 distinct simulations to achieve mastery.</p>
+            </div>
+
+            <!-- Lab 1: OS Function Categorization -->
+            <div class="bg-white p-6 rounded-xl shadow-md mb-8 border border-gray-200">
+                <h2 class="text-xl font-bold mb-4 text-blue-700"><i class="fa-solid fa-layer-group mr-2"></i>Lab 1: OS Task Sorter</h2>
+                <p class="text-sm text-gray-600 mb-4">Drag the specific user task and drop it onto the core OS function responsible for handling it.</p>
+                
+                <div class="flex flex-wrap gap-3 mb-6" id="cat-items">
+                    <div class="io-item px-4 py-2 bg-indigo-100 border border-indigo-300 rounded font-bold text-sm" draggable="true" data-type="app">Load default browser</div>
+                    <div class="io-item px-4 py-2 bg-indigo-100 border border-indigo-300 rounded font-bold text-sm" draggable="true" data-type="task">Terminate frozen program</div>
+                    <div class="io-item px-4 py-2 bg-indigo-100 border border-indigo-300 rounded font-bold text-sm" draggable="true" data-type="disk">Format new hard drive</div>
+                    <div class="io-item px-4 py-2 bg-indigo-100 border border-indigo-300 rounded font-bold text-sm" draggable="true" data-type="access">Set privileges to "Admin"</div>
+                    <div class="io-item px-4 py-2 bg-indigo-100 border border-indigo-300 rounded font-bold text-sm" draggable="true" data-type="device">Find compatible printer driver</div>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="cat-dropzone border-2 border-dashed border-purple-400 bg-purple-50 rounded-lg p-2 min-h-[100px] flex flex-col items-center" data-target="app">
+                        <h3 class="font-bold text-purple-800 mb-1 border-b border-purple-200 w-full text-center pb-1 text-xs">App Mgmt</h3>
+                    </div>
+                    <div class="cat-dropzone border-2 border-dashed border-orange-400 bg-orange-50 rounded-lg p-2 min-h-[100px] flex flex-col items-center" data-target="task">
+                        <h3 class="font-bold text-orange-800 mb-1 border-b border-orange-200 w-full text-center pb-1 text-xs">Task Mgmt</h3>
+                    </div>
+                    <div class="cat-dropzone border-2 border-dashed border-green-400 bg-green-50 rounded-lg p-2 min-h-[100px] flex flex-col items-center" data-target="disk">
+                        <h3 class="font-bold text-green-800 mb-1 border-b border-green-200 w-full text-center pb-1 text-xs">Disk Mgmt</h3>
+                    </div>
+                    <div class="cat-dropzone border-2 border-dashed border-red-400 bg-red-50 rounded-lg p-2 min-h-[100px] flex flex-col items-center" data-target="access">
+                        <h3 class="font-bold text-red-800 mb-1 border-b border-red-200 w-full text-center pb-1 text-xs">Access Control</h3>
+                    </div>
+                    <div class="cat-dropzone border-2 border-dashed border-blue-400 bg-blue-50 rounded-lg p-2 min-h-[100px] flex flex-col items-center" data-target="device">
+                        <h3 class="font-bold text-blue-800 mb-1 border-b border-blue-200 w-full text-center pb-1 text-xs">Device Mgmt</h3>
+                    </div>
+                </div>
+                <div id="lab1-feedback" class="text-center font-bold mt-4 h-6 text-green-600"></div>
+            </div>
+
+            <!-- Lab 2: Task Manager Simulator -->
+            <div class="bg-white p-6 rounded-xl shadow-md mb-8 border border-gray-200">
+                <h2 class="text-xl font-bold mb-4 text-orange-700"><i class="fa-solid fa-list-check mr-2"></i>Lab 2: Process Resolution</h2>
+                <p class="text-sm text-gray-600 mb-4">A critical deadlock has occurred preventing the system from functioning. Review the processes below and click the highlighted row that is consuming 100% CPU to terminate it and restore concurrency.</p>
+                
+                <div class="border rounded border-gray-300 overflow-hidden">
+                    <div class="bg-gray-100 border-b border-gray-300 px-4 py-2 font-bold flex text-sm">
+                        <div class="w-1/2">Process Name</div>
+                        <div class="w-1/4">Status</div>
+                        <div class="w-1/4 text-right">CPU</div>
+                    </div>
+                    <div class="process-row px-4 py-3 border-b border-gray-200 flex text-sm" onclick="checkLab2('false')">
+                        <div class="w-1/2"><i class="fa-brands fa-chrome text-blue-500 mr-2"></i>Browser.exe</div>
+                        <div class="w-1/4 text-green-600">Running</div>
+                        <div class="w-1/4 text-right">4.2%</div>
+                    </div>
+                    <div class="process-row px-4 py-3 border-b border-gray-200 flex text-sm" onclick="checkLab2('false')">
+                        <div class="w-1/2"><i class="fa-brands fa-windows text-blue-400 mr-2"></i>Explorer.exe</div>
+                        <div class="w-1/4 text-green-600">Running</div>
+                        <div class="w-1/4 text-right">1.1%</div>
+                    </div>
+                    <div class="process-row px-4 py-3 border-b border-gray-200 flex text-sm bg-red-50 text-red-800 font-bold" onclick="checkLab2('true')">
+                        <div class="w-1/2"><i class="fa-solid fa-file-video text-red-500 mr-2"></i>VideoRender_Deadlock.exe</div>
+                        <div class="w-1/4">Not Responding</div>
+                        <div class="w-1/4 text-right">100.0%</div>
+                    </div>
+                    <div class="process-row px-4 py-3 flex text-sm" onclick="checkLab2('false')">
+                        <div class="w-1/2"><i class="fa-solid fa-music text-purple-500 mr-2"></i>AudioService.exe</div>
+                        <div class="w-1/4 text-gray-500">Sleeping</div>
+                        <div class="w-1/4 text-right">0.0%</div>
+                    </div>
+                </div>
+                <div id="lab2-feedback" class="text-center font-bold mt-4 h-6 text-green-600"></div>
+            </div>
+            
+            <!-- Lab 3: Disk Partition Allocator -->
+            <div class="bg-white p-6 rounded-xl shadow-md mb-8 border border-gray-200">
+                <h2 class="text-xl font-bold mb-4 text-green-700"><i class="fa-solid fa-hard-drive mr-2"></i>Lab 3: Disk Partitioning</h2>
+                <p class="text-sm text-gray-600 mb-4">You have installed a new 500GB raw hard drive. Click exactly 3 unallocated gray blocks to format a new 150GB logical partition for the OS.</p>
+                
+                <div class="flex flex-wrap gap-2 justify-center" id="disk-grid">
+                    <!-- Generated via JS -->
+                </div>
+                <div id="lab3-feedback" class="text-center font-bold mt-4 h-6 text-green-600"></div>
+            </div>
+            
+            <!-- Lab 4: Access Control Matrix -->
+            <div class="bg-white p-6 rounded-xl shadow-md mb-8 border border-gray-200">
+                <h2 class="text-xl font-bold mb-4 text-red-700"><i class="fa-solid fa-shield-halved mr-2"></i>Lab 4: Access Control Lists (ACLs)</h2>
+                <p class="text-sm text-gray-600 mb-4">A standard employee needs to be able to view (Read) and modify (Write) a corporate document, but should NOT be allowed to run it as a program (Execute). Toggle the correct permissions below, then click Apply.</p>
+                
+                <div class="flex justify-center gap-4 mb-6">
+                    <button class="acl-btn px-6 py-3 border-2 border-gray-300 rounded font-bold text-gray-600" id="btn-read" onclick="toggleACL(this)">Read</button>
+                    <button class="acl-btn px-6 py-3 border-2 border-gray-300 rounded font-bold text-gray-600" id="btn-write" onclick="toggleACL(this)">Write</button>
+                    <button class="acl-btn px-6 py-3 border-2 border-gray-300 rounded font-bold text-gray-600" id="btn-exec" onclick="toggleACL(this)">Execute</button>
+                </div>
+                <div class="text-center">
+                    <button class="bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-700" onclick="checkLab4()">Apply ACL Policy</button>
+                </div>
+                <div id="lab4-feedback" class="text-center font-bold mt-4 h-6 text-green-600"></div>
+            </div>
+
+            <div class="text-center">
+                <button onclick="switchTab('quiz')" class="bg-green-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-green-500 shadow-lg transition transform hover:scale-105">Take the Mastery Quiz <i class="fa-solid fa-clipboard-check ml-2"></i></button>
+            </div>
+        </div>
+
+        <!-- QUIZ SECTION -->
+        <div id="quiz-section" class="tab-content no-print">
+            <div class="bg-white p-6 sm:p-10 rounded-2xl shadow-xl max-w-4xl mx-auto">
+                <div class="text-center mb-8 border-b pb-4">
+                    <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Unit 05 Section 3.2.1 Mastery Quiz</h1>
+                    <p class="text-gray-600">Score 90% or higher (18/20) to earn your Certificate of Mastery and unlock the Retro Game!</p>
+                </div>
+
+                <div id="quiz-container" class="space-y-8">
+                    <!-- Questions injected via JS -->
+                </div>
+
+                <div class="mt-10 text-center border-t pt-6 flex flex-col md:flex-row justify-center items-center gap-4">
+                    <button id="submit-quiz-btn" onclick="gradeQuiz()" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-blue-700 shadow-lg transition w-full md:w-auto">Submit Quiz</button>
+                    <button id="proceed-game-btn" onclick="switchTab('game')" class="hidden bg-purple-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-purple-700 shadow-lg transition w-full md:w-auto">Play Retro Game <i class="fa-solid fa-gamepad ml-2"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RETRO GAME SECTION -->
+        <div id="game-section" class="tab-content no-print">
+            <div class="bg-gray-900 p-6 sm:p-8 rounded-2xl shadow-xl max-w-4xl mx-auto border-4 border-gray-700 flex flex-col items-center">
+                <div class="text-center mb-4 w-full">
+                    <h1 class="text-3xl font-extrabold text-red-500 mb-2 tracking-widest uppercase" style="font-family: monospace;">Process Slicer</h1>
+                    <p class="text-gray-300 text-sm">Task Management is critical! Use your mouse (or finger) to slice the rogue application processes (Red and Blue) to free up memory. Do <strong class="text-green-400">NOT</strong> slice the critical System OS processes (Green) or the system will crash!</p>
+                </div>
+                
+                <div class="flex justify-between items-center w-full max-w-[400px] sm:max-w-[600px] mb-2 px-4 text-white font-mono text-xl">
+                    <div>Memory Freed: <span id="game-score" class="text-blue-400 font-bold">0</span>MB</div>
+                    <div>System Stability: <span id="game-lives" class="text-red-400 font-bold">3</span></div>
+                </div>
+
+                <div class="relative flex justify-center w-full">
+                    <!-- Game Canvas -->
+                    <canvas id="game-canvas" width="600" height="450" class="w-full max-w-[400px] sm:max-w-[600px] bg-gray-800 border-2 border-gray-600 rounded shadow-lg"></canvas>
+                    
+                    <!-- Overlay Start Button -->
+                    <div id="game-overlay" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 rounded-lg max-w-[400px] sm:max-w-[600px] mx-auto z-10">
+                        <button id="start-game-btn" class="bg-red-600 hover:bg-red-500 text-white font-bold font-mono py-3 px-6 rounded-lg text-xl border-4 border-red-800 uppercase transform transition hover:scale-105">Boot System (Start)</button>
+                    </div>
+                </div>
+
+                <div class="mt-8 text-center w-full border-t border-gray-700 pt-6">
+                    <button onclick="switchTab('cert')" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-blue-700 shadow-lg transition w-full md:w-auto">View Certificate <i class="fa-solid fa-award ml-2"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CERTIFICATE SECTION -->
+        <div id="cert-section" class="tab-content">
+            <div class="max-w-5xl mx-auto">
+                
+                <!-- Controls -->
+                <div class="bg-white p-6 rounded shadow mb-6 no-print text-center border border-gray-200">
+                    <h2 class="text-2xl font-bold text-green-600 mb-2">🎉 Congratulations! 🎉</h2>
+                    <p class="text-gray-700 mb-4">You have achieved mastery of the Purposes of Operating Systems.</p>
+                    <div class="flex flex-col md:flex-row justify-center items-center gap-4">
+                        <input type="text" id="student-name-input" value="Student" placeholder="Enter your first name" class="border-2 border-gray-300 rounded px-4 py-2 w-full md:w-64 focus:border-green-500 focus:outline-none">
+                        <button onclick="updateCertName()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">Update Name</button>
+                        <button id="download-btn" onclick="downloadCert()" class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition flex items-center justify-center">
+                            <i class="fa-solid fa-download mr-2"></i>Download PNG
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Certificate Render Container -->
+                <div class="cert-preview-container print:p-0 print:bg-white">
+                    <div id="certificate">
+                        <div class="gold-seal">
+                            <div class="gold-seal-inner-1">
+                                <div class="gold-seal-inner-2">
+                                     <span class="embossed-text embossed-text-large">Certificate</span>
+                                     <i class="fa-solid fa-star embossed-star"></i>
+                                     <span class="embossed-text embossed-text-small">Of</span>
+                                     <i class="fa-solid fa-star embossed-star"></i>
+                                     <span class="embossed-text embossed-text-large">Excellence</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative z-20 w-full h-full flex flex-col pt-[48px] pl-[380px] pr-[48px]">
+                            <h1 class="text-[#1e3a8a] text-[4.5rem] leading-none font-serif font-bold tracking-wide uppercase mb-2">CERTIFICATE</h1>
+                            <h2 class="text-gray-800 text-3xl font-serif tracking-widest uppercase mb-10">Of Achievement</h2>
+                            
+                            <p class="text-[1.4rem] font-body text-gray-800 mb-4">This is to certify that</p>
+                            
+                            <div class="relative mb-8 w-full">
+                                <h3 id="cert-student-name" class="text-[4rem] text-[#1e3a8a] font-serif italic leading-none pb-2 relative z-10 text-center w-full block">Student</h3>
+                                <div class="w-full border-b-[2px] border-[#1e3a8a] absolute bottom-[4px] left-0 z-0"></div>
+                                <div class="w-full border-b-[2px] border-dotted border-red-500 absolute bottom-[0px] left-0 z-0"></div>
+                            </div>
+                            
+                            <p class="text-[1.3rem] font-body text-gray-800 leading-relaxed w-full pr-4">
+                                Has successfully completed the assessment for 
+                                <strong class="text-[1.8rem] text-[#1e3a8a] block mt-4 mb-2 font-serif">Cyber.org Tech+ Unit 05 Section 3.2.1</strong>
+                                <strong class="text-[1.5rem] text-black block mb-4 font-serif italic">Purposes of Operating Systems</strong>
+                                <span class="text-[1.1rem] text-gray-700 leading-snug block">Demonstrating proficiency in explaining the foundational role of OS interfaces, hardware abstraction, disk and device management, task and application lifecycle control, and system access security.</span>
+                            </p>
+                            
+                            <div class="flex justify-end gap-16 items-end mt-auto mb-[60px] w-full pr-8">
+                                <div class="w-64">
+                                    <div class="border-b border-gray-600 mb-2 h-20 flex items-end justify-center relative">
+                                        <span class="font-script text-[5rem] text-[#1e3a8a] absolute bottom-[-10px] transform -rotate-3 opacity-90">Dr. M. S</span>
+                                    </div>
+                                    <p class="font-serif text-xl text-gray-800 text-center">Administration</p>
+                                </div>
+                                
+                                <div class="w-64">
+                                    <div class="border-b border-gray-600 mb-2 text-center h-20 flex items-end justify-center">
+                                        <p id="cert-date" class="font-body text-2xl text-gray-800 pb-1">Date Here</p>
+                                    </div>
+                                    <p class="font-serif text-xl text-gray-800 text-center">Date</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Custom Modal for Alerts -->
+    <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex justify-center items-center backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+            <div class="text-center">
+                <div id="modal-icon" class="text-5xl mb-4"></div>
+                <h3 id="modal-title" class="text-2xl font-bold mb-2 text-gray-900"></h3>
+                <p id="modal-msg" class="text-gray-600 mb-6"></p>
+                <button onclick="closeModal()" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700 transition w-full">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Briefing Modal -->
+    <div id="briefing-modal" class="fixed inset-0 bg-black bg-opacity-70 z-[120] hidden flex justify-center items-center backdrop-blur-sm p-4 sm:p-6">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col transform transition-all overflow-hidden border-4 border-green-700">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                <div class="flex items-center gap-4">
+                    <div id="briefing-modal-icon" class="text-4xl"></div>
+                    <h3 id="briefing-modal-title" class="text-2xl md:text-3xl font-bold text-gray-900"></h3>
+                </div>
+                <button onclick="closeBriefing()" class="text-gray-400 hover:text-red-600 transition text-4xl leading-none">&times;</button>
+            </div>
+            <div id="briefing-modal-content" class="p-6 md:p-10 overflow-y-auto flex-grow text-gray-700 text-lg leading-relaxed bg-white">
+                <!-- Dynamic Content Injected Here -->
+            </div>
+            <div class="p-6 border-t border-gray-200 bg-gray-50 flex justify-end">
+                <button onclick="closeBriefing()" class="bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-green-800 transition shadow-md">Acknowledge & Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Extensive Briefing Content Data (Min 7 Paragraphs per detail, specific structure for Use Cases) ---
+        const briefingData = {
+            'interface-details': {
+                title: 'Interface & Hardware Abstraction',
+                icon: '<i class="fa-solid fa-layer-group text-blue-600"></i>',
+                html: `
+                    <p class="mb-5">At its absolute core, a computer is a collection of dumb electronic components—processors, memory chips, and storage drives—that only understand raw electrical impulses (binary 1s and 0s). An Operating System (OS) is the foundational set of software programs that breathe life into this hardware. Its primary, overarching purpose is to act as a universal translator and manager, creating a stable environment where complex software applications can execute without needing to understand the specific physical wiring of the machine they are running on.</p>
+                    
+                    <p class="mb-5">This concept is known as <strong>Hardware Abstraction</strong>. Imagine if every software developer who created a word processor had to write completely different code to save a file depending on whether the user had a Western Digital hard drive or a Seagate hard drive. Development would be impossible. The OS provides an abstraction layer; the word processor simply tells the OS "save this file," and the OS handles the incredibly complex hardware-specific instructions required to magnetically write that data to the disk.</p>
+                    
+                    <p class="mb-5">The mechanism the OS uses to bridge the gap between user applications and the physical hardware is called <strong>System Calls</strong>. Applications are generally kept in an isolated, safe area called "User Space." When an application needs to do something physical—like print a document, access the camera, or read a file—it cannot do it directly. It must make a controlled System Call to the OS kernel. The OS receives the request, verifies that the application has permission to do so, and then safely executes the hardware action on behalf of the software.</p>
+                    
+                    <p class="mb-5">While the OS abstracts hardware from software, it must also abstract the complex system operations from the human user. It achieves this through a User Interface (UI). The interface is the "face" of the operating system, allowing a human to issue commands, launch programs, and organize data without needing to write binary code. There are two primary paradigms for this interface, each serving vastly different types of users and objectives.</p>
+                    
+                    <p class="mb-5">The most common interface for modern consumers is the <strong>Graphical User Interface (GUI)</strong>. A GUI provides a highly visual, intuitive system utilizing windows, icons, menus, and pointers (the WIMP paradigm). By abstracting complex commands behind simple visual metaphors—like dragging a file icon into a trash can icon to delete it—the GUI makes computing accessible to millions of people with zero formal computer science training. Examples include Microsoft Windows, macOS, and mobile interfaces like iOS.</p>
+                    
+                    <p class="mb-5">Conversely, the <strong>Command Line Interface (CLI)</strong> remains a vital tool for IT professionals, system administrators, and developers. A CLI strips away all the visual graphics and relies entirely on text-based input and output. The user types specific commands (like 'mkdir' to make a directory or 'ping' to test a network connection) and the OS responds with text. While it demands a steep learning curve and memorization of syntax, a CLI consumes drastically fewer system resources than a GUI and allows for the automation of complex tasks through scripting.</p>
+                    
+                    <p>Understanding these interfaces and the abstraction layer is fundamental for IT support. When a user clicks "Print" in a GUI and nothing happens, the technician must understand the entire chain of events: the GUI click generated a software command, which generated an OS System Call, which utilized the hardware abstraction layer to finally send electrical signals through the USB port to the physical printer. A failure at any point in this chain stops the entire process.</p>
+                `
+            },
+            'interface-usecase': {
+                title: 'Interface & Abstraction: Use Cases',
+                icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-blue-800 mb-2 border-b-2 border-blue-200 pb-1">Case 1: Administering a Remote Server</h4>
+                        <p class="mb-2">System administrators often manage massive web servers located hundreds of miles away in dedicated data centers. They require fast, resource-efficient methods to interact with the server's operating system over network connections.</p>
+                        <ul class="list-disc pl-5 mb-4 text-gray-700">
+                            <li class="mb-2"><strong>Example 1 (CLI):</strong> An administrator uses a secure SSH terminal connection to type specific text commands directly into the Linux server's Command Line Interface, updating packages and restarting services without wasting bandwidth on loading graphical windows.</li>
+                            <li><strong>Example 2 (GUI):</strong> A less experienced administrator logs into a web-based Graphical User Interface panel (like cPanel) to visually click buttons to add new email accounts and monitor server health via colorful graphs.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-blue-800 mb-2 border-b-2 border-blue-200 pb-1">Case 2: Daily Consumer Computing</h4>
+                        <p class="mb-2">Average consumers require an operating system that completely hides the complex code and hardware management, allowing them to focus entirely on their digital tasks and media consumption.</p>
+                        <ul class="list-disc pl-5 mb-4 text-gray-700">
+                            <li class="mb-2"><strong>Example 1 (Hardware Abstraction):</strong> A user plugs in three different brands of USB flash drives. They don't need three different file manager programs; the OS abstracts the hardware differences, allowing the user to view all three drives identically in the standard Windows File Explorer.</li>
+                            <li><strong>Example 2 (GUI interaction):</strong> An elderly user organizes their digital family photos by simply dragging the image icons into different visual folders on their desktop GUI, rather than typing complex file-move commands in a terminal.</li>
+                        </ul>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <div>
+                            <p class="text-xs font-bold text-center text-gray-500 uppercase tracking-wider mb-1">Concept: Code and Interfaces</p>
+                            <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&h=350" alt="Code on a screen representing CLI/GUI concepts" class="w-full h-auto rounded shadow border border-gray-200 object-cover">
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-center text-gray-500 uppercase tracking-wider mb-1">In Use: Administering Systems</p>
+                            <img src="https://images.unsplash.com/photo-1547394765-185e1e68f34e?auto=format&fit=crop&w=600&h=350" alt="IT Professional working on a computer system" class="w-full h-auto rounded shadow border border-gray-200 object-cover">
+                        </div>
+                    </div>
+                `
+            },
+            'disk-details': {
+                title: 'Disk & Device Management',
+                icon: '<i class="fa-solid fa-hard-drive text-green-600"></i>',
+                html: `
+                    <p class="mb-5">One of the most physically demanding responsibilities of an Operating System is managing how digital data is permanently stored and retrieved from physical drives. This function is broadly known as <strong>Disk Management</strong>. Without the OS rigorously organizing data, a hard drive would just be a chaotic, unreadable magnetic mess. Disk management encompasses the entire lifecycle of storage, from the moment a brand new, raw hard drive is plugged into the motherboard to the moment it is securely wiped for disposal.</p>
+                    
+                    <p class="mb-5">The first step the OS takes with a new drive is <strong>Partitioning</strong>. Partitioning divides the physical disk space into multiple distinct logical sections. The OS treats each of these sections as if it were an entirely separate physical hard drive. For example, a massive 2TB drive can be partitioned so that 500GB is reserved exclusively for the OS system files (Drive C:), and the remaining 1.5TB is isolated strictly for user games and media (Drive D:), protecting user data if the OS partition ever becomes corrupted.</p>
+                    
+                    <p class="mb-5">After partitioning, the OS must apply <strong>Formatting</strong>. Formatting establishes a specific File System (like NTFS for Windows, APFS for macOS, or ext4 for Linux) on the partition. The file system dictates the exact mathematical rules for how data is named, where it is placed, and how it is indexed. It creates the digital "filing cabinet" structure so that when you search for "Resume.docx", the OS knows exactly which physical sector on the spinning disk holds that specific data.</p>
+                    
+                    <p class="mb-5">During daily operation, the OS handles <strong>Disk Allocation and Scheduling</strong>. When you save a large video, the OS allocates free space to store it. Over time, as files are deleted and created, free space becomes fragmented. The OS must track this fragmentation and run maintenance routines. Furthermore, Disk Scheduling algorithms optimize the order in which read/write requests are sent to the disk arm to maximize physical efficiency and prevent the system from freezing while waiting for data.</p>
+                    
+                    <p class="mb-5">Closely related to managing internal disks is <strong>Device Management</strong>, which deals with all external and internal hardware peripherals. The OS acts as the grand coordinator for keyboards, mice, monitors, graphics cards, and network adapters. Because hardware manufacturers build devices differently, the OS relies on <strong>Device Drivers</strong>. Drivers are specialized software translators that teach the OS exactly how to communicate with a specific piece of hardware.</p>
+                    
+                    <p class="mb-5">Modern operating systems excel at <strong>Plug-and-Play</strong> device management. When you plug a new USB webcam into a computer, the OS dynamically detects the new hardware, queries it for its identification, searches its database (or the internet) for the correct driver, installs it, and configures the I/O (Input/Output) ports automatically. This dynamic management allows users to hot-swap devices without needing to power down the entire machine.</p>
+                    
+                    <p>Finally, the OS handles <strong>I/O (Input/Output) Management</strong>. The CPU operates millions of times faster than a mechanical hard drive or a physical printer. If the CPU had to wait for the printer to finish printing page one before moving to page two, the entire computer would freeze. The OS uses I/O buffering and spooling—temporarily storing the print job in fast RAM—so the CPU can instantly return to other tasks while the OS slowly trickles the data to the printer in the background.</p>
+                `
+            },
+            'disk-usecase': {
+                title: 'Disk & Device Management: Use Cases',
+                icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-green-800 mb-2 border-b-2 border-green-200 pb-1">Case 1: Setting Up a New Storage Array</h4>
+                        <p class="mb-2">When an IT technician installs a massive new hard drive into a workstation, they must utilize the OS Disk Management tools to prepare the raw metal for active file storage.</p>
+                        <ul class="list-disc pl-5 mb-4 text-gray-700">
+                            <li class="mb-2"><strong>Example 1 (Partitioning):</strong> The technician opens Windows Disk Management and creates a 100GB partition for the operating system files, leaving the remaining 900GB as unallocated space for future data drives.</li>
+                            <li><strong>Example 2 (Formatting):</strong> They format a portable USB drive using the exFAT file system instead of NTFS, ensuring that the drive can be read and written to by both Windows PCs and Linux servers in the office.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-green-800 mb-2 border-b-2 border-green-200 pb-1">Case 2: Connecting Peripheral Hardware</h4>
+                        <p class="mb-2">A user brings various external devices to their computer, expecting them to function immediately. The OS Device Management system must coordinate these connections behind the scenes.</p>
+                        <ul class="list-disc pl-5 mb-4 text-gray-700">
+                            <li class="mb-2"><strong>Example 1 (Plug and Play):</strong> A user plugs in a new wireless mouse receiver; the OS immediately detects the USB device, silently installs a generic HID (Human Interface Device) driver, and the mouse works within 3 seconds.</li>
+                            <li><strong>Example 2 (Spooling):</strong> A user clicks "Print" on a 500-page document. The OS immediately spools the massive file into a temporary memory buffer, freeing up Microsoft Word so the user can continue typing while the physical printer slowly churns out pages over the next hour.</li>
+                        </ul>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <div>
+                            <p class="text-xs font-bold text-center text-gray-500 uppercase tracking-wider mb-1">Concept: Physical Disk Storage</p>
+                            <img src="https://images.unsplash.com/photo-1597852074816-d933c7d2b988?auto=format&fit=crop&w=600&h=350" alt="Physical hard drive internals" class="w-full h-auto rounded shadow border border-gray-200 object-cover">
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-center text-gray-500 uppercase tracking-wider mb-1">In Use: Peripheral Management</p>
+                            <img src="https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=600&h=350" alt="Office printer representing device spooling" class="w-full h-auto rounded shadow border border-gray-200 object-cover">
+                        </div>
+                    </div>
+                `
+            },
+            'task-details': {
+                title: 'Task & Application Management',
+                icon: '<i class="fa-solid fa-microchip text-purple-600"></i>',
+                html: `
+                    <p class="mb-5">When you turn on a computer, you rarely just run one program at a time. You likely have a web browser open with ten tabs, a music player streaming audio in the background, a word processor running, and dozens of invisible system services keeping the network alive. <strong>Task and Process Management</strong> is the incredibly complex OS function that ensures all these programs run smoothly without crashing into each other or hoarding all the system resources.</p>
+                    
+                    <p class="mb-5">To the human eye, it appears that the computer is doing fifty things at the exact same moment. In reality, a single CPU core can only process one instruction at a time. The OS creates the illusion of <strong>Multitasking</strong> through a mechanism called context switching. The OS CPU Scheduler gives the web browser processing time for a fraction of a millisecond, then pauses it, saves its state, and gives the music player a fraction of a millisecond. This rapid switching happens millions of times a second, creating a seamless user experience.</p>
+                    
+                    <p class="mb-5">On modern computers with multiple CPU cores, the OS utilizes true <strong>Concurrency</strong>. The OS can intelligently assign the heavy video rendering process to Core 1 and Core 2, while assigning the light background music player to Core 3. This parallel processing maximizes the physical hardware's potential, ensuring that intense applications don't cause the mouse cursor to freeze or the audio to stutter.</p>
+                    
+                    <p class="mb-5">A critical responsibility of Task Management is preventing and resolving <strong>Deadlocks</strong>. A deadlock occurs when Process A locks a file and waits for memory, while Process B locks the memory and waits for the file. Neither can proceed, and the system freezes. The OS must constantly monitor resource allocation to detect these circular dependencies, and if a deadlock occurs, the OS must ruthlessly terminate one of the processes to free the system—a task users often do manually via the Task Manager.</p>
+                    
+                    <p class="mb-5">Beyond managing the raw CPU cycles, the OS handles broader <strong>Application Management</strong>. This oversees the entire lifecycle of a software program. When you double-click an icon, the OS locates the executable file on the hard drive, allocates a specific chunk of RAM for it, loads the code into memory, and tells the CPU to begin execution. When you click the red 'X', the OS is responsible for terminating the process and sweeping the RAM clean so other programs can use it.</p>
+                    
+                    <p class="mb-5">Application management also involves handling <strong>Dependencies and APIs</strong>. Many programs rely on shared system libraries (like DirectX for graphics or .NET frameworks). Instead of every program packaging its own massive copy of these files, the OS provides them as shared resources. Applications communicate with the OS to request these resources using APIs (Application Programming Interfaces).</p>
+                    
+                    <p>Finally, modern operating systems enforce <strong>Application Isolation</strong> (often called sandboxing). If a poorly coded calculator app crashes, it shouldn't take the entire computer down with it. The OS allocates a strictly walled-off section of memory for the calculator. If the calculator tries to access memory belonging to the kernel or the web browser, the OS instantly blocks the action and forcefully terminates the calculator app, preserving overall system stability and security.</p>
+                `
+            },
+            'task-usecase': {
+                title: 'Task & Application Management: Use Cases',
+                icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-purple-800 mb-2 border-b-2 border-purple-200 pb-1">Case 1: Heavy Workstation Workloads</h4>
+                        <p class="mb-2">A creative professional is pushing their workstation to the absolute limits, requiring the OS to aggressively manage multitasking and CPU scheduling to prevent system crashes.</p>
+                        <ul class="list-disc pl-5 mb-4 text-gray-700">
+                            <li class="mb-2"><strong>Example 1 (Concurrency):</strong> While rendering a massive 3D animation, the OS intelligently pins the heavy rendering threads to Performance Cores, while keeping the Efficiency Cores free so the user can smoothly browse the web without lag.</li>
+                            <li><strong>Example 2 (Resolving Deadlock):</strong> A poorly optimized video editing plugin freezes the entire editing suite. The user opens the OS Task Manager, locates the rogue "Not Responding" process, and clicks "End Task." The OS forcibly terminates the process, immediately freeing up 16GB of locked RAM.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-purple-800 mb-2 border-b-2 border-purple-200 pb-1">Case 2: Application Deployment and Security</h4>
+                        <p class="mb-2">When new software is introduced to the system, the OS must carefully manage its installation, its required resources, and its boundaries to maintain system integrity.</p>
+                        <ul class="list-disc pl-5 mb-4 text-gray-700">
+                            <li class="mb-2"><strong>Example 1 (Dependencies):</strong> A user attempts to run a new PC game. The OS application manager detects that a specific Visual C++ runtime library is missing and prompts the user to download the dependency before the game is allowed to launch.</li>
+                            <li><strong>Example 2 (Sandboxing):</strong> A user accidentally opens a malicious website in their browser. Because the OS strictly sandboxes the browser application, the malware is physically isolated within the browser's allocated memory space and cannot escape to steal files from the user's desktop folder.</li>
+                        </ul>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <div>
+                            <p class="text-xs font-bold text-center text-gray-500 uppercase tracking-wider mb-1">Concept: Processor Cores</p>
+                            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&h=350" alt="Processor and microchip representing task scheduling" class="w-full h-auto rounded shadow border border-gray-200 object-cover">
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-center text-gray-500 uppercase tracking-wider mb-1">In Use: Heavy Concurrency</p>
+                            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&h=350" alt="Multiple monitors showing complex workloads and data" class="w-full h-auto rounded shadow border border-gray-200 object-cover">
+                        </div>
+                    </div>
+                `
+            },
+            'access-details': {
+                title: 'Access Control & Security',
+                icon: '<i class="fa-solid fa-shield-halved text-red-600"></i>',
+                html: `
+                    <p class="mb-5">In the early days of computing, a machine was typically used by one person sitting alone in a room, and security was an afterthought. Today, computers are constantly connected to global networks and are frequently shared among multiple users in corporate environments. <strong>Access Control</strong> is the paramount OS function that guarantees data confidentiality, system integrity, and ensures that malicious actors (or simply untrained users) cannot destroy the system infrastructure.</p>
+                    
+                    <p class="mb-5">The foundation of Access Control relies on two distinct processes: Identification and Authentication. When you approach a computer, you state your <em>Identity</em> by typing a username (e.g., "JSmith"). However, the OS does not inherently trust that you are actually JSmith. It demands <strong>Authentication</strong>. Authentication is the cryptographic process of proving your identity, typically by providing something you know (a complex password), something you have (a smart card), or something you are (a fingerprint or facial scan).</p>
+                    
+                    <p class="mb-5">Once a user is successfully authenticated, the OS moves to the <strong>Authorization</strong> phase. Authorization determines exactly what actions this specific user is allowed to perform inside the system. For instance, just because an intern successfully logged into the corporate server does not mean they are authorized to format the main database drive or delete the CEO's files.</p>
+                    
+                    <p class="mb-5">The OS enforces these authorization rules primarily through <strong>Access Control Lists (ACLs)</strong>. Every single file, folder, and executable program on the hard drive has an invisible ACL attached to it. The ACL explicitly lists which users (or groups of users) possess Read permissions (ability to view the file), Write permissions (ability to edit or delete the file), and Execute permissions (ability to run the file as a program). Before any file is opened, the OS strictly checks the user's ID against the file's ACL.</p>
+                    
+                    <p class="mb-5">To make administration easier, the OS utilizes <strong>User Profiles and Privilege Levels</strong>. Standard user accounts are heavily restricted; they can browse the web, create documents in their own personal folders, and change their desktop wallpaper. However, they are actively blocked from installing new software, changing system-wide security settings, or viewing other users' files. This is based on the Principle of Least Privilege.</p>
+                    
+                    <p class="mb-5">Conversely, <strong>Administrator (or Root)</strong> accounts possess absolute power over the entire operating system. They can bypass ACLs, install deep system drivers, and alter the core OS kernel. Because of this massive power, best practice dictates that even IT professionals should perform daily tasks on a standard account, only elevating their privilege to Administrator temporarily when a specific system change is explicitly required.</p>
+                    
+                    <p>Finally, a robust Access Control system includes <strong>Auditing and Logging</strong>. The OS silently records security events in the background. It logs every time a user logs in, every time someone fails a password attempt, and every time an Administrator alters a core system file. If a security breach or data loss occurs, these OS audit logs are the critical forensic tools IT security teams use to determine exactly who did what, and when.</p>
+                `
+            },
+            'access-usecase': {
+                title: 'Access Control & Security: Use Cases',
+                icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-red-800 mb-2 border-b-2 border-red-200 pb-1">Case 1: Corporate Network Security</h4>
+                        <p class="mb-2">A company's IT department must strictly control how employees access the network to prevent malware infections and unauthorized data access.</p>
+                        <ul class="list-disc pl-5 mb-4 text-gray-700">
+                            <li class="mb-2"><strong>Example 1 (Privilege Levels):</strong> When a new marketing employee is hired, IT creates their account as a "Standard User." When the employee tries to install an unapproved freeware program from the internet, the OS blocks the installation and prompts for an Administrator password, preventing potential malware.</li>
+                            <li><strong>Example 2 (Authentication):</strong> To increase security against password theft, the OS is configured to require Multi-Factor Authentication (MFA). When logging in, the user must enter their password and then tap a physical security token against the laptop's NFC reader before the OS grants access.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-red-800 mb-2 border-b-2 border-red-200 pb-1">Case 2: File Sharing and Collaboration</h4>
+                        <p class="mb-2">A university research team uses a shared server to store sensitive data. The OS must regulate exactly who can view and edit the research.</p>
+                        <ul class="list-disc pl-5 mb-4 text-gray-700">
+                            <li class="mb-2"><strong>Example 1 (ACLs):</strong> The Lead Researcher configures the Access Control List (ACL) on the "Final_Results.docx" file so that the "Student_Assistants" group has "Read-Only" permission, meaning they can view the data but cannot accidentally delete or modify the final results.</li>
+                            <li><strong>Example 2 (Auditing):</strong> The server administrator notices a sensitive folder was deleted. They open the OS Security Event Logs, which clearly show that a user authenticated as "Professor_Smith" issued the delete command at 2:14 AM, allowing the admin to investigate the compromised account.</li>
+                        </ul>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <div>
+                            <p class="text-xs font-bold text-center text-gray-500 uppercase tracking-wider mb-1">Concept: Authorization & Security</p>
+                            <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&h=350" alt="Cyber security lock conceptually representing ACLs" class="w-full h-auto rounded shadow border border-gray-200 object-cover">
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-center text-gray-500 uppercase tracking-wider mb-1">In Use: User Authentication</p>
+                            <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?auto=format&fit=crop&w=600&h=350" alt="Typing password to authenticate" class="w-full h-auto rounded shadow border border-gray-200 object-cover">
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        // Modal Control Functions
+        function openBriefing(key) {
+            const modal = document.getElementById('briefing-modal');
+            const data = briefingData[key];
+            if(data) {
+                document.getElementById('briefing-modal-icon').innerHTML = data.icon;
+                document.getElementById('briefing-modal-title').innerText = data.title;
+                document.getElementById('briefing-modal-content').innerHTML = data.html;
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; 
+            }
+        }
+
+        function closeBriefing() {
+            document.getElementById('briefing-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto'; 
+        }
+
+        document.getElementById('briefing-modal').addEventListener('click', function(e) {
+            if(e.target === this) closeBriefing();
+        });
+        
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId + '-section').classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-green-900'));
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if(activeBtn && tabId !== 'cert') activeBtn.classList.add('bg-green-900');
+            
+            document.querySelectorAll('.nav-btn-mobile').forEach(btn => btn.classList.remove('bg-green-900'));
+            const activeMobileBtn = document.getElementById('nav-' + tabId + '-mobile');
+            if(activeMobileBtn && tabId !== 'cert') activeMobileBtn.classList.add('bg-green-900');
+
+            window.scrollTo(0,0);
+
+            if (tabId === 'game' && !gameRunning) {
+                resetGame();
+                drawGame();
+            }
+        }
+
+        function showModal(title, message, type = 'info') {
+            const modal = document.getElementById('custom-modal');
+            const icon = document.getElementById('modal-icon');
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-msg').innerText = message;
+            
+            if(type === 'success') {
+                icon.innerHTML = '<i class="fa-solid fa-circle-check text-green-500"></i>';
+            } else if (type === 'error') {
+                icon.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-500"></i>';
+            } else if (type === 'warning') {
+                icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-yellow-500"></i>';
+            } else {
+                icon.innerHTML = '<i class="fa-solid fa-circle-info text-blue-500"></i>';
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        // --- LAB 1: Categorization Logic ---
+        let draggedCatItem = null;
+        let lab1Count = 0;
+
+        document.querySelectorAll('.io-item').forEach(item => {
+            item.addEventListener('dragstart', function() {
+                draggedCatItem = this;
+                setTimeout(() => this.classList.add('opacity-50'), 0);
+            });
+            item.addEventListener('dragend', function() {
+                setTimeout(() => this.classList.remove('opacity-50'), 0);
+                draggedCatItem = null;
+            });
+        });
+
+        document.querySelectorAll('.cat-dropzone').forEach(zone => {
+            zone.addEventListener('dragover', e => e.preventDefault());
+            zone.addEventListener('dragenter', function(e) { e.preventDefault(); this.classList.add('brightness-95'); });
+            zone.addEventListener('dragleave', function() { this.classList.remove('brightness-95'); });
+            zone.addEventListener('drop', function() {
+                this.classList.remove('brightness-95');
+                if(draggedCatItem) {
+                    if(draggedCatItem.dataset.type === this.dataset.target) {
+                        this.appendChild(draggedCatItem);
+                        draggedCatItem.classList.remove('bg-indigo-100', 'cursor-grab');
+                        draggedCatItem.classList.add('bg-green-100', 'text-green-800', 'cursor-default', 'mt-2', 'w-[90%]');
+                        draggedCatItem.setAttribute('draggable', 'false');
+                        lab1Count++;
+                        
+                        document.getElementById('lab1-feedback').innerText = "Correct OS Function!";
+                        document.getElementById('lab1-feedback').className = "text-center font-bold mt-4 h-6 text-green-600";
+                        
+                        if(lab1Count === 5) {
+                            setTimeout(() => showModal('Lab 1 Complete!', 'You successfully categorized all the OS Tasks.', 'success'), 500);
+                        }
+                    } else {
+                        document.getElementById('lab1-feedback').innerText = "Incorrect. Think about what hardware or software element is being managed.";
+                        document.getElementById('lab1-feedback').className = "text-center font-bold mt-4 h-6 text-red-600";
+                    }
+                }
+            });
+        });
+
+        // --- LAB 2: Task Manager Logic ---
+        let lab2Solved = false;
+        function checkLab2(isCorrect) {
+            if(lab2Solved) return;
+            if(isCorrect === 'true') {
+                lab2Solved = true;
+                document.getElementById('lab2-feedback').innerText = "Deadlock Terminated! Concurrency Restored.";
+                document.getElementById('lab2-feedback').className = "text-center font-bold mt-4 h-6 text-green-600";
+                event.currentTarget.classList.add('opacity-30', 'line-through');
+                setTimeout(() => showModal('Lab 2 Complete!', 'You successfully acted as the OS CPU Scheduler and resolved the deadlock.', 'success'), 500);
+            } else {
+                document.getElementById('lab2-feedback').innerText = "Incorrect Process. Terminating that will not resolve the 100% CPU deadlock.";
+                document.getElementById('lab2-feedback').className = "text-center font-bold mt-4 h-6 text-red-600";
+            }
+        }
+
+        // --- LAB 3: Disk Partition Logic ---
+        const diskGrid = document.getElementById('disk-grid');
+        let selectedBlocks = 0;
+        let lab3Solved = false;
+        
+        // Generate 10 blocks (each 50GB = 500GB total)
+        for(let i=0; i<10; i++) {
+            let block = document.createElement('div');
+            block.className = "disk-block w-12 h-16 bg-gray-300 border-2 border-gray-400 rounded cursor-pointer flex items-center justify-center text-xs font-bold text-gray-500";
+            block.innerText = "50G";
+            block.onclick = function() {
+                if(lab3Solved) return;
+                if(this.classList.contains('allocated')) {
+                    this.classList.remove('allocated', 'text-white');
+                    this.classList.add('text-gray-500');
+                    selectedBlocks--;
+                } else {
+                    if(selectedBlocks < 3) {
+                        this.classList.add('allocated', 'text-white');
+                        this.classList.remove('text-gray-500');
+                        selectedBlocks++;
+                    } else {
+                        document.getElementById('lab3-feedback').innerText = "You only need 150GB (3 blocks). Deselect a block first.";
+                        document.getElementById('lab3-feedback').className = "text-center font-bold mt-4 h-6 text-red-600";
+                        return;
+                    }
+                }
+                
+                if(selectedBlocks === 3) {
+                    lab3Solved = true;
+                    document.getElementById('lab3-feedback').innerText = "Partition Formatted successfully!";
+                    document.getElementById('lab3-feedback').className = "text-center font-bold mt-4 h-6 text-green-600";
+                    setTimeout(() => showModal('Lab 3 Complete!', 'You successfully allocated and formatted the logical OS partition.', 'success'), 500);
+                } else {
+                    document.getElementById('lab3-feedback').innerText = `Selected: ${selectedBlocks * 50}GB / 150GB`;
+                    document.getElementById('lab3-feedback').className = "text-center font-bold mt-4 h-6 text-blue-600";
+                }
+            };
+            diskGrid.appendChild(block);
+        }
+
+        // --- LAB 4: Access Control Logic ---
+        function toggleACL(btn) {
+            btn.classList.toggle('active');
+        }
+
+        function checkLab4() {
+            const read = document.getElementById('btn-read').classList.contains('active');
+            const write = document.getElementById('btn-write').classList.contains('active');
+            const exec = document.getElementById('btn-exec').classList.contains('active');
+
+            if(read && write && !exec) {
+                document.getElementById('lab4-feedback').innerText = "Policy Applied: Correct Principle of Least Privilege.";
+                document.getElementById('lab4-feedback').className = "text-center font-bold mt-4 h-6 text-green-600";
+                setTimeout(() => showModal('Lab 4 Complete!', 'You have successfully set the File ACLs via the Authorization mechanism.', 'success'), 500);
+            } else {
+                document.getElementById('lab4-feedback').innerText = "Policy Denied. Review the exact permissions required by the scenario.";
+                document.getElementById('lab4-feedback').className = "text-center font-bold mt-4 h-6 text-red-600";
+            }
+        }
+
+
+        // --- QUIZ LOGIC (20 Questions) ---
+        const quizData = [
+            // 10 provided from Document
+            { q: "The main purpose of an operating system is to:", options: ["solve problems for the user.", "interface between hardware and software.", "write software.", "secure the system."], answer: 1 },
+            { q: "What does it mean when we say the OS is a 'transition layer'?", options: ["It translates websites from other languages.", "It helps users translate documents.", "It connects user inputs and software commands to hardware actions.", "It turns files into different formats."], answer: 2 },
+            { q: "What makes a graphical user interface (GUI) more user-friendly?", options: ["It says hello to you.", "It is a text-based interface where users type commands to interact with the OS.", "It is a visual interface with icons, windows, and menus to interact with the OS.", "It is voice-activated."], answer: 2 },
+            { q: "What is one advantage of a Command Line Interface (CLI)?", options: ["It requires no prior knowledge.", "It gives more control to users and automation capabilities.", "It looks more colorful and inviting.", "It uses icons and windows."], answer: 1 },
+            { q: "Which of the following is NOT one of the main purposes of an operating system?", options: ["Disk Management", "Application Management", "Network Broadcasting", "Access Control"], answer: 2 },
+            { q: "Which of the following responsibilities falls strictly under Disk Management?", options: ["Managing printer drivers", "Terminating frozen background apps", "Scheduling read/write disk operations", "Verifying passwords"], answer: 2 },
+            { q: "A situation where processes are unable to proceed because each is waiting for the other to release resources is known as:", options: ["process standoff", "deadlock", "resource drain", "concurrency"], answer: 1 },
+            { q: "Which purpose of an OS oversees 'managing application lifecycle and user preferences'?", options: ["Task and Process Management", "Application Management", "Device Management", "Access Control"], answer: 1 },
+            { q: "Which purpose of an OS controls and coordinates hardware devices, like headphones or printers?", options: ["Task and Process Management", "Application Management", "Device Management", "Disk Management"], answer: 2 },
+            { q: "Which purpose of an OS controls who can see what on a system?", options: ["Access Control", "Application Management", "User Management", "Device Management"], answer: 0 },
+            
+            // 10 new questions based on briefing
+            { q: "What mechanism does an application use to securely request that the OS perform a physical hardware action?", options: ["Device Spooling", "System Calls", "Deadlock resolution", "Graphical Pointers"], answer: 1 },
+            { q: "Which principle dictates that a standard user account should only have the exact permissions necessary to do their job, and nothing more?", options: ["Hardware Abstraction", "Concurrency", "Principle of Least Privilege", "Plug-and-Play"], answer: 2 },
+            { q: "When an OS uses I/O buffering to temporarily store a massive print job in RAM so the CPU isn't slowed down, this is called:", options: ["Partitioning", "Spooling", "Sandboxing", "Formatting"], answer: 1 },
+            { q: "Which of the following is an example of 'Authentication' rather than 'Authorization'?", options: ["Checking if a user is allowed to delete a file.", "Verifying a user's fingerprint scan to log in.", "Setting a folder to Read-Only.", "Assigning an employee to the Admin group."], answer: 1 },
+            { q: "What OS feature isolates applications in a walled-off section of memory so that if they crash, they do not crash the entire computer?", options: ["Sandboxing", "Formatting", "Multitasking", "Context Switching"], answer: 0 },
+            { q: "When you install a completely new, unrecognized USB peripheral, what specific software must the OS find to translate commands for it?", options: ["A GUI patch", "An Access Control List", "A File System", "A Device Driver"], answer: 3 },
+            { q: "What handles the mathematical rules for how data is named, where it is placed, and indexed on a partitioned hard drive?", options: ["The CPU Scheduler", "The File System (e.g., NTFS)", "The Device Manager", "The API"], answer: 1 },
+            { q: "On a multi-core processor, the OS's ability to run multiple heavy processes across different cores at the exact same time is called:", options: ["Context Switching", "True Concurrency", "Hardware Abstraction", "Deadlocking"], answer: 1 },
+            { q: "What invisible tag is attached to every file on the hard drive to explicitly list which users have Read, Write, or Execute permissions?", options: ["System Call (SC)", "Application Programming Interface (API)", "Access Control List (ACL)", "Digital Interface Identifier (DII)"], answer: 2 },
+            { q: "If an OS needs to run a background tracking routine but a user is playing a demanding video game, what part of the OS determines exactly how many milliseconds of CPU time each process receives?", options: ["The File Indexer", "The ACL Administrator", "The CPU Scheduler", "The Device Spooler"], answer: 2 }
+        ];
+
+        const quizContainer = document.getElementById('quiz-container');
+        
+        quizData.forEach((item, index) => {
+            const qDiv = document.createElement('div');
+            qDiv.className = "bg-gray-50 p-6 rounded-lg border border-gray-200 transition-all";
+            qDiv.id = `q-block-${index}`;
+            
+            const qTitle = document.createElement('h3');
+            qTitle.className = "font-bold text-lg text-gray-800 mb-4";
+            qTitle.innerText = `${index + 1}. ${item.q}`;
+            qDiv.appendChild(qTitle);
+            
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = "space-y-3";
+            
+            item.options.forEach((opt, optIndex) => {
+                const label = document.createElement('label');
+                label.className = "flex items-center space-x-3 p-3 rounded bg-white border border-gray-300 hover:bg-green-50 cursor-pointer transition";
+                
+                const radio = document.createElement('input');
+                radio.type = "radio";
+                radio.name = `q${index}`;
+                radio.value = optIndex;
+                radio.className = "form-radio h-5 w-5 text-green-600";
+                
+                const span = document.createElement('span');
+                span.className = "text-gray-700";
+                span.innerText = opt;
+                
+                label.appendChild(radio);
+                label.appendChild(span);
+                optionsDiv.appendChild(label);
+            });
+            
+            qDiv.appendChild(optionsDiv);
+            quizContainer.appendChild(qDiv);
+        });
+
+        function gradeQuiz() {
+            let score = 0;
+            let allAnswered = true;
+
+            for(let i = 0; i < quizData.length; i++) {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                if(selected) {
+                    if(parseInt(selected.value) === quizData[i].answer) {
+                        score++;
+                    }
+                } else {
+                    allAnswered = false;
+                }
+            }
+            
+            if(!allAnswered) {
+                showModal('Incomplete Quiz', 'Please answer all 20 questions before submitting.', 'warning');
+                return;
+            }
+            
+            const percentage = (score / quizData.length) * 100;
+            
+            if(score >= 18) { 
+                const navGame = document.getElementById('nav-game');
+                const navGameMobile = document.getElementById('nav-game-mobile');
+                
+                navGame.classList.remove('text-gray-400', 'cursor-not-allowed');
+                navGame.classList.add('text-white', 'hover:bg-green-600');
+                navGame.disabled = false;
+                navGame.innerHTML = '<i class="fa-solid fa-gamepad mr-1"></i>Game';
+                
+                navGameMobile.classList.remove('text-gray-400', 'cursor-not-allowed');
+                navGameMobile.classList.add('text-white', 'hover:bg-green-600');
+                navGameMobile.disabled = false;
+                navGameMobile.innerHTML = '<i class="fa-solid fa-gamepad"></i> Game';
+
+                document.getElementById('nav-cert').classList.remove('hidden');
+                document.getElementById('nav-cert-mobile').classList.remove('hidden');
+                
+                document.getElementById('proceed-game-btn').classList.remove('hidden');
+                document.getElementById('submit-quiz-btn').classList.add('hidden');
+
+                showModal('Outstanding!', `You scored ${score}/20 (${percentage}%). You have unlocked your Certificate of Mastery AND the Retro Game!`, 'success');
+            } else {
+                quizData.forEach((_, i) => {
+                    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                    if(selected) selected.checked = false;
+                });
+                showModal('Keep Trying!', `You scored ${score}/20 (${percentage}%). You need 90% (18/20) to earn the certificate. Your answers have been reset so you can try again.`, 'error');
+                document.getElementById('quiz-section').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // --- RETRO GAME LOGIC: Process Slicer (Fruit Ninja Clone) ---
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let score = 0;
+        let lives = 3;
+        let gameRunning = false;
+        let animationId;
+        
+        let processes = [];
+        let blade = [];
+        let lastTime = 0;
+        let spawnTimer = 0;
+        let isMouseDown = false;
+        
+        const overlay = document.getElementById('game-overlay');
+        const startBtn = document.getElementById('start-game-btn');
+        startBtn.addEventListener('click', startGame);
+
+        // Input handling
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+            
+            if(e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+            
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        function handleInputStart(e) {
+            if(!gameRunning) return;
+            e.preventDefault();
+            isMouseDown = true;
+            blade = [getMousePos(e)];
+        }
+        
+        function handleInputMove(e) {
+            if(!gameRunning || !isMouseDown) return;
+            e.preventDefault();
+            blade.push(getMousePos(e));
+            if(blade.length > 8) blade.shift(); // Keep blade short
+        }
+        
+        function handleInputEnd(e) {
+            isMouseDown = false;
+            blade = [];
+        }
+
+        canvas.addEventListener('mousedown', handleInputStart);
+        canvas.addEventListener('mousemove', handleInputMove);
+        window.addEventListener('mouseup', handleInputEnd);
+        
+        canvas.addEventListener('touchstart', handleInputStart, {passive: false});
+        canvas.addEventListener('touchmove', handleInputMove, {passive: false});
+        window.addEventListener('touchend', handleInputEnd);
+
+        class ProcessObj {
+            constructor() {
+                this.radius = 25;
+                this.x = Math.random() * (canvas.width - this.radius*2) + this.radius;
+                this.y = canvas.height + this.radius;
+                
+                // Trajectory
+                this.vx = (Math.random() - 0.5) * 4; 
+                this.vy = -(Math.random() * 5 + 10); // Toss up
+                
+                // 20% chance of system process (green), else rogue (red/blue)
+                let rand = Math.random();
+                if(rand < 0.2) {
+                    this.type = 'system';
+                    this.color = '#10b981'; // green
+                    this.label = 'SYS';
+                } else if(rand < 0.6) {
+                    this.type = 'rogue';
+                    this.color = '#ef4444'; // red
+                    this.label = 'MAL';
+                } else {
+                    this.type = 'rogue';
+                    this.color = '#3b82f6'; // blue
+                    this.label = 'APP';
+                }
+                
+                this.sliced = false;
+                this.sliceData = null;
+            }
+            
+            update(dt) {
+                if(this.sliced) {
+                    this.sliceData.p1.x += this.sliceData.p1.vx;
+                    this.sliceData.p1.y += this.sliceData.p1.vy;
+                    this.sliceData.p2.x += this.sliceData.p2.vx;
+                    this.sliceData.p2.y += this.sliceData.p2.vy;
+                    this.sliceData.p1.vy += 0.4; // gravity
+                    this.sliceData.p2.vy += 0.4;
+                } else {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.vy += 0.2; // Gravity
+                }
+            }
+            
+            draw(ctx) {
+                if(this.sliced) {
+                    ctx.fillStyle = this.color;
+                    ctx.globalAlpha = this.sliceData.alpha;
+                    
+                    // Half 1
+                    ctx.beginPath();
+                    ctx.arc(this.sliceData.p1.x, this.sliceData.p1.y, this.radius, Math.PI, Math.PI*2);
+                    ctx.fill();
+                    
+                    // Half 2
+                    ctx.beginPath();
+                    ctx.arc(this.sliceData.p2.x, this.sliceData.p2.y, this.radius, 0, Math.PI);
+                    ctx.fill();
+                    
+                    ctx.globalAlpha = 1.0;
+                    this.sliceData.alpha -= 0.02;
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '12px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(this.label, this.x, this.y);
+                }
+            }
+            
+            slice() {
+                this.sliced = true;
+                this.sliceData = {
+                    alpha: 1.0,
+                    p1: { x: this.x-5, y: this.y, vx: -2, vy: this.vy },
+                    p2: { x: this.x+5, y: this.y, vx: 2, vy: this.vy }
+                };
+                
+                if(this.type === 'rogue') {
+                    score += 45; // 45MB freed
+                    document.getElementById('game-score').innerText = score;
+                } else {
+                    loseLife();
+                }
+            }
+        }
+
+        // Math: Distance from point to line segment
+        function sqr(x) { return x * x; }
+        function dist2(v, w) { return sqr(v.x - w.x) + sqr(v.y - w.y); }
+        function distToSegmentSquared(p, v, w) {
+            let l2 = dist2(v, w);
+            if (l2 == 0) return dist2(p, v);
+            let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+            t = Math.max(0, Math.min(1, t));
+            return dist2(p, { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) });
+        }
+
+        function checkCollisions() {
+            if(blade.length < 2) return;
+            
+            let p1 = blade[blade.length-2];
+            let p2 = blade[blade.length-1];
+            
+            for(let p of processes) {
+                if(!p.sliced) {
+                    let d2 = distToSegmentSquared({x: p.x, y: p.y}, p1, p2);
+                    if(d2 < sqr(p.radius)) {
+                        p.slice();
+                    }
+                }
+            }
+        }
+
+        function loseLife() {
+            lives--;
+            document.getElementById('game-lives').innerText = lives;
+            
+            // Visual red flash
+            ctx.fillStyle = "rgba(255,0,0,0.3)";
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            
+            if(lives <= 0) {
+                gameOver();
+            }
+        }
+
+        function resetGame() {
+            processes = [];
+            blade = [];
+            score = 0;
+            lives = 3;
+            document.getElementById('game-score').innerText = score;
+            document.getElementById('game-lives').innerText = lives;
+            lastTime = Date.now();
+        }
+
+        function startGame() {
+            overlay.classList.add('hidden');
+            if(!gameRunning) {
+                resetGame();
+                gameRunning = true;
+                drawGame();
+            }
+        }
+
+        function drawGame() {
+            if(!gameRunning) return;
+            
+            let now = Date.now();
+            let dt = now - lastTime;
+            lastTime = now;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw tech grid background
+            ctx.strokeStyle = '#374151';
+            ctx.lineWidth = 1;
+            for(let i=0; i<canvas.width; i+=40) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+            }
+            for(let i=0; i<canvas.height; i+=40) {
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+            }
+            
+            // Spawn logic
+            spawnTimer += dt;
+            if(spawnTimer > 1000) {
+                let count = Math.floor(Math.random() * 3) + 1;
+                for(let i=0; i<count; i++) processes.push(new ProcessObj());
+                spawnTimer = 0;
+            }
+            
+            // Check collisions
+            checkCollisions();
+            
+            // Update and draw processes
+            for(let i = processes.length - 1; i >= 0; i--) {
+                let p = processes[i];
+                p.update(dt);
+                p.draw(ctx);
+                
+                // Remove if out of bounds (bottom)
+                if(p.y > canvas.height + p.radius + 50) {
+                    processes.splice(i, 1);
+                }
+            }
+            
+            // Draw Blade
+            if(blade.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(blade[0].x, blade[0].y);
+                for(let i=1; i<blade.length; i++) {
+                    ctx.lineTo(blade[i].x, blade[i].y);
+                }
+                ctx.strokeStyle = '#e2e8f0'; // white/silver blade
+                ctx.lineWidth = 4;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.shadowColor = '#38bdf8';
+                ctx.shadowBlur = 10;
+                ctx.stroke();
+                ctx.shadowBlur = 0; // reset
+            }
+
+            animationId = requestAnimationFrame(drawGame);
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            cancelAnimationFrame(animationId);
+            overlay.classList.remove('hidden');
+            startBtn.innerText = "System Crash! Reboot";
+            startBtn.classList.replace('bg-red-600', 'bg-gray-700');
+            startBtn.classList.replace('border-red-800', 'border-gray-900');
+        }
+
+        // --- CERTIFICATE LOGIC ---
+        function updateCertName() {
+            let name = document.getElementById('student-name-input').value.trim();
+            if(name) {
+                if (name.includes(' ')) {
+                    name = name.split(' ')[0];
+                    document.getElementById('student-name-input').value = name;
+                    showModal('Notice', 'Only your first name has been applied to the certificate.', 'info');
+                }
+                document.getElementById('cert-student-name').innerText = name;
+            } else {
+                showModal('Wait!', 'Please enter your first name to update the certificate.', 'warning');
+            }
+        }
+
+        const today = new Date();
+        document.getElementById('cert-date').innerText = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        function downloadCert() {
+            const certEl = document.getElementById('certificate');
+            const name = document.getElementById('cert-student-name').innerText;
+            let filename = 'Certificate.png';
+            if (name && name !== 'Student') {
+                filename = `${name.replace(/\s+/g, '_')}_Certificate.png`;
+            }
+
+            const originalTransform = certEl.style.transform;
+            certEl.style.transform = 'none';
+
+            const btn = document.getElementById('download-btn');
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Generating...';
+            btn.disabled = true;
+
+            html2canvas(certEl, { 
+                scale: 2, 
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                certEl.style.transform = originalTransform;
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+                
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+            }).catch(err => {
+                console.error(err);
+                certEl.style.transform = originalTransform;
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+                showModal('Error', 'Failed to generate image. Try using a desktop browser.', 'error');
+            });
+        }
+
+        window.onload = () => {
+            // Draw static background for game preview
+            ctx.fillStyle = '#1f2937';
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = '#9ca3af';
+            ctx.font = '20px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('OS KERNEL READY', canvas.width/2, canvas.height/2);
+        }
+    </script>
+</body>
+</html>
+```eof

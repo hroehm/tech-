@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 05 Section 2.6.1 Mastery - Virtualization and Cloud Technologies</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Qwitcher+Grypen:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f9ff; color: #0f172a; } /* Sky 50 background */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e0f2fe; }
+        ::-webkit-scrollbar-thumb { background: #0284c7; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #0369a1; }
+
+        /* General Lab Styles */
+        .draggable { cursor: grab; transition: transform 0.2s, box-shadow 0.2s; }
+        .draggable:active { cursor: grabbing; transform: scale(0.95); }
+        .dropzone { transition: background-color 0.2s ease, border-color 0.2s; min-height: 60px; }
+        .dropzone.drag-over { background: #bae6fd; border-color: #0284c7; }
+        
+        /* Game Canvas Styles */
+        #game-canvas {
+            background-color: #38bdf8; /* Sky 400 */
+            border: 4px solid #0c4a6e;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
+            max-width: 100%;
+            height: auto;
+            touch-action: none;
+            cursor: pointer;
+        }
+
+        /* Certificate Styles */
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .font-body { font-family: 'Lora', serif; }
+        .font-script { font-family: 'Qwitcher Grypen', cursive; }
+        
+        .cert-preview-container { width: 100%; overflow: auto; display: flex; justify-content: center; background: #e2e8f0; padding: 2rem; border-radius: 0.5rem; }
+        #certificate {
+            width: 1056px !important; height: 816px !important; flex-shrink: 0; background-color: #ffffff; position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1056" height="816"><rect width="1056" height="816" fill="%23ffffff"/><path d="M0,0 L250,0 L0,250 Z" fill="%230284c7"/><path d="M0,0 L120,0 L0,120 Z" fill="%230369a1"/><path d="M1056,816 L806,816 L1056,566 Z" fill="%230284c7"/><path d="M1056,816 L936,816 L1056,696 Z" fill="%230369a1"/><path d="M0,816 L0,616 L200,816 Z" fill="%23e0f2fe"/><path d="M1056,0 L1056,200 L856,0 Z" fill="%23e0f2fe"/></svg>');
+            border: 4px solid #cbd5e1;
+        }
+        @media (max-width: 1100px) { #certificate { transform: scale(0.7); transform-origin: top left; margin-bottom: -240px; margin-right: -310px; } }
+        @media (max-width: 768px) { #certificate { transform: scale(0.4); transform-origin: top left; margin-bottom: -490px; margin-right: -630px; } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <nav class="bg-sky-900 text-white shadow-lg sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-cloud text-2xl text-sky-300"></i>
+                    <span class="font-bold text-xl tracking-wider hidden sm:inline-block">Tech+ Unit 05 Section 2.6.1</span>
+                    <span class="font-bold text-xl tracking-wider sm:hidden">2.6.1</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-2">
+                        <button onclick="switchTab('briefing')" class="nav-btn bg-sky-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-sky-600 transition" id="nav-briefing"><i class="fa-solid fa-book-open mr-1"></i>Briefing</button>
+                        <button onclick="switchTab('activity')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-sky-600 transition" id="nav-activity"><i class="fa-solid fa-flask mr-1"></i>Lab Activity</button>
+                        <button onclick="switchTab('quiz')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-sky-600 transition" id="nav-quiz"><i class="fa-solid fa-clipboard-check mr-1"></i>Quiz</button>
+                        <button onclick="switchTab('game')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-slate-400 cursor-not-allowed transition" id="nav-game" disabled><i class="fa-solid fa-lock mr-1"></i>Game</button>
+                        <button onclick="switchTab('cert')" class="nav-btn hidden px-3 py-2 rounded-md text-sm font-medium text-yellow-300 hover:bg-sky-600 transition" id="nav-cert"><i class="fa-solid fa-award mr-1"></i>Certificate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Nav -->
+        <div class="md:hidden flex flex-wrap justify-center gap-2 py-2 px-2 bg-sky-950 border-t border-sky-800">
+            <button onclick="switchTab('briefing')" class="nav-btn-mobile px-3 py-1 text-sm rounded bg-sky-700" id="nav-briefing-mobile">Briefing</button>
+            <button onclick="switchTab('activity')" class="nav-btn-mobile px-3 py-1 text-sm rounded" id="nav-activity-mobile">Lab</button>
+            <button onclick="switchTab('quiz')" class="nav-btn-mobile px-3 py-1 text-sm rounded" id="nav-quiz-mobile">Quiz</button>
+            <button onclick="switchTab('game')" class="nav-btn-mobile px-3 py-1 text-sm rounded text-slate-500 cursor-not-allowed" id="nav-game-mobile" disabled><i class="fa-solid fa-lock"></i></button>
+            <button onclick="switchTab('cert')" id="nav-cert-mobile" class="hidden px-2 py-1 text-sm text-yellow-300 rounded"><i class="fa-solid fa-award"></i></button>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <!-- BRIEFING TAB -->
+        <div id="briefing-section" class="tab-content active no-print">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4">Virtualization and Cloud Technologies</h1>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">Discover how virtualization freed operating systems from physical hardware constraints, paving the way for the massive, scalable cloud infrastructures that run today's digital world.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Tile 1 -->
+                <div class="bg-white rounded-2xl shadow-lg border-t-8 border-blue-500 flex flex-col transform transition hover:-translate-y-1 hover:shadow-xl">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-slate-800"><i class="fa-solid fa-layer-group text-blue-500 mr-2"></i>Virtualization Architecture</h2>
+                        <ul class="space-y-2 text-slate-600 mb-4">
+                            <li><i class="fa-solid fa-check text-blue-500 w-5"></i> Running multiple OSes on one physical machine.</li>
+                            <li><i class="fa-solid fa-check text-blue-500 w-5"></i> Hypervisors manage and allocate resources.</li>
+                            <li><i class="fa-solid fa-check text-blue-500 w-5"></i> Type 1 (Bare-Metal) vs Type 2 (Hosted).</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-50 border-t border-slate-100 p-4 rounded-b-2xl">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('virt-arch-details')" class="flex-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 py-2 rounded-lg font-bold transition flex justify-center items-center"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('virt-arch-usecase')" class="flex-1 bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-700 py-2 rounded-lg font-bold transition flex justify-center items-center"><i class="fa-solid fa-lightbulb text-yellow-500 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tile 2 -->
+                <div class="bg-white rounded-2xl shadow-lg border-t-8 border-emerald-500 flex flex-col transform transition hover:-translate-y-1 hover:shadow-xl">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-slate-800"><i class="fa-solid fa-shield-cat text-emerald-500 mr-2"></i>Benefits of Virtualization</h2>
+                        <ul class="space-y-2 text-slate-600 mb-4">
+                            <li><i class="fa-solid fa-check text-emerald-500 w-5"></i> Sandboxed Virtual Labs for security.</li>
+                            <li><i class="fa-solid fa-check text-emerald-500 w-5"></i> Preserving and running Legacy Software.</li>
+                            <li><i class="fa-solid fa-check text-emerald-500 w-5"></i> Safe environments for Development and Training.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-50 border-t border-slate-100 p-4 rounded-b-2xl">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('virt-ben-details')" class="flex-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 py-2 rounded-lg font-bold transition flex justify-center items-center"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('virt-ben-usecase')" class="flex-1 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 py-2 rounded-lg font-bold transition flex justify-center items-center"><i class="fa-solid fa-lightbulb text-yellow-500 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tile 3 -->
+                <div class="bg-white rounded-2xl shadow-lg border-t-8 border-sky-500 flex flex-col transform transition hover:-translate-y-1 hover:shadow-xl">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-slate-800"><i class="fa-solid fa-cloud text-sky-500 mr-2"></i>Cloud Service Models</h2>
+                        <ul class="space-y-2 text-slate-600 mb-4">
+                            <li><i class="fa-solid fa-check text-sky-500 w-5"></i> <strong>IaaS:</strong> Raw network, storage, and server hardware.</li>
+                            <li><i class="fa-solid fa-check text-sky-500 w-5"></i> <strong>PaaS:</strong> OS and infrastructure for development tools.</li>
+                            <li><i class="fa-solid fa-check text-sky-500 w-5"></i> <strong>SaaS:</strong> Fully hosted, ready-to-use end applications.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-50 border-t border-slate-100 p-4 rounded-b-2xl">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('cloud-serv-details')" class="flex-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 py-2 rounded-lg font-bold transition flex justify-center items-center"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('cloud-serv-usecase')" class="flex-1 bg-sky-50 border border-sky-200 hover:bg-sky-100 text-sky-700 py-2 rounded-lg font-bold transition flex justify-center items-center"><i class="fa-solid fa-lightbulb text-yellow-500 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tile 4 -->
+                <div class="bg-white rounded-2xl shadow-lg border-t-8 border-purple-500 flex flex-col transform transition hover:-translate-y-1 hover:shadow-xl">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-slate-800"><i class="fa-solid fa-sitemap text-purple-500 mr-2"></i>Cloud Deployment Models</h2>
+                        <ul class="space-y-2 text-slate-600 mb-4">
+                            <li><i class="fa-solid fa-check text-purple-500 w-5"></i> <strong>Public:</strong> Affordable, shared, vendor-managed.</li>
+                            <li><i class="fa-solid fa-check text-purple-500 w-5"></i> <strong>Private:</strong> On-premises, expensive, maximum security.</li>
+                            <li><i class="fa-solid fa-check text-purple-500 w-5"></i> <strong>Hybrid & Community:</strong> Bridging models for specific needs.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-50 border-t border-slate-100 p-4 rounded-b-2xl">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('cloud-dep-details')" class="flex-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 py-2 rounded-lg font-bold transition flex justify-center items-center"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('cloud-dep-usecase')" class="flex-1 bg-purple-50 border border-purple-200 hover:bg-purple-100 text-purple-700 py-2 rounded-lg font-bold transition flex justify-center items-center"><i class="fa-solid fa-lightbulb text-yellow-500 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 flex justify-center border-t border-slate-200 pt-8">
+                <button onclick="switchTab('activity')" class="bg-sky-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-sky-500 shadow-xl transition transform hover:-translate-y-1 flex items-center group">
+                    Proceed to Interactive Labs 
+                    <i class="fa-solid fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- LAB ACTIVITY TAB -->
+        <div id="activity-section" class="tab-content no-print">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-3">Cloud & Virtualization Labs</h1>
+                <p class="text-slate-600 max-w-2xl mx-auto">Complete all 8 interactive mini-labs to demonstrate your understanding of hypervisors, cloud services, and deployment models.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- LAB 1: Hypervisor Types -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-blue-500">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-microchip text-blue-500 mr-2"></i>Lab 1: Hypervisor Sorter</h2>
+                    <p class="text-sm text-slate-600 mb-4">Drag the hypervisor characteristic to the correct type.</p>
+                    <div class="flex gap-2 mb-4 flex-wrap" id="lab1-draggables">
+                        <div class="draggable bg-blue-100 text-blue-800 text-xs font-bold px-3 py-2 rounded border border-blue-300" draggable="true" data-match="type1">Bare-Metal (No main OS)</div>
+                        <div class="draggable bg-blue-100 text-blue-800 text-xs font-bold px-3 py-2 rounded border border-blue-300" draggable="true" data-match="type2">Runs inside an existing OS</div>
+                        <div class="draggable bg-blue-100 text-blue-800 text-xs font-bold px-3 py-2 rounded border border-blue-300" draggable="true" data-match="type1">Highest Performance</div>
+                        <div class="draggable bg-blue-100 text-blue-800 text-xs font-bold px-3 py-2 rounded border border-blue-300" draggable="true" data-match="type2">Easiest for desktop users</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="dropzone p-3 bg-slate-50 border-2 border-dashed border-slate-300 rounded flex flex-col items-center" data-target="type1"><span class="font-bold text-slate-700 text-sm">Type 1 Hypervisor</span></div>
+                        <div class="dropzone p-3 bg-slate-50 border-2 border-dashed border-slate-300 rounded flex flex-col items-center" data-target="type2"><span class="font-bold text-slate-700 text-sm">Type 2 Hypervisor</span></div>
+                    </div>
+                </div>
+
+                <!-- LAB 2: VM Provisioning -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-blue-500">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-memory text-blue-500 mr-2"></i>Lab 2: VM Provisioner</h2>
+                    <p class="text-sm text-slate-600 mb-4">Allocate exactly 16GB of RAM across 3 Guest VMs without exceeding the Host's limits.</p>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1 text-slate-600"><span>VM 1 (Linux Web)</span><span id="lab2-val1">0 GB</span></div>
+                            <input type="range" id="lab2-slide1" min="0" max="16" value="0" class="w-full accent-blue-500" oninput="updateLab2()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1 text-slate-600"><span>VM 2 (Windows Server)</span><span id="lab2-val2">0 GB</span></div>
+                            <input type="range" id="lab2-slide2" min="0" max="16" value="0" class="w-full accent-blue-500" oninput="updateLab2()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1 text-slate-600"><span>VM 3 (Database)</span><span id="lab2-val3">0 GB</span></div>
+                            <input type="range" id="lab2-slide3" min="0" max="16" value="0" class="w-full accent-blue-500" oninput="updateLab2()">
+                        </div>
+                        <div class="bg-slate-100 p-2 rounded text-center font-bold text-sm">Total Allocated: <span id="lab2-total" class="text-blue-600">0 / 16 GB</span></div>
+                    </div>
+                </div>
+
+                <!-- LAB 3: Virtualization Benefits -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-emerald-500">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-list-check text-emerald-500 mr-2"></i>Lab 3: Benefit Matcher</h2>
+                    <p class="text-sm text-slate-600 mb-4">Match the correct Virtualization benefit to the given scenario.</p>
+                    <div class="space-y-3">
+                        <div class="flex gap-2 items-center">
+                            <select id="lab3-sel1" class="border border-slate-300 rounded p-1 text-sm bg-slate-50 outline-none w-1/3" onchange="checkLab3()">
+                                <option value="">Select...</option><option value="legacy">Legacy Software</option><option value="labs">Virtual Labs</option><option value="dev">Development</option>
+                            </select>
+                            <span class="text-xs text-slate-600 w-2/3">Need to run a critical program that only works on Windows 98.</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <select id="lab3-sel2" class="border border-slate-300 rounded p-1 text-sm bg-slate-50 outline-none w-1/3" onchange="checkLab3()">
+                                <option value="">Select...</option><option value="legacy">Legacy Software</option><option value="labs">Virtual Labs</option><option value="dev">Development</option>
+                            </select>
+                            <span class="text-xs text-slate-600 w-2/3">Need a safe, isolated environment to purposefully detonate malware.</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <select id="lab3-sel3" class="border border-slate-300 rounded p-1 text-sm bg-slate-50 outline-none w-1/3" onchange="checkLab3()">
+                                <option value="">Select...</option><option value="legacy">Legacy Software</option><option value="labs">Virtual Labs</option><option value="dev">Development</option>
+                            </select>
+                            <span class="text-xs text-slate-600 w-2/3">Need to test a new app across 3 different OS versions instantly.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LAB 4: Snapshot Rollback -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-emerald-500">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-clock-rotate-left text-emerald-500 mr-2"></i>Lab 4: Snapshot Rollback</h2>
+                    <p class="text-sm text-slate-600 mb-4">A developer installed a bad patch! Use VM Snapshots to restore the system state.</p>
+                    <div class="flex flex-col items-center">
+                        <div class="flex items-center w-full justify-between mb-4">
+                            <div class="text-center"><i class="fa-solid fa-camera text-slate-400 text-2xl" id="lab4-snap-icon"></i><div class="text-xs mt-1">Base State</div></div>
+                            <div class="h-1 bg-slate-200 flex-grow mx-2"></div>
+                            <div class="text-center"><i class="fa-solid fa-bug text-rose-500 text-2xl hidden" id="lab4-bug-icon"></i><div class="text-xs mt-1">Bad Patch</div></div>
+                        </div>
+                        <div class="flex gap-4">
+                            <button id="lab4-btn-patch" onclick="lab4Install()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-4 py-2 rounded text-sm font-bold transition">Install Patch</button>
+                            <button id="lab4-btn-restore" onclick="lab4Restore()" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 px-4 py-2 rounded text-sm font-bold transition opacity-50 cursor-not-allowed" disabled>Restore Snapshot</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LAB 5: As A Service Sorter -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-sky-500">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-layer-group text-sky-500 mr-2"></i>Lab 5: The "As A Service" Pyramid</h2>
+                    <p class="text-sm text-slate-600 mb-4">Drag the cloud feature to the correct Service Model.</p>
+                    <div class="flex gap-2 mb-4 flex-wrap" id="lab5-draggables">
+                        <div class="draggable bg-sky-100 text-sky-800 text-xs font-bold px-3 py-2 rounded border border-sky-300" draggable="true" data-match="iaas">Raw Servers & Firewalls</div>
+                        <div class="draggable bg-sky-100 text-sky-800 text-xs font-bold px-3 py-2 rounded border border-sky-300" draggable="true" data-match="paas">OS & Developer Tools</div>
+                        <div class="draggable bg-sky-100 text-sky-800 text-xs font-bold px-3 py-2 rounded border border-sky-300" draggable="true" data-match="saas">Web-based Email App</div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div class="dropzone p-2 bg-slate-50 border-2 border-dashed border-slate-300 rounded flex justify-between items-center" data-target="saas"><span class="font-bold text-slate-700 text-sm">SaaS (Software)</span></div>
+                        <div class="dropzone p-2 bg-slate-50 border-2 border-dashed border-slate-300 rounded flex justify-between items-center" data-target="paas"><span class="font-bold text-slate-700 text-sm">PaaS (Platform)</span></div>
+                        <div class="dropzone p-2 bg-slate-50 border-2 border-dashed border-slate-300 rounded flex justify-between items-center" data-target="iaas"><span class="font-bold text-slate-700 text-sm">IaaS (Infrastructure)</span></div>
+                    </div>
+                </div>
+
+                <!-- LAB 6: Company Architect -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-sky-500">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-building text-sky-500 mr-2"></i>Lab 6: Cloud Architect</h2>
+                    <p class="text-sm text-slate-600 mb-4">A startup needs a fully managed database to test their new mobile app code. They do NOT want to manage the underlying OS. What do they need?</p>
+                    <div class="flex flex-col gap-3">
+                        <button onclick="checkLab6(this, false)" class="lab6-btn border border-slate-300 p-3 rounded text-left hover:bg-slate-50 transition"><strong class="text-sky-700">IaaS:</strong> They need raw virtual servers.</button>
+                        <button onclick="checkLab6(this, true)" class="lab6-btn border border-slate-300 p-3 rounded text-left hover:bg-slate-50 transition"><strong class="text-sky-700">PaaS:</strong> They need a platform and developer tools.</button>
+                        <button onclick="checkLab6(this, false)" class="lab6-btn border border-slate-300 p-3 rounded text-left hover:bg-slate-50 transition"><strong class="text-sky-700">SaaS:</strong> They need a finished email client.</button>
+                    </div>
+                </div>
+
+                <!-- LAB 7: Deployment Matrix -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-purple-500">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-sitemap text-purple-500 mr-2"></i>Lab 7: Deployment Matrix</h2>
+                    <p class="text-sm text-slate-600 mb-4">Categorize the deployment model based on its primary trait.</p>
+                    <div class="flex flex-wrap gap-2 mb-4" id="lab7-draggables">
+                        <div class="draggable bg-purple-100 text-purple-800 text-xs font-bold px-3 py-2 rounded border border-purple-300" draggable="true" data-match="pub">Vendor managed, cheapest</div>
+                        <div class="draggable bg-purple-100 text-purple-800 text-xs font-bold px-3 py-2 rounded border border-purple-300" draggable="true" data-match="pri">On-premise, most secure</div>
+                        <div class="draggable bg-purple-100 text-purple-800 text-xs font-bold px-3 py-2 rounded border border-purple-300" draggable="true" data-match="hyb">Mix of secure and public scale</div>
+                        <div class="draggable bg-purple-100 text-purple-800 text-xs font-bold px-3 py-2 rounded border border-purple-300" draggable="true" data-match="com">Shared by similar organizations</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="dropzone p-2 bg-slate-50 border-2 border-dashed border-slate-300 rounded text-center text-xs font-bold" data-target="pub">Public</div>
+                        <div class="dropzone p-2 bg-slate-50 border-2 border-dashed border-slate-300 rounded text-center text-xs font-bold" data-target="pri">Private</div>
+                        <div class="dropzone p-2 bg-slate-50 border-2 border-dashed border-slate-300 rounded text-center text-xs font-bold" data-target="hyb">Hybrid</div>
+                        <div class="dropzone p-2 bg-slate-50 border-2 border-dashed border-slate-300 rounded text-center text-xs font-bold" data-target="com">Community</div>
+                    </div>
+                </div>
+
+                <!-- LAB 8: Cloud Budget Planner -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-purple-500">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-money-bill-wave text-purple-500 mr-2"></i>Lab 8: Cloud Budget</h2>
+                    <p class="text-sm text-slate-600 mb-4">Company MNP handles highly sensitive patient data. They have a massive $2 Million budget. Which deployment model should they buy?</p>
+                    <div class="flex flex-col gap-3">
+                        <button onclick="checkLab8(this, false)" class="lab8-btn border border-slate-300 p-3 rounded text-left hover:bg-slate-50 transition"><strong class="text-purple-700">Public Cloud:</strong> Affordable, vendor managed.</button>
+                        <button onclick="checkLab8(this, true)" class="lab8-btn border border-slate-300 p-3 rounded text-left hover:bg-slate-50 transition"><strong class="text-purple-700">Private Cloud:</strong> Highest security, on-premises.</button>
+                        <button onclick="checkLab8(this, false)" class="lab8-btn border border-slate-300 p-3 rounded text-left hover:bg-slate-50 transition"><strong class="text-purple-700">Community Cloud:</strong> Share costs with local schools.</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-12 text-center border-t border-slate-200 pt-8">
+                <button onclick="switchTab('quiz')" class="bg-sky-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-sky-500 shadow-xl transition transform hover:-translate-y-1">Take the Mastery Quiz <i class="fa-solid fa-clipboard-check ml-2"></i></button>
+            </div>
+        </div>
+
+        <!-- QUIZ TAB -->
+        <div id="quiz-section" class="tab-content no-print">
+            <div class="bg-white p-6 sm:p-10 rounded-3xl shadow-xl max-w-4xl mx-auto border border-slate-100">
+                <div class="text-center mb-8 border-b border-slate-200 pb-6">
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-3">Mastery Quiz</h1>
+                    <p class="text-slate-600 text-lg">Score 90% or higher (18/20) to earn your Certificate and unlock <strong class="text-sky-600">Cloud Packet Hover</strong>.</p>
+                </div>
+
+                <div id="quiz-container" class="space-y-6">
+                    <!-- Questions injected via JS -->
+                </div>
+
+                <div class="mt-10 text-center border-t border-slate-200 pt-8 flex flex-col md:flex-row justify-center items-center gap-4">
+                    <button id="submit-quiz-btn" onclick="gradeQuiz()" class="bg-sky-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-sky-700 shadow-lg transition w-full md:w-auto">Submit Quiz</button>
+                    <button id="proceed-game-btn" onclick="switchTab('game')" class="hidden bg-emerald-500 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-emerald-600 shadow-lg transition w-full md:w-auto transform hover:scale-105">Play Cloud Hover <i class="fa-solid fa-gamepad ml-2"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RETRO GAME TAB (Helicopter/Cave style) -->
+        <div id="game-section" class="tab-content no-print">
+            <div class="bg-slate-900 p-6 sm:p-8 rounded-3xl shadow-2xl max-w-4xl mx-auto border-4 border-slate-700 flex flex-col items-center">
+                <div class="text-center mb-6 w-full">
+                    <h1 class="text-4xl md:text-5xl font-extrabold text-sky-400 mb-2 tracking-widest uppercase" style="font-family: monospace; text-shadow: 0 0 10px rgba(56,189,248,0.5);">Data Stream</h1>
+                    <p class="text-slate-300 text-sm md:text-base">Navigate the data packet through the server racks! Press <strong class="text-white">SPACEBAR</strong> or <strong class="text-white">CLICK/TOUCH</strong> the screen to apply thrust. Release to fall. Avoid the blue server racks!</p>
+                </div>
+                
+                <div class="flex justify-between items-center w-full max-w-[600px] mb-4 px-4 text-white font-mono text-xl bg-slate-800 p-3 rounded-lg border border-slate-600">
+                    <div>Uptime: <span id="game-score" class="text-sky-400 font-bold">0</span>s</div>
+                    <div>High Score: <span id="game-high" class="text-emerald-400 font-bold">0</span>s</div>
+                </div>
+
+                <div class="relative flex justify-center w-full max-w-[600px]">
+                    <canvas id="game-canvas" width="600" height="400" class="w-full bg-sky-400 rounded shadow-[0_0_30px_rgba(56,189,248,0.2)] border-2 border-sky-900"></canvas>
+                    
+                    <div id="game-overlay" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 rounded z-10 backdrop-blur-sm">
+                        <button id="start-game-btn" class="bg-sky-600 hover:bg-sky-500 text-white font-bold font-mono py-4 px-8 rounded-lg text-2xl border-2 border-sky-300 uppercase transform transition hover:scale-105 shadow-[0_0_15px_rgba(56,189,248,0.6)]">Initialize Stream</button>
+                    </div>
+                </div>
+
+                <div class="mt-8 text-center w-full border-t border-slate-700 pt-6">
+                    <button onclick="switchTab('cert')" class="bg-sky-600 text-white px-8 py-3 rounded-xl font-bold text-lg hover:bg-sky-500 shadow-lg transition w-full md:w-auto border border-sky-400">Claim Certificate <i class="fa-solid fa-award ml-2"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CERTIFICATE TAB -->
+        <div id="cert-section" class="tab-content">
+            <div class="max-w-5xl mx-auto">
+                <div class="bg-white p-6 rounded-2xl shadow-md mb-6 no-print text-center border border-slate-200">
+                    <h2 class="text-2xl font-bold text-sky-700 mb-2">🎉 Cloud Mastery Achieved! 🎉</h2>
+                    <p class="text-slate-600 mb-6">Enter your name exactly as you want it to appear on your official certificate.</p>
+                    <div class="flex flex-col md:flex-row justify-center items-center gap-4">
+                        <input type="text" id="student-name-input" value="Student Name" placeholder="First and Last Name" class="border-2 border-slate-300 rounded-lg px-4 py-3 w-full md:w-80 focus:border-sky-500 focus:outline-none font-bold text-slate-700">
+                        <button onclick="updateCertName()" class="bg-sky-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-sky-700 transition shadow">Update Name</button>
+                        <button id="download-btn" onclick="downloadCert()" class="bg-slate-800 text-white px-6 py-3 rounded-lg font-bold hover:bg-slate-900 transition shadow flex items-center justify-center">
+                            <i class="fa-solid fa-download mr-2"></i>Save PNG
+                        </button>
+                    </div>
+                </div>
+
+                <div class="cert-preview-container print:p-0 print:bg-white">
+                    <div id="certificate">
+                        <div class="relative z-20 w-full h-full flex flex-col pt-[80px] px-[80px]">
+                            
+                            <div class="flex justify-between items-start w-full">
+                                <div>
+                                    <h1 class="text-[#0f172a] text-[3.5rem] leading-none font-serif font-bold tracking-widest uppercase mb-1">CERTIFICATE</h1>
+                                    <h2 class="text-sky-700 text-[1.5rem] font-serif tracking-widest uppercase">Of Technological Mastery</h2>
+                                </div>
+                                <i class="fa-solid fa-cloud text-6xl text-sky-200"></i>
+                            </div>
+                            
+                            <p class="text-[1.5rem] font-body text-slate-700 mt-16 mb-2">This document certifies that</p>
+                            
+                            <div class="relative mb-12 w-[80%]">
+                                <h3 id="cert-student-name" class="text-[4.5rem] text-[#0f172a] font-serif italic leading-none pb-2 relative z-10 block">Student Name</h3>
+                                <div class="w-full border-b-[3px] border-[#0284c7] absolute bottom-[5px] left-0 z-0"></div>
+                            </div>
+                            
+                            <p class="text-[1.4rem] font-body text-slate-800 leading-relaxed w-[85%]">
+                                Has successfully completed the comprehensive assessment for 
+                                <strong class="text-[1.8rem] text-sky-800 block mt-4 mb-2 font-serif">Cyber.org Tech+ Unit 05 Section 2.6.1</strong>
+                                <strong class="text-[1.6rem] text-black block mb-4 font-serif italic">Virtualization & Cloud Technologies</strong>
+                                <span class="text-[1.1rem] text-slate-600 leading-snug block">Demonstrating proficiency in hypervisor architecture, virtualization benefits, "As A Service" cloud models (IaaS, PaaS, SaaS), and public/private cloud deployment strategies.</span>
+                            </p>
+                            
+                            <div class="flex justify-between items-end mt-auto mb-[60px] w-full">
+                                <div class="w-16 h-16 rounded-full bg-yellow-400 border-4 border-yellow-500 shadow-lg flex items-center justify-center text-yellow-100 relative">
+                                   <i class="fa-solid fa-star text-2xl absolute z-10"></i>
+                                   <div class="w-20 h-20 rounded-full border border-yellow-300 absolute animate-ping"></div>
+                                </div>
+                                <div class="flex gap-16">
+                                    <div class="w-56">
+                                        <div class="border-b-2 border-slate-400 mb-2 h-16 flex items-end justify-center relative">
+                                            <span class="font-script text-[4rem] text-sky-900 absolute bottom-[-15px] transform -rotate-3 opacity-90">Dr. Cloud Architect</span>
+                                        </div>
+                                        <p class="font-serif text-lg text-slate-600 text-center uppercase tracking-wider text-xs font-bold">Systems Director</p>
+                                    </div>
+                                    
+                                    <div class="w-48">
+                                        <div class="border-b-2 border-slate-400 mb-2 text-center h-16 flex items-end justify-center">
+                                            <p id="cert-date" class="font-body text-xl text-slate-800 pb-1 font-bold">Date Here</p>
+                                        </div>
+                                        <p class="font-serif text-lg text-slate-600 text-center uppercase tracking-wider text-xs font-bold">Date of Mastery</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Custom Message Modal -->
+    <div id="custom-modal" class="fixed inset-0 bg-slate-900 bg-opacity-70 z-[100] hidden flex justify-center items-center backdrop-blur-sm p-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full transform transition-all border border-slate-200">
+            <div class="text-center">
+                <div id="modal-icon" class="text-6xl mb-6 drop-shadow-md"></div>
+                <h3 id="modal-title" class="text-2xl font-black mb-3 text-slate-900"></h3>
+                <p id="modal-msg" class="text-slate-600 mb-8 font-medium leading-relaxed"></p>
+                <button onclick="closeModal()" class="bg-sky-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-sky-700 transition w-full shadow-lg text-lg">Acknowledge</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Briefing Content Modal -->
+    <div id="briefing-modal" class="fixed inset-0 bg-slate-900 bg-opacity-80 z-[120] hidden flex justify-center items-center backdrop-blur-sm p-4 sm:p-6">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col transform transition-all overflow-hidden border-4 border-sky-600">
+            <div class="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                <div class="flex items-center gap-4">
+                    <div id="briefing-modal-icon" class="text-4xl"></div>
+                    <h3 id="briefing-modal-title" class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight"></h3>
+                </div>
+                <button onclick="closeBriefing()" class="text-slate-400 hover:text-red-600 transition text-5xl leading-none">&times;</button>
+            </div>
+            <div id="briefing-modal-content" class="p-6 md:p-10 overflow-y-auto flex-grow text-slate-700 text-lg leading-relaxed bg-white">
+                <!-- Content Injected -->
+            </div>
+            <div class="p-6 border-t border-slate-200 bg-slate-50 flex justify-end">
+                <button onclick="closeBriefing()" class="bg-sky-700 text-white px-8 py-3 rounded-xl font-bold text-lg hover:bg-sky-800 transition shadow-lg">Close Details</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- BRIEFING DATA ---
+        const briefingData = {
+            'virt-arch-details': {
+                title: 'Virtualization Architecture', icon: '<i class="fa-solid fa-layer-group text-blue-600"></i>',
+                html: `
+                    <p class="mb-5">Before virtualization, computing relied on a strict "one-to-one" relationship: one physical server hardware box ran exactly one operating system, which in turn hosted one primary application (like an email server or a database). This architecture was incredibly wasteful. Because servers had to be purchased with enough power to handle peak usage spikes, they often sat idle 80% of the time, wasting massive amounts of electricity, cooling, and physical data center space.</p>
+                    <p class="mb-5">Virtualization revolutionized the IT industry by breaking this physical limitation. Virtualization is a technology that allows multiple, completely independent operating systems to run on a single physical machine at the exact same time. Instead of buying ten physical servers to run ten different applications, a company can buy one powerful server and slice its resources into ten "Virtual Machines" (VMs).</p>
+                    <p class="mb-5">The magic behind virtualization is a specialized piece of software called the <strong>Hypervisor</strong> (or Virtual Machine Monitor). The hypervisor sits between the physical hardware (CPU, RAM, Storage) and the virtual machines. Its job is to abstract the hardware, presenting fake, "virtual" hardware to the operating systems. The hypervisor rigorously schedules and allocates these physical resources, ensuring that VM A cannot steal RAM assigned to VM B.</p>
+                    <p class="mb-5">There are two primary categories of Hypervisors. A <strong>Type 1 Hypervisor</strong>, often called "Bare-Metal", is installed directly onto the raw server hardware without needing a traditional operating system (like Windows or macOS) underneath it. Because there is no bulky "middleman" OS wasting resources, Type 1 hypervisors offer extreme performance, stability, and security, making them the standard for enterprise data centers.</p>
+                    <p class="mb-5">Conversely, a <strong>Type 2 Hypervisor</strong> (or Hosted Hypervisor) is installed as a standard software application on top of an existing operating system. For example, if you run Windows 11 on your laptop, you can install a Type 2 hypervisor (like VirtualBox or VMware Workstation) as a program, and then create a Linux VM inside it. While easier for everyday consumers and students to use, the performance is inherently slower because the host OS consumes resources first.</p>
+                    <p class="mb-5">The operating system installed inside the virtual machine is referred to as the <strong>Guest OS</strong>. From the perspective of the Guest OS, it believes it is running on real, physical hardware. It has no idea that its "hard drive" is actually just a large file sitting on the host machine, or that its "CPU" is just a scheduled fraction of the physical processor.</p>
+                    <p class="mb-5">Because each Guest OS is completely isolated in its own virtual sandbox, virtualization provides immense security benefits. If a virus completely destroys one Virtual Machine, the damage is contained entirely within that VM's digital borders. The physical host and the other VMs running beside it remain completely untouched and unaware of the failure.</p>
+                `
+            },
+            'virt-arch-usecase': {
+                title: 'Virtualization: Use Cases', icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-blue-800 mb-2 border-b-2 border-blue-200 pb-1">Case 1: Data Center Efficiency</h4>
+                        <p class="mb-2 text-slate-700">Corporations use Type 1 Bare-Metal hypervisors to drastically shrink their physical hardware footprint, saving massive amounts of money on electricity and hardware purchases.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-600">
+                            <li class="mb-2"><strong>Example 1 (Server Consolidation):</strong> A university with 50 old, half-empty physical servers uses a Type 1 Hypervisor to consolidate all 50 operating systems onto just 3 highly powerful modern servers, saving an entire room's worth of space and power.</li>
+                            <li><strong>Example 2 (Hardware Emulation):</strong> A company buys a brand new server but needs to run an old operating system that doesn't have drivers for the new hardware. The hypervisor emulates generic, older hardware, allowing the old OS to run perfectly on the new machine.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-blue-800 mb-2 border-b-2 border-blue-200 pb-1">Case 2: IT Workstation Sandboxing</h4>
+                        <p class="mb-2 text-slate-700">Individual users and IT professionals use Type 2 Hosted hypervisors on their personal laptops to safely experiment with different environments without risking their main computer.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-600">
+                            <li class="mb-2"><strong>Example 1 (OS Testing):</strong> A student wants to learn Linux but doesn't want to erase Windows from their laptop. They install a Type 2 hypervisor and run Ubuntu safely in a window on their desktop.</li>
+                            <li><strong>Example 2 (Security Isolation):</strong> An IT worker receives a highly suspicious email attachment. Instead of opening it on their main PC, they drag it into an isolated Virtual Machine, disconnect the VM's network, and open the file safely to analyze the malware.</li>
+                        </ul>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-2">Concept: Data Center Servers</p>
+                            <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&h=350" alt="Endless rows of illuminated server racks in a data center" class="w-full h-48 object-cover rounded-xl shadow border border-slate-200">
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-2">In Use: Developer Laptop VM</p>
+                            <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&h=350" alt="Laptop showing code and different windows representing a Type 2 VM" class="w-full h-48 object-cover rounded-xl shadow border border-slate-200">
+                        </div>
+                    </div>
+                `
+            },
+            'virt-ben-details': {
+                title: 'Benefits of Virtualization', icon: '<i class="fa-solid fa-shield-cat text-emerald-600"></i>',
+                html: `
+                    <p class="mb-5">Beyond simply saving money on physical hardware, virtualization offers incredible functional benefits that have transformed how IT professionals, educators, and developers work. By separating the software environment from the rigid physical hardware, tasks that used to be dangerous, expensive, or impossible are now routine.</p>
+                    <p class="mb-5">One major benefit is the creation of <strong>Virtual Labs</strong>. In cybersecurity and networking, professionals frequently need to test dangerous scenarios—like analyzing aggressive malware or simulating a network breach. Doing this on physical hardware risks destroying the computer or spreading the virus. A virtual lab provides a perfectly sealed digital sandbox. If the virus destroys the guest OS, the user simply deletes the VM file and creates a new one in seconds, with zero damage to the host machine.</p>
+                    <p class="mb-5">Another critical benefit is preserving <strong>Legacy Software</strong>. Many businesses (like factories or hospitals) rely on custom-built, multi-million dollar software that was written 20 years ago and only runs on an ancient OS like Windows XP. When the old physical computers break, modern computers cannot natively run Windows XP. Virtualization solves this by creating a VM that acts exactly like an old computer, keeping critical legacy software running securely on modern hardware.</p>
+                    <p class="mb-5">For software engineers, virtualization is essential for <strong>Development</strong>. A developer writing a web application needs to ensure it works correctly for users on Windows, macOS, and Linux. Instead of keeping three physical laptops on their desk, they can run one powerful machine with three VMs open simultaneously, instantly testing their code across all platforms in real-time.</p>
+                    <p class="mb-5">In the realm of <strong>Training and Education</strong>, virtualization powers platforms like the CYBER.ORG Range. Teaching IT concepts often requires giving students administrative access to break and fix operating systems. If done on physical school computers, the IT staff would spend all night fixing them. VMs provide disposable, safe environments for students to practice high-level administration without endangering the school's actual network.</p>
+                    <p class="mb-5">Virtual machines also utilize powerful features like <strong>Snapshots</strong>. A snapshot is a perfectly frozen picture of a VM's state, memory, and data at an exact moment in time. If a user is about to install a massive, risky software update, they take a snapshot first. If the update corrupts the system, they click a button and the VM instantly rolls back to the snapshot, undoing the damage like a time machine.</p>
+                    <p class="mb-5">Finally, virtualization provides the backbone for non-persistent environments. In a non-persistent setup, the VM resets to a clean, factory-fresh state every single time it is rebooted. This is vital for security kiosks, library computers, and training labs, ensuring that any mistakes, downloaded files, or malicious changes made by a previous user are instantly wiped away for the next user.</p>
+                `
+            },
+            'virt-ben-usecase': {
+                title: 'Benefits: Use Cases', icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-emerald-800 mb-2 border-b-2 border-emerald-200 pb-1">Case 1: Software Development & Testing</h4>
+                        <p class="mb-2 text-slate-700">Engineering teams rely on virtualization to speed up the software creation process and guarantee quality across multiple environments without needing massive physical hardware labs.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-600">
+                            <li class="mb-2"><strong>Example 1 (Cross-Platform):</strong> A game developer uses a Windows PC but needs to compile code for a Linux server. They spin up an Ubuntu VM on their desktop, compile and test the code locally, and then shut down the VM, saving hours of transferring files back and forth.</li>
+                            <li><strong>Example 2 (Snapshot Rollbacks):</strong> An engineer is testing a destructive database patch. They take a VM Snapshot at 1:00 PM. The patch fails and deletes the database at 1:05 PM. The engineer hits "Restore," and at 1:06 PM, the VM is identical to how it was at 1:00 PM.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-emerald-800 mb-2 border-b-2 border-emerald-200 pb-1">Case 2: Cybersecurity & Training Environments</h4>
+                        <p class="mb-2 text-slate-700">Educators and security researchers use VMs to create intentionally vulnerable or safe, disposable environments that protect the physical host network.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-600">
+                            <li class="mb-2"><strong>Example 1 (Malware Analysis):</strong> A security researcher downloads a new ransomware variant. They drag the file into a strictly isolated "Virtual Lab" VM that has no internet connection, allowing them to watch the virus encrypt files safely without risking their actual computer.</li>
+                            <li><strong>Example 2 (Non-Persistent Training):</strong> A school uses a cloud range for a hacking class. Students hack into simulated servers, breaking passwords and changing files. When the class ends, the VMs automatically terminate and reboot to a clean, fresh state for the next period.</li>
+                        </ul>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-2">Concept: Cyber Virtual Labs</p>
+                            <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=600&h=350" alt="Computer screen displaying green matrix code and cyber elements" class="w-full h-48 object-cover rounded-xl shadow border border-slate-200">
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-2">In Use: Developer Workspace</p>
+                            <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=600&h=350" alt="Developer desk with multiple screens coding and testing" class="w-full h-48 object-cover rounded-xl shadow border border-slate-200">
+                        </div>
+                    </div>
+                `
+            },
+            'cloud-serv-details': {
+                title: 'Cloud Service Models', icon: '<i class="fa-solid fa-cloud text-sky-600"></i>',
+                html: `
+                    <p class="mb-5">Cloud Computing took the concept of virtualization and scaled it globally. Instead of a company running hypervisors on servers in their own back room, Cloud Computing allows users to rent computing resources (servers, storage, software) located in massive remote data centers via the internet. This creates a massive financial shift: organizations move from high Capital Expenditure (CapEx - buying expensive physical servers upfront) to Operational Expenditure (OpEx - paying a monthly utility bill only for what they use).</p>
+                    <p class="mb-5">To understand the cloud, you must understand the three primary "As A Service" models, which dictate exactly how much of the technology stack the provider manages versus how much the customer manages. This concept is known as the Shared Responsibility Model.</p>
+                    <p class="mb-5">At the foundation is <strong>Infrastructure as a Service (IaaS)</strong>. In IaaS, the cloud provider (like Amazon Web Services or Microsoft Azure) owns and manages the physical building, the electricity, the physical server hardware, and the Hypervisor. The customer essentially rents "raw" virtual machines, storage, and networking. The customer is entirely responsible for installing the operating system, patching security flaws, and managing their data. It offers the most control, but requires the most technical skill.</p>
+                    <p class="mb-5">The next layer up is <strong>Platform as a Service (PaaS)</strong>. PaaS is designed specifically for software developers. The cloud provider manages the physical hardware, the hypervisor, AND the operating system and underlying web servers. The customer only brings their custom application code and their data. PaaS allows developers to focus 100% on writing a new app without ever having to worry about installing Windows updates on the server hosting it.</p>
+                    <p class="mb-5">At the top of the pyramid is <strong>Software as a Service (SaaS)</strong>. In SaaS, the cloud provider manages absolutely everything: the hardware, the OS, the app code, and the maintenance. The customer simply opens a web browser, logs in, and uses the software. You use SaaS every day: Google Workspace, Microsoft 365 email, and Netflix are all SaaS products. It offers the least control over the underlying system, but requires zero technical maintenance from the user.</p>
+                    <p class="mb-5">A key defining feature of all cloud services is <strong>Elasticity and Scalability</strong>. Because cloud providers have nearly infinite resources, a customer's rented infrastructure can automatically "stretch" to handle sudden spikes in traffic (like a massive online sale on Black Friday) by instantly spinning up new virtual servers, and then automatically shrink back down when traffic subsides, ensuring the customer only pays for exactly what they consumed.</p>
+                    <p class="mb-5">Cloud services also rely heavily on multi-tenancy. Massive data centers are filled with servers that host VMs from hundreds of different companies on the exact same physical hardware. The cloud provider's virtualization hypervisor guarantees strict isolation, ensuring that Company A's data can never bleed over into Company B's virtual machine, making cloud computing highly secure despite being shared.</p>
+                `
+            },
+            'cloud-serv-usecase': {
+                title: 'Service Models: Use Cases', icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-sky-800 mb-2 border-b-2 border-sky-200 pb-1">Case 1: Rapid Startup Scaling (IaaS & PaaS)</h4>
+                        <p class="mb-2 text-slate-700">A new tech startup has a brilliant idea for a mobile app, but they have no money to buy physical servers and no time to set up physical networking equipment.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-600">
+                            <li class="mb-2"><strong>Example 1 (IaaS):</strong> The startup uses an IaaS provider to instantly rent three virtual servers. They install their own custom Linux operating systems and configure complex custom firewalls to securely route the traffic for their new app.</li>
+                            <li><strong>Example 2 (PaaS):</strong> The startup's programmers use a PaaS database solution. They don't have to install the database software or update the OS; they just upload their code, and the PaaS handles the database scaling automatically as thousands of users download the app.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-sky-800 mb-2 border-b-2 border-sky-200 pb-1">Case 2: Everyday Enterprise Productivity (SaaS)</h4>
+                        <p class="mb-2 text-slate-700">A massive corporation needs to provide email, document editing, and communication tools to 5,000 employees without hiring a team of 50 IT workers to maintain local servers.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-600">
+                            <li class="mb-2"><strong>Example 1 (SaaS Email):</strong> Instead of buying a massive physical Exchange email server, the company subscribes to Microsoft 365 (SaaS). Employees just log in via a web browser to access email, and Microsoft handles all the storage, security, and uptime.</li>
+                            <li><strong>Example 2 (SaaS CRM):</strong> The sales team uses Salesforce.com. They pay a monthly fee per user. If the Salesforce application needs a software update or a bug fix, the vendor does it globally in the cloud; the local company IT team has to do zero maintenance.</li>
+                        </ul>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-2">Concept: Cloud Networking</p>
+                            <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&h=350" alt="Earth from space showing global networking connections" class="w-full h-48 object-cover rounded-xl shadow border border-slate-200">
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-2">In Use: SaaS Productivity</p>
+                            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&h=350" alt="Team of diverse office workers collaborating using cloud software" class="w-full h-48 object-cover rounded-xl shadow border border-slate-200">
+                        </div>
+                    </div>
+                `
+            },
+            'cloud-dep-details': {
+                title: 'Cloud Deployment Models', icon: '<i class="fa-solid fa-sitemap text-purple-600"></i>',
+                html: `
+                    <p class="mb-5">While the "Service Models" (IaaS, PaaS, SaaS) dictate *what* you are renting, "Deployment Models" dictate *where* the physical servers actually live and who is allowed to access them. Choosing the correct deployment model is a critical architectural decision based on a company's budget, regulatory compliance, and security needs.</p>
+                    <p class="mb-5">The most common model is the <strong>Public Cloud</strong>. Owned and operated by third-party mega-vendors (like AWS, Google Cloud, or Microsoft Azure), public clouds deliver computing resources over the public internet. They are heavily multi-tenant, meaning your company's data sits on the same physical hard drives as hundreds of other companies (separated logically by the hypervisor). Public clouds are incredibly affordable, require no hardware maintenance from the user, and offer virtually infinite scalability.</p>
+                    <p class="mb-5">In contrast, a <strong>Private Cloud (or On-Premises)</strong> model means the cloud infrastructure is used exclusively by one single organization. The physical servers may be located in the company's own local data center, or hosted by a third party, but the hardware is never shared with anyone else. Private clouds offer the absolute highest levels of security, privacy, and customizable control, but they are massively expensive to purchase, power, and maintain.</p>
+                    <p class="mb-5">To get the best of both worlds, many enterprises use a <strong>Hybrid Cloud</strong>. A hybrid model connects a company's private cloud directly to a public cloud, allowing data and applications to be shared between them. This enables a powerful concept called "Cloud Bursting."</p>
+                    <p class="mb-5">During normal operations, a company runs their application on their expensive, secure Private Cloud. However, if they experience a massive, temporary spike in traffic (like Cyber Monday sales), the application "bursts" through to the Public Cloud to borrow extra computing power for a few hours, then shrinks back down to the Private Cloud when the rush ends, keeping costs low while preventing a crash.</p>
+                    <p class="mb-5">Finally, a <strong>Community Cloud</strong> is a collaborative deployment model. It is infrastructure shared by several organizations that have common concerns, such as similar security requirements, compliance regulations, or joint missions. By pooling their resources to build a Community Cloud, these organizations share the high costs of a private cloud while maintaining strict industry compliance that a generic public cloud might not offer.</p>
+                    <p class="mb-5">Ultimately, the choice comes down to data sensitivity. A government intelligence agency or a hospital managing highly sensitive patient records will lean towards Private or Community clouds to ensure strict legal compliance. A streaming video company focused on reaching millions of global users as cheaply as possible will rely heavily on the Public Cloud.</p>
+                `
+            },
+            'cloud-dep-usecase': {
+                title: 'Deployment Models: Use Cases', icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-purple-800 mb-2 border-b-2 border-purple-200 pb-1">Case 1: Regulated Industries (Private & Community)</h4>
+                        <p class="mb-2 text-slate-700">Organizations dealing with strict legal frameworks (like HIPAA in healthcare or top-secret government data) cannot legally store their data on shared public servers.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-600">
+                            <li class="mb-2"><strong>Example 1 (Private Cloud):</strong> A military defense contractor builds a massive, multi-million dollar Private Cloud inside a heavily guarded, on-premises bunker. Because no other tenants share the hardware, the risk of data leakage is minimized to near zero.</li>
+                            <li><strong>Example 2 (Community Cloud):</strong> Five regional hospitals pool their IT budgets to build a Community Cloud. They share the infrastructure costs, and because they are all in the healthcare industry, the entire cloud is built specifically to adhere to strict patient privacy laws.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-purple-800 mb-2 border-b-2 border-purple-200 pb-1">Case 2: Retail Scale & Flexibility (Public & Hybrid)</h4>
+                        <p class="mb-2 text-slate-700">Retailers need massive, cheap scalability during holidays but want to keep their core customer credit card databases highly secure year-round.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-600">
+                            <li class="mb-2"><strong>Example 1 (Public Cloud):</strong> A new online t-shirt company hosts their entire storefront on a Public Cloud. When an influencer wears their shirt and website traffic spikes by 10,000%, the public cloud automatically spins up 50 new virtual servers in minutes to handle the load, preventing the site from crashing.</li>
+                            <li><strong>Example 2 (Hybrid Cloud / Bursting):</strong> A major bank uses a secure Private Cloud to store all account balances. However, they use a connected Public Cloud (Hybrid setup) to run the front-end graphical website. If millions of people log in at once, the website scales on the public cloud, while the sensitive money data remains safely locked in the private cloud.</li>
+                        </ul>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-2">Concept: Private Data Center</p>
+                            <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&h=350" alt="Highly secure, high-tech server data center corridor" class="w-full h-48 object-cover rounded-xl shadow border border-slate-200">
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-2">In Use: Retail Scaling</p>
+                            <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=600&h=350" alt="Customer tapping card on mobile tablet POS system" class="w-full h-48 object-cover rounded-xl shadow border border-slate-200">
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        // --- STREAMING_CHUNK:Configuring UI Tab Switching and Modals... ---
+        function openBriefing(key) {
+            const modal = document.getElementById('briefing-modal');
+            const data = briefingData[key];
+            if(data) {
+                document.getElementById('briefing-modal-icon').innerHTML = data.icon;
+                document.getElementById('briefing-modal-title').innerText = data.title;
+                document.getElementById('briefing-modal-content').innerHTML = data.html;
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; 
+            }
+        }
+
+        function closeBriefing() {
+            document.getElementById('briefing-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto'; 
+        }
+
+        document.getElementById('briefing-modal').addEventListener('click', function(e) {
+            if(e.target === this) closeBriefing();
+        });
+        
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId + '-section').classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-sky-700'));
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if(activeBtn && tabId !== 'cert') activeBtn.classList.add('bg-sky-700');
+            
+            document.querySelectorAll('.nav-btn-mobile').forEach(btn => btn.classList.remove('bg-sky-700'));
+            const activeMobileBtn = document.getElementById('nav-' + tabId + '-mobile');
+            if(activeMobileBtn && tabId !== 'cert') activeMobileBtn.classList.add('bg-sky-700');
+
+            window.scrollTo(0,0);
+            
+            if (tabId === 'game' && !gameRunning) { drawStaticGame(); }
+        }
+
+        function showModal(title, message, type = 'info') {
+            const modal = document.getElementById('custom-modal');
+            const icon = document.getElementById('modal-icon');
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-msg').innerText = message;
+            
+            if(type === 'success') { icon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-500"></i>'; }
+            else if (type === 'error') { icon.innerHTML = '<i class="fa-solid fa-circle-xmark text-rose-500"></i>'; }
+            else if (type === 'warning') { icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-yellow-500"></i>'; }
+            else { icon.innerHTML = '<i class="fa-solid fa-circle-info text-sky-500"></i>'; }
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('custom-modal').classList.add('hidden'); }
+
+        // --- STREAMING_CHUNK:Implementing Interactive Lab Logic... ---
+        // Universal Drag and Drop Setup
+        function setupDragAndDrop(draggableQuery, dropzoneQuery, successCallback) {
+            let draggedItem = null;
+            document.querySelectorAll(draggableQuery).forEach(item => {
+                item.addEventListener('dragstart', function() {
+                    draggedItem = this; setTimeout(() => this.classList.add('opacity-50'), 0);
+                });
+                item.addEventListener('dragend', function() {
+                    setTimeout(() => this.classList.remove('opacity-50'), 0); draggedItem = null;
+                });
+            });
+
+            document.querySelectorAll(dropzoneQuery).forEach(zone => {
+                zone.addEventListener('dragover', e => e.preventDefault());
+                zone.addEventListener('dragenter', function(e) { e.preventDefault(); this.classList.add('drag-over'); });
+                zone.addEventListener('dragleave', function() { this.classList.remove('drag-over'); });
+                zone.addEventListener('drop', function() {
+                    this.classList.remove('drag-over');
+                    if(draggedItem && draggedItem.dataset.match === this.dataset.target) {
+                        this.appendChild(draggedItem);
+                        draggedItem.classList.remove('cursor-grab', 'draggable');
+                        draggedItem.classList.add('w-full', 'mt-2', 'bg-emerald-100', 'border-emerald-400', 'text-emerald-800');
+                        draggedItem.setAttribute('draggable', 'false');
+                        successCallback();
+                    }
+                });
+            });
+        }
+
+        // Lab 1: Hypervisor Sorter
+        let lab1Count = 0;
+        setupDragAndDrop('#lab1-draggables .draggable', '.dropzone[data-target="type1"], .dropzone[data-target="type2"]', () => {
+            lab1Count++;
+            if(lab1Count === 4) showModal('Lab 1 Complete!', 'You successfully categorized Bare-Metal vs Hosted hypervisor traits.', 'success');
+        });
+
+        // Lab 2: VM Provisioning
+        function updateLab2() {
+            const v1 = parseInt(document.getElementById('lab2-slide1').value);
+            const v2 = parseInt(document.getElementById('lab2-slide2').value);
+            const v3 = parseInt(document.getElementById('lab2-slide3').value);
+            const total = v1 + v2 + v3;
+            
+            document.getElementById('lab2-val1').innerText = v1 + " GB";
+            document.getElementById('lab2-val2').innerText = v2 + " GB";
+            document.getElementById('lab2-val3').innerText = v3 + " GB";
+            
+            const totSpan = document.getElementById('lab2-total');
+            totSpan.innerText = total + " / 16 GB";
+            
+            if(total > 16) { totSpan.className = "text-rose-500"; } 
+            else if (total < 16) { totSpan.className = "text-yellow-600"; }
+            else { 
+                totSpan.className = "text-emerald-500"; 
+                // Only alert once per exact match if they didn't just dump all 16 in one slider
+                if(v1 > 0 && v2 > 0 && v3 > 0) {
+                    setTimeout(() => showModal('Lab 2 Complete!', 'Perfect Provisioning! You allocated all available Host RAM safely across the VMs.', 'success'), 300);
+                }
+            }
+        }
+
+        // Lab 3: Benefit Matcher
+        function checkLab3() {
+            const v1 = document.getElementById('lab3-sel1').value;
+            const v2 = document.getElementById('lab3-sel2').value;
+            const v3 = document.getElementById('lab3-sel3').value;
+            
+            if(v1 === 'legacy' && v2 === 'labs' && v3 === 'dev') {
+                showModal('Lab 3 Complete!', 'Excellent understanding of the diverse benefits of virtualization.', 'success');
+                document.getElementById('lab3-sel1').disabled = true;
+                document.getElementById('lab3-sel2').disabled = true;
+                document.getElementById('lab3-sel3').disabled = true;
+            }
+        }
+
+        // Lab 4: Snapshot Rollback
+        function lab4Install() {
+            document.getElementById('lab4-btn-patch').classList.add('opacity-50', 'cursor-not-allowed');
+            document.getElementById('lab4-btn-patch').disabled = true;
+            
+            document.getElementById('lab4-bug-icon').classList.remove('hidden');
+            document.getElementById('lab4-snap-icon').classList.add('text-rose-500');
+            
+            setTimeout(() => {
+                showModal('CRITICAL ERROR!', 'The patch corrupted the Guest OS. The virtual machine has crashed!', 'error');
+                document.getElementById('lab4-btn-restore').classList.remove('opacity-50', 'cursor-not-allowed');
+                document.getElementById('lab4-btn-restore').disabled = false;
+            }, 300);
+        }
+        function lab4Restore() {
+            document.getElementById('lab4-bug-icon').classList.add('hidden');
+            document.getElementById('lab4-snap-icon').classList.replace('text-rose-500', 'text-emerald-500');
+            
+            document.getElementById('lab4-btn-restore').classList.add('opacity-50', 'cursor-not-allowed');
+            document.getElementById('lab4-btn-restore').disabled = true;
+            
+            showModal('Lab 4 Complete!', 'Snapshot Rollback successful. The VM time-traveled back to its safe Base State instantly.', 'success');
+        }
+
+        // Lab 5: As A Service Pyramid
+        let lab5Count = 0;
+        setupDragAndDrop('#lab5-draggables .draggable', '.dropzone[data-target="iaas"], .dropzone[data-target="paas"], .dropzone[data-target="saas"]', () => {
+            lab5Count++;
+            if(lab5Count === 3) showModal('Lab 5 Complete!', 'You successfully built the Cloud Service Model pyramid.', 'success');
+        });
+
+        // Lab 6: Cloud Architect
+        let lab6Solved = false;
+        function checkLab6(btn, correct) {
+            if(lab6Solved) return;
+            if(correct) {
+                lab6Solved = true;
+                btn.classList.replace('border-slate-300', 'border-emerald-500');
+                btn.classList.add('bg-emerald-50');
+                showModal('Lab 6 Complete!', 'Correct! A Platform as a Service (PaaS) provides the perfect middle-ground: giving developers a managed database platform without the hassle of OS maintenance.', 'success');
+            } else {
+                btn.classList.replace('border-slate-300', 'border-rose-500');
+                btn.classList.add('bg-rose-50');
+                setTimeout(() => { btn.classList.replace('border-rose-500', 'border-slate-300'); btn.classList.remove('bg-rose-50'); }, 1000);
+            }
+        }
+
+        // Lab 7: Deployment Matrix
+        let lab7Count = 0;
+        setupDragAndDrop('#lab7-draggables .draggable', '.dropzone[data-target="pub"], .dropzone[data-target="pri"], .dropzone[data-target="hyb"], .dropzone[data-target="com"]', () => {
+            lab7Count++;
+            if(lab7Count === 4) showModal('Lab 7 Complete!', 'Cloud Deployment traits categorized accurately.', 'success');
+        });
+
+        // Lab 8: Budget Planner
+        let lab8Solved = false;
+        function checkLab8(btn, correct) {
+            if(lab8Solved) return;
+            if(correct) {
+                lab8Solved = true;
+                btn.classList.replace('border-slate-300', 'border-purple-500');
+                btn.classList.add('bg-purple-50');
+                showModal('Lab 8 Complete!', 'Exactly. With highly sensitive patient data and a massive budget, a Private Cloud is the only deployment model that guarantees absolute compliance and hardware isolation.', 'success');
+            } else {
+                btn.classList.replace('border-slate-300', 'border-rose-500');
+                btn.classList.add('bg-rose-50');
+                setTimeout(() => { btn.classList.replace('border-rose-500', 'border-slate-300'); btn.classList.remove('bg-rose-50'); }, 1000);
+            }
+        }
+
+        // --- STREAMING_CHUNK:Configuring the Mastery Quiz Data and Logic... ---
+        const quizData = [
+            // From Provided Doc
+            { q: "What is a Type 1 Hypervisor?", options: ["A hypervisor that runs on multiple machines through one interface.", "A hypervisor that is hosted and not run directly on that machine.", "A hypervisor that runs directly on hardware without needing a main OS.", "A hypervisor that allows multiple machines to access the same virtual machine."], answer: 2 },
+            { q: "What is an advantage of virtualization?", options: ["You can deploy and analyze viruses without infecting a host computer.", "You can run legacy software no longer supported by the host computer.", "You can test new software in a guest OS to identify and resolve issues.", "All of the above."], answer: 3 },
+            { q: "Which of the following would provide developers with virtual software development tools?", options: ["Platform as a Service (PaaS)", "Infrastructure as a Service (IaaS)", "Software as a Service (SaaS)", "None of the above"], answer: 0 },
+            { q: "A company with highly classified/sensitive data would most likely use a(n) _____ cloud deployment model.", options: ["Hybrid", "Private/On-Premises", "Public", "Community"], answer: 1 },
+            { q: "What is an advantage of a non-persistent virtual machine?", options: ["It stores everything between sessions so you can return.", "Multiple users interfere with each other.", "It resets all settings between sessions creating a ‘fresh start.’", "It doesn’t work for more than one session."], answer: 2 },
+            { q: "A(n) _____ is an OS that runs inside a virtual environment.", options: ["Host OS", "Guest OS", "Embedded OS", "Virtual OS"], answer: 1 },
+            { q: "Several organizations with similar interests and usage needs would likely use a(n) _____ cloud deployment model.", options: ["Hybrid", "On-Premises/Private", "Public", "Community"], answer: 3 },
+            { q: "_____ as a Service provides raw networking components such as firewalls, routers, and switches.", options: ["Infrastructure", "Platform", "Software", "Network"], answer: 0 },
+            { q: "A company looking for affordable, easy-to-use cloud-based applications would likely need _____ as a Service.", options: ["Infrastructure", "Platform", "Software", "Affordability"], answer: 2 },
+            { q: "Which of the following are core requirements for a virtualization architecture?", options: ["Computer (Host)", "Hypervisor", "Guest OS", "All of the above"], answer: 3 },
+            
+            // 10 New questions based on briefing
+            { q: "Before virtualization, computing relied on a strict 'one-to-one' relationship. Why was this considered wasteful?", options: ["It caused computers to explode.", "Servers often sat idle 80% of the time, wasting power and space.", "It made the internet too fast.", "It required everyone to learn Linux."], answer: 1 },
+            { q: "If you install VirtualBox as a program on your Windows 11 laptop to run Linux, what kind of hypervisor are you using?", options: ["Type 1 (Bare-Metal)", "Type 2 (Hosted)", "Type 3 (Cloud)", "A Guest OS"], answer: 1 },
+            { q: "What virtualization feature allows an engineer to create a perfectly frozen, instant backup of a VM before installing a risky update?", options: ["A Snapshot", "A Bare-Metal Install", "Cloud Bursting", "Multi-tenancy"], answer: 0 },
+            { q: "Cloud computing shifts financial models from large upfront Capital Expenditures (CapEx) to paying only for what you use monthly, known as:", options: ["Operational Expenditure (OpEx)", "Tax Exemption", "FreeRTOS", "Data Center Leasing"], answer: 0 },
+            { q: "In the Shared Responsibility Model, which cloud service requires the CUSTOMER to manage the Operating System and security patches?", options: ["Software as a Service (SaaS)", "Platform as a Service (PaaS)", "Infrastructure as a Service (IaaS)", "None of them"], answer: 2 },
+            { q: "Google Workspace, Microsoft 365, and Netflix are all prime examples of which cloud service model?", options: ["SaaS", "PaaS", "IaaS", "Type 1 Hypervisor"], answer: 0 },
+            { q: "Because public clouds host VMs from hundreds of different companies on the exact same physical hardware, they are referred to as:", options: ["Single-tenant", "Multi-tenant", "On-Premises", "Community deployed"], answer: 1 },
+            { q: "If an e-commerce website automatically spins up 50 new virtual servers to handle Black Friday traffic and then deletes them the next day, this demonstrates:", options: ["Legacy emulation", "Elasticity and Scalability", "Application Sandboxing", "Bare-metal performance"], answer: 1 },
+            { q: "A bank keeps sensitive account balances on a highly secure Private Cloud, but uses a connected Public Cloud to handle a sudden spike in website logins. This is an example of:", options: ["Community Cloud sharing", "Type 2 Hypervisors", "Cloud Bursting on a Hybrid Cloud", "SaaS multi-tenancy"], answer: 2 },
+            { q: "Why might five regional hospitals pool their budgets to build a Community Cloud instead of just using a cheap Public Cloud?", options: ["To play video games together.", "Because public clouds don't have internet access.", "To share high infrastructure costs while maintaining strict healthcare privacy compliance.", "Because hospitals are legally required to use Windows 98."], answer: 2 }
+        ];
+
+        const quizContainer = document.getElementById('quiz-container');
+        quizData.forEach((item, index) => {
+            const qDiv = document.createElement('div');
+            qDiv.className = "bg-slate-50 p-6 rounded-2xl border border-slate-200";
+            
+            const qTitle = document.createElement('h3');
+            qTitle.className = "font-bold text-lg text-slate-800 mb-4";
+            qTitle.innerText = `${index + 1}. ${item.q}`;
+            qDiv.appendChild(qTitle);
+            
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = "space-y-3";
+            
+            item.options.forEach((opt, optIndex) => {
+                const label = document.createElement('label');
+                label.className = "flex items-center space-x-3 p-3 rounded-lg bg-white border border-slate-300 hover:bg-sky-50 cursor-pointer transition";
+                
+                const radio = document.createElement('input');
+                radio.type = "radio"; radio.name = `q${index}`; radio.value = optIndex;
+                radio.className = "form-radio h-5 w-5 text-sky-600";
+                
+                const span = document.createElement('span'); span.className = "text-slate-700 font-medium"; span.innerText = opt;
+                
+                label.appendChild(radio); label.appendChild(span); optionsDiv.appendChild(label);
+            });
+            qDiv.appendChild(optionsDiv); quizContainer.appendChild(qDiv);
+        });
+
+        function gradeQuiz() {
+            let score = 0; let allAnswered = true;
+            for(let i = 0; i < quizData.length; i++) {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                if(selected) { if(parseInt(selected.value) === quizData[i].answer) score++; } 
+                else { allAnswered = false; }
+            }
+            
+            if(!allAnswered) { showModal('Incomplete Quiz', 'Please answer all 20 questions before submitting.', 'warning'); return; }
+            
+            const percentage = (score / quizData.length) * 100;
+            if(score >= 18) { 
+                const navGame = document.getElementById('nav-game');
+                const navGameMobile = document.getElementById('nav-game-mobile');
+                
+                navGame.classList.remove('text-slate-400', 'cursor-not-allowed');
+                navGame.classList.add('text-white', 'hover:bg-sky-600');
+                navGame.disabled = false; navGame.innerHTML = '<i class="fa-solid fa-gamepad mr-1"></i>Game';
+                
+                navGameMobile.classList.remove('text-slate-500', 'cursor-not-allowed');
+                navGameMobile.classList.add('text-white', 'hover:bg-sky-600');
+                navGameMobile.disabled = false; navGameMobile.innerHTML = '<i class="fa-solid fa-gamepad"></i> Game';
+
+                document.getElementById('nav-cert').classList.remove('hidden');
+                document.getElementById('nav-cert-mobile').classList.remove('hidden');
+                
+                document.getElementById('proceed-game-btn').classList.remove('hidden');
+                document.getElementById('submit-quiz-btn').classList.add('hidden');
+
+                showModal('Mastery Achieved!', `Incredible! You scored ${score}/20 (${percentage}%). You have unlocked your Certificate and the Data Stream retro game!`, 'success');
+            } else {
+                quizData.forEach((_, i) => { const s = document.querySelector(`input[name="q${i}"]:checked`); if(s) s.checked = false; });
+                showModal('Review Needed', `You scored ${score}/20 (${percentage}%). You need 90% (18/20) to pass. Your answers have been cleared. Review the briefing and try again.`, 'error');
+                document.getElementById('quiz-section').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // --- STREAMING_CHUNK:Implementing the Retro Game (Data Stream / Helicopter Clone)... ---
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let gameRunning = false;
+        let animationId;
+        let isThrusting = false;
+        
+        let packet = { x: 100, y: 200, width: 20, height: 20, velocityY: 0, gravity: 0.5, thrust: -1.2 };
+        let obstacles = [];
+        let frames = 0;
+        let gameScore = 0;
+        let highScore = 0;
+
+        const overlay = document.getElementById('game-overlay');
+        const startBtn = document.getElementById('start-game-btn');
+        startBtn.addEventListener('click', startGame);
+
+        // Input
+        function handleInput(state) { if(gameRunning) isThrusting = state; }
+        window.addEventListener('keydown', e => { if(e.code === 'Space') { e.preventDefault(); handleInput(true); } });
+        window.addEventListener('keyup', e => { if(e.code === 'Space') handleInput(false); });
+        canvas.addEventListener('mousedown', () => handleInput(true));
+        window.addEventListener('mouseup', () => handleInput(false));
+        canvas.addEventListener('touchstart', e => { e.preventDefault(); handleInput(true); }, {passive:false});
+        window.addEventListener('touchend', () => handleInput(false));
+
+        function resetGame() {
+            packet.y = canvas.height / 2;
+            packet.velocityY = 0;
+            obstacles = [];
+            frames = 0;
+            gameScore = 0;
+            isThrusting = false;
+            document.getElementById('game-score').innerText = gameScore;
+        }
+
+        function gameLoop() {
+            if(!gameRunning) return;
+            
+            // Clear and draw background
+            ctx.fillStyle = '#38bdf8'; // Sky 400
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Update Packet Physics
+            if(isThrusting) { packet.velocityY += packet.thrust; }
+            packet.velocityY += packet.gravity;
+            // Terminal velocity
+            if(packet.velocityY > 10) packet.velocityY = 10;
+            if(packet.velocityY < -10) packet.velocityY = -10;
+            packet.y += packet.velocityY;
+            
+            // Draw Packet (Glowing white cube)
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowBlur = 15; ctx.shadowColor = '#ffffff';
+            ctx.fillRect(packet.x, packet.y, packet.width, packet.height);
+            ctx.shadowBlur = 0; // reset
+            
+            // Manage Obstacles (Server Racks)
+            if (frames % 90 === 0) { // spawn every 90 frames
+                let minGap = 100;
+                let maxGap = 180;
+                let gap = Math.floor(Math.random() * (maxGap - minGap + 1) + minGap);
+                let topHeight = Math.floor(Math.random() * (canvas.height - gap - 40) + 20);
+                
+                obstacles.push({
+                    x: canvas.width,
+                    y: 0,
+                    width: 40,
+                    height: topHeight,
+                    type: 'top'
+                });
+                obstacles.push({
+                    x: canvas.width,
+                    y: topHeight + gap,
+                    width: 40,
+                    height: canvas.height - topHeight - gap,
+                    type: 'bottom'
+                });
+            }
+            
+            for(let i = 0; i < obstacles.length; i++) {
+                let obs = obstacles[i];
+                obs.x -= 3; // speed
+                
+                // Draw Obstacle (Dark blue rack)
+                ctx.fillStyle = '#0c4a6e';
+                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                // Draw server lights on obstacle
+                ctx.fillStyle = '#34d399'; // green light
+                if(obs.type === 'top') {
+                    for(let ly = obs.height - 20; ly > 10; ly-=15) ctx.fillRect(obs.x + 10, ly, 20, 5);
+                } else {
+                    for(let ly = obs.y + 10; ly < canvas.height - 10; ly+=15) ctx.fillRect(obs.x + 10, ly, 20, 5);
+                }
+                
+                // Collision Detection (AABB)
+                if (packet.x < obs.x + obs.width &&
+                    packet.x + packet.width > obs.x &&
+                    packet.y < obs.y + obs.height &&
+                    packet.y + packet.height > obs.y) {
+                    gameOver();
+                }
+            }
+            
+            // Remove off-screen obstacles
+            if(obstacles.length > 0 && obstacles[0].x < -50) {
+                obstacles.shift(); // remove top
+                obstacles.shift(); // remove bottom
+            }
+            
+            // Floor/Ceiling collision
+            if(packet.y <= 0 || packet.y + packet.height >= canvas.height) {
+                gameOver();
+            }
+            
+            // Scoring (every 60 frames = 1s uptime approx)
+            frames++;
+            if(frames % 60 === 0) {
+                gameScore++;
+                document.getElementById('game-score').innerText = gameScore;
+            }
+
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            cancelAnimationFrame(animationId);
+            overlay.classList.remove('hidden');
+            startBtn.innerText = "Connection Lost! Retry";
+            startBtn.classList.replace('bg-sky-600', 'bg-rose-600');
+            startBtn.classList.replace('border-sky-300', 'border-rose-300');
+            
+            if(gameScore > highScore) {
+                highScore = gameScore;
+                document.getElementById('game-high').innerText = highScore;
+            }
+        }
+
+        function startGame() {
+            overlay.classList.add('hidden');
+            resetGame();
+            gameRunning = true;
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        function drawStaticGame() {
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = '#0c4a6e';
+            ctx.font = '24px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('AWAITING DATA STREAM', canvas.width/2, canvas.height/2);
+        }
+        drawStaticGame();
+
+        // --- STREAMING_CHUNK:Configuring Certificate Generation Logic... ---
+        function updateCertName() {
+            let name = document.getElementById('student-name-input').value.trim();
+            if(name) {
+                document.getElementById('cert-student-name').innerText = name;
+            } else {
+                showModal('Wait!', 'Please enter your name to update the certificate.', 'warning');
+            }
+        }
+
+        document.getElementById('cert-date').innerText = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        function downloadCert() {
+            const certEl = document.getElementById('certificate');
+            const name = document.getElementById('cert-student-name').innerText;
+            let filename = 'TechPlus_Cloud_Certificate.png';
+            if (name && name !== 'Student Name') {
+                filename = `${name.replace(/\s+/g, '_')}_Cloud_Mastery.png`;
+            }
+
+            const originalTransform = certEl.style.transform;
+            certEl.style.transform = 'none';
+
+            const btn = document.getElementById('download-btn');
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Rendering...';
+            btn.disabled = true;
+
+            html2canvas(certEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
+                certEl.style.transform = originalTransform;
+                btn.innerHTML = originalBtnText; btn.disabled = false;
+                
+                const link = document.createElement('a');
+                link.download = filename; link.href = canvas.toDataURL('image/png'); link.click();
+            }).catch(err => {
+                console.error(err);
+                certEl.style.transform = originalTransform;
+                btn.innerHTML = originalBtnText; btn.disabled = false;
+                showModal('Error', 'Failed to generate image. Please try on a desktop browser.', 'error');
+            });
+        }
+    </script>
+</body>
+</html>

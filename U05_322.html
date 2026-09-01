@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 05 Section 3.2.2 Mastery - Types of Operating Systems</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Qwitcher+Grypen:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; }
+        ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3730a3; }
+
+        /* General Lab Styles */
+        .draggable { cursor: grab; transition: transform 0.2s, box-shadow 0.2s; }
+        .draggable:active { cursor: grabbing; transform: scale(0.95); }
+        .dropzone { transition: background-color 0.2s ease, border-color 0.2s; }
+        .dropzone.drag-over { background: #e0e7ff; border-color: #4f46e5; }
+        
+        /* Interactive Terminal Lab */
+        .terminal-input { background: transparent; border: none; outline: none; color: #10b981; font-family: monospace; width: 80%; }
+        
+        /* Game Canvas Styles */
+        #game-canvas {
+            background-color: #020617; /* Slate 950 */
+            border: 4px solid #1e293b;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+            max-width: 100%;
+            height: auto;
+            touch-action: none;
+        }
+        .d-pad-btn { width: 50px; height: 50px; background: rgba(255,255,255,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; user-select: none; touch-action: manipulation;}
+        .d-pad-btn:active { background: rgba(255,255,255,0.3); }
+
+        /* Certificate Styles */
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .font-body { font-family: 'Lora', serif; }
+        .font-script { font-family: 'Qwitcher Grypen', cursive; }
+        
+        .cert-preview-container { width: 100%; overflow: auto; display: flex; justify-content: center; background: #e2e8f0; padding: 2rem; border-radius: 0.5rem; }
+        #certificate {
+            width: 1056px !important; height: 816px !important; flex-shrink: 0; background-color: #ffffff; position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1056" height="816"><rect width="1056" height="816" fill="%23ffffff"/><path d="M0,0 L200,0 L0,200 Z" fill="%23312e81"/><path d="M0,0 L100,0 L0,100 Z" fill="%234338ca"/><path d="M1056,816 L856,816 L1056,616 Z" fill="%23312e81"/><path d="M1056,816 L956,816 L1056,716 Z" fill="%234338ca"/><path d="M0,816 L0,616 L200,816 Z" fill="%23cbd5e1"/><path d="M1056,0 L1056,200 L856,0 Z" fill="%23cbd5e1"/></svg>');
+            border: 4px solid #94a3b8;
+        }
+        @media (max-width: 1100px) { #certificate { transform: scale(0.7); transform-origin: top left; margin-bottom: -240px; margin-right: -310px; } }
+        @media (max-width: 768px) { #certificate { transform: scale(0.4); transform-origin: top left; margin-bottom: -490px; margin-right: -630px; } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <nav class="bg-indigo-900 text-white shadow-lg sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-server text-2xl text-indigo-300"></i>
+                    <span class="font-bold text-xl tracking-wider hidden sm:inline-block">Tech+ Unit 05 Section 3.2.2</span>
+                    <span class="font-bold text-xl tracking-wider sm:hidden">3.2.2</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-2">
+                        <button onclick="switchTab('briefing')" class="nav-btn bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-600 transition" id="nav-briefing"><i class="fa-solid fa-book-open mr-1"></i>Briefing</button>
+                        <button onclick="switchTab('activity')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-600 transition" id="nav-activity"><i class="fa-solid fa-flask mr-1"></i>Lab Activity</button>
+                        <button onclick="switchTab('quiz')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-600 transition" id="nav-quiz"><i class="fa-solid fa-clipboard-check mr-1"></i>Quiz</button>
+                        <button onclick="switchTab('game')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-gray-400 cursor-not-allowed transition" id="nav-game" disabled><i class="fa-solid fa-lock mr-1"></i>Game</button>
+                        <button onclick="switchTab('cert')" class="nav-btn hidden px-3 py-2 rounded-md text-sm font-medium text-yellow-300 hover:bg-indigo-600 transition" id="nav-cert"><i class="fa-solid fa-award mr-1"></i>Certificate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Nav -->
+        <div class="md:hidden flex flex-wrap justify-center gap-2 py-2 px-2 bg-indigo-950 border-t border-indigo-800">
+            <button onclick="switchTab('briefing')" class="nav-btn-mobile px-3 py-1 text-sm rounded bg-indigo-700" id="nav-briefing-mobile">Briefing</button>
+            <button onclick="switchTab('activity')" class="nav-btn-mobile px-3 py-1 text-sm rounded" id="nav-activity-mobile">Lab</button>
+            <button onclick="switchTab('quiz')" class="nav-btn-mobile px-3 py-1 text-sm rounded" id="nav-quiz-mobile">Quiz</button>
+            <button onclick="switchTab('game')" class="nav-btn-mobile px-3 py-1 text-sm rounded text-gray-500 cursor-not-allowed" id="nav-game-mobile" disabled><i class="fa-solid fa-lock"></i></button>
+            <button onclick="switchTab('cert')" id="nav-cert-mobile" class="hidden px-2 py-1 text-sm text-yellow-300 rounded"><i class="fa-solid fa-award"></i></button>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <!-- BRIEFING TAB -->
+        <div id="briefing-section" class="tab-content active no-print">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4">Types of Operating Systems</h1>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">Operating Systems have evolved to support vastly different computing needs. Explore the architecture, capabilities, and use-cases of Desktop, Mobile, Server, and Embedded operating systems.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Tile 1: Desktop OS -->
+                <div class="bg-white rounded-2xl shadow-lg border-t-8 border-blue-500 flex flex-col transform transition hover:-translate-y-1 hover:shadow-xl">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-slate-800"><i class="fa-solid fa-desktop text-blue-500 mr-2"></i>Desktop & Workstation OS</h2>
+                        <ul class="space-y-2 text-slate-600 mb-4">
+                            <li><i class="fa-solid fa-check text-blue-500 w-5"></i> Designed for single-user PCs and laptops.</li>
+                            <li><i class="fa-solid fa-check text-blue-500 w-5"></i> Optimized for general computing and multitasking.</li>
+                            <li><i class="fa-solid fa-check text-blue-500 w-5"></i> Examples: Windows, macOS, Linux, ChromeOS.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-50 border-t border-slate-100 p-4 rounded-b-2xl">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('desktop-details')" class="flex-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 py-2 rounded-lg font-bold transition flex justify-center items-center"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('desktop-usecase')" class="flex-1 bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-700 py-2 rounded-lg font-bold transition flex justify-center items-center"><i class="fa-solid fa-lightbulb text-yellow-500 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tile 2: Mobile OS -->
+                <div class="bg-white rounded-2xl shadow-lg border-t-8 border-emerald-500 flex flex-col transform transition hover:-translate-y-1 hover:shadow-xl">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-slate-800"><i class="fa-solid fa-mobile-screen-button text-emerald-500 mr-2"></i>Mobile Operating Systems</h2>
+                        <ul class="space-y-2 text-slate-600 mb-4">
+                            <li><i class="fa-solid fa-check text-emerald-500 w-5"></i> Developed for smartphones and tablets.</li>
+                            <li><i class="fa-solid fa-check text-emerald-500 w-5"></i> Optimized for touch, wireless, and battery life.</li>
+                            <li><i class="fa-solid fa-check text-emerald-500 w-5"></i> Examples: iOS, iPadOS, Android, HarmonyOS.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-50 border-t border-slate-100 p-4 rounded-b-2xl">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('mobile-details')" class="flex-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 py-2 rounded-lg font-bold transition flex justify-center items-center"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('mobile-usecase')" class="flex-1 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 py-2 rounded-lg font-bold transition flex justify-center items-center"><i class="fa-solid fa-lightbulb text-yellow-500 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tile 3: Server OS -->
+                <div class="bg-white rounded-2xl shadow-lg border-t-8 border-purple-500 flex flex-col transform transition hover:-translate-y-1 hover:shadow-xl">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-slate-800"><i class="fa-solid fa-network-wired text-purple-500 mr-2"></i>Server Operating Systems</h2>
+                        <ul class="space-y-2 text-slate-600 mb-4">
+                            <li><i class="fa-solid fa-check text-purple-500 w-5"></i> Built to handle multiple concurrent client connections.</li>
+                            <li><i class="fa-solid fa-check text-purple-500 w-5"></i> Prioritizes scalability, security, and maximum uptime.</li>
+                            <li><i class="fa-solid fa-check text-purple-500 w-5"></i> Examples: Windows Server, Ubuntu Server, Red Hat.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-50 border-t border-slate-100 p-4 rounded-b-2xl">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('server-details')" class="flex-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 py-2 rounded-lg font-bold transition flex justify-center items-center"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('server-usecase')" class="flex-1 bg-purple-50 border border-purple-200 hover:bg-purple-100 text-purple-700 py-2 rounded-lg font-bold transition flex justify-center items-center"><i class="fa-solid fa-lightbulb text-yellow-500 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tile 4: Embedded OS -->
+                <div class="bg-white rounded-2xl shadow-lg border-t-8 border-rose-500 flex flex-col transform transition hover:-translate-y-1 hover:shadow-xl">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-slate-800"><i class="fa-solid fa-microchip text-rose-500 mr-2"></i>Embedded Operating Systems</h2>
+                        <ul class="space-y-2 text-slate-600 mb-4">
+                            <li><i class="fa-solid fa-check text-rose-500 w-5"></i> Runs on specialized hardware for one main job.</li>
+                            <li><i class="fa-solid fa-check text-rose-500 w-5"></i> Highly efficient, low power, and real-time reliable.</li>
+                            <li><i class="fa-solid fa-check text-rose-500 w-5"></i> Examples: FreeRTOS, VxWorks, QNX, Firmware loops.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-50 border-t border-slate-100 p-4 rounded-b-2xl">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('embedded-details')" class="flex-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 py-2 rounded-lg font-bold transition flex justify-center items-center"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('embedded-usecase')" class="flex-1 bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 py-2 rounded-lg font-bold transition flex justify-center items-center"><i class="fa-solid fa-lightbulb text-yellow-500 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 flex justify-center border-t border-slate-200 pt-8">
+                <button onclick="switchTab('activity')" class="bg-indigo-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-indigo-500 shadow-xl transition transform hover:-translate-y-1 flex items-center group">
+                    Proceed to Interactive Labs 
+                    <i class="fa-solid fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- LAB ACTIVITY TAB -->
+        <div id="activity-section" class="tab-content no-print">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-3">Operating Systems Labs</h1>
+                <p class="text-slate-600 max-w-2xl mx-auto">Complete all 8 interactive mini-labs to demonstrate your understanding of the different types of Operating Systems and their unique features.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- LAB 1: Desktop OS Matching -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-blue-500">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-desktop text-blue-500 mr-2"></i>Lab 1: Desktop Evolution</h2>
+                    <p class="text-sm text-slate-600 mb-4">Drag the Desktop OS milestone to its matching version.</p>
+                    <div class="flex gap-2 mb-4" id="lab1-draggables">
+                        <div class="draggable bg-blue-100 text-blue-800 text-xs font-bold px-3 py-2 rounded border border-blue-300" draggable="true" data-match="win95">Start Button & Explorer</div>
+                        <div class="draggable bg-blue-100 text-blue-800 text-xs font-bold px-3 py-2 rounded border border-blue-300" draggable="true" data-match="osx">First UNIX-based Mac OS</div>
+                        <div class="draggable bg-blue-100 text-blue-800 text-xs font-bold px-3 py-2 rounded border border-blue-300" draggable="true" data-match="winxp">First 64-bit Windows</div>
+                        <div class="draggable bg-blue-100 text-blue-800 text-xs font-bold px-3 py-2 rounded border border-blue-300" draggable="true" data-match="chrome">Cloud-based / Gentoo Linux</div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="dropzone p-3 bg-slate-50 border-2 border-dashed border-slate-300 rounded flex justify-between items-center" data-target="win95"><span class="font-bold text-slate-700">Windows 95</span></div>
+                        <div class="dropzone p-3 bg-slate-50 border-2 border-dashed border-slate-300 rounded flex justify-between items-center" data-target="osx"><span class="font-bold text-slate-700">Mac OS X</span></div>
+                        <div class="dropzone p-3 bg-slate-50 border-2 border-dashed border-slate-300 rounded flex justify-between items-center" data-target="winxp"><span class="font-bold text-slate-700">Windows XP</span></div>
+                        <div class="dropzone p-3 bg-slate-50 border-2 border-dashed border-slate-300 rounded flex justify-between items-center" data-target="chrome"><span class="font-bold text-slate-700">ChromeOS</span></div>
+                    </div>
+                </div>
+
+                <!-- LAB 2: Desktop GUI vs CLI -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-blue-500">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-terminal text-blue-500 mr-2"></i>Lab 2: GUI vs. CLI</h2>
+                    <p class="text-sm text-slate-600 mb-4">Complete the task using both interfaces. Task: Open cyber.org.</p>
+                    <div class="mb-4 p-4 bg-slate-100 rounded-lg border border-slate-300 flex items-center justify-between">
+                        <span class="text-sm font-bold text-slate-700">GUI Method:</span>
+                        <button onclick="solveLab2GUI()" class="bg-white border border-gray-300 p-2 rounded shadow hover:bg-gray-50 flex items-center gap-2"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%28February_2022%29.svg" alt="Chrome" class="w-6 h-6"> Open Browser</button>
+                    </div>
+                    <div class="p-4 bg-gray-900 rounded-lg shadow-inner text-emerald-400 font-mono text-sm">
+                        <div>ubuntu@ip-10-29:~$ <span class="text-gray-400"># Type: xdg-open https://cyber.org</span></div>
+                        <div class="flex items-center">
+                            <span>ubuntu@ip-10-29:~$ </span>
+                            <input type="text" id="lab2-cli-input" class="terminal-input ml-2" autocomplete="off" spellcheck="false" onkeyup="checkLab2CLI(event)">
+                        </div>
+                    </div>
+                    <div id="lab2-feedback" class="text-xs font-bold text-right mt-2 text-indigo-600 h-4"></div>
+                </div>
+
+                <!-- LAB 3: Mobile Battery -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-emerald-500">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-battery-half text-emerald-500 mr-2"></i>Lab 3: Mobile Resource Mgr</h2>
+                    <p class="text-sm text-slate-600 mb-2">Mobile OSes rigorously manage resources. Adjust the sliders so power adds up to exactly 100% with the Screen receiving exactly 50%.</p>
+                    <div class="space-y-4 mt-4">
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1"><label>Screen Power</label><span id="val-screen">0%</span></div>
+                            <input type="range" id="slide-screen" min="0" max="100" value="0" class="w-full accent-emerald-500" oninput="updateLab3()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1"><label>CPU Processing</label><span id="val-cpu">0%</span></div>
+                            <input type="range" id="slide-cpu" min="0" max="100" value="0" class="w-full accent-emerald-500" oninput="updateLab3()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1"><label>Wireless Antenna</label><span id="val-ant">0%</span></div>
+                            <input type="range" id="slide-ant" min="0" max="100" value="0" class="w-full accent-emerald-500" oninput="updateLab3()">
+                        </div>
+                        <div class="text-center font-bold text-slate-700 bg-slate-100 py-2 rounded">Total Allocated: <span id="val-total" class="text-red-500">0%</span></div>
+                    </div>
+                </div>
+
+                <!-- LAB 4: Mobile OS Sorter -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-emerald-500">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-brands fa-android text-emerald-500 mr-2"></i>Lab 4: Mobile OS Ecosystems</h2>
+                    <p class="text-sm text-slate-600 mb-4">Drag the core feature to the correct Mobile OS.</p>
+                    <div class="flex flex-wrap gap-2 mb-4" id="lab4-draggables">
+                        <div class="draggable bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-2 rounded border border-emerald-300" draggable="true" data-match="android">AOSP / Custom UI by Samsung</div>
+                        <div class="draggable bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-2 rounded border border-emerald-300" draggable="true" data-match="ios">Closed-Source / Apple Ecosystem</div>
+                        <div class="draggable bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-2 rounded border border-emerald-300" draggable="true" data-match="harmony">Huawei / Cross-Device IoT</div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 text-center text-sm font-bold">
+                        <div class="dropzone p-4 bg-slate-50 border-2 border-dashed border-slate-300 rounded" data-target="android">Android</div>
+                        <div class="dropzone p-4 bg-slate-50 border-2 border-dashed border-slate-300 rounded" data-target="ios">iOS / iPadOS</div>
+                        <div class="dropzone p-4 bg-slate-50 border-2 border-dashed border-slate-300 rounded" data-target="harmony">HarmonyOS</div>
+                    </div>
+                </div>
+
+                <!-- LAB 5: Server Load Balancer -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-purple-500">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-server text-purple-500 mr-2"></i>Lab 5: Server Load Balancing</h2>
+                    <p class="text-sm text-slate-600 mb-4">Click "Route 10 Packets" to distribute traffic to the server with the lowest current load.</p>
+                    <div class="flex items-end justify-around h-32 bg-slate-800 rounded-lg p-4 mb-4 relative overflow-hidden">
+                        <div class="w-16 bg-slate-600 h-full rounded relative"><div id="srv1-load" class="absolute bottom-0 w-full bg-red-500 rounded transition-all duration-300" style="height: 80%;"></div><div class="absolute -bottom-5 w-full text-center text-xs text-slate-400 font-bold">SRV-1</div></div>
+                        <div class="w-16 bg-slate-600 h-full rounded relative"><div id="srv2-load" class="absolute bottom-0 w-full bg-green-500 rounded transition-all duration-300" style="height: 30%;"></div><div class="absolute -bottom-5 w-full text-center text-xs text-slate-400 font-bold">SRV-2</div></div>
+                        <div class="w-16 bg-slate-600 h-full rounded relative"><div id="srv3-load" class="absolute bottom-0 w-full bg-yellow-500 rounded transition-all duration-300" style="height: 60%;"></div><div class="absolute -bottom-5 w-full text-center text-xs text-slate-400 font-bold">SRV-3</div></div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-500">Packets Routed: <span id="lab5-count">0</span>/10</span>
+                        <div class="flex gap-2">
+                            <button onclick="routePacket(1)" class="bg-purple-100 hover:bg-purple-200 text-purple-800 px-3 py-1 rounded text-xs font-bold border border-purple-300">To SRV-1</button>
+                            <button onclick="routePacket(2)" class="bg-purple-100 hover:bg-purple-200 text-purple-800 px-3 py-1 rounded text-xs font-bold border border-purple-300">To SRV-2</button>
+                            <button onclick="routePacket(3)" class="bg-purple-100 hover:bg-purple-200 text-purple-800 px-3 py-1 rounded text-xs font-bold border border-purple-300">To SRV-3</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LAB 6: Server Roles Matrix -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-purple-500">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-users-gear text-purple-500 mr-2"></i>Lab 6: Enterprise Server Roles</h2>
+                    <p class="text-sm text-slate-600 mb-4">Match the correct Windows Server Role to its enterprise function.</p>
+                    <div class="space-y-3">
+                        <div class="flex gap-2 items-center">
+                            <select id="role-sel-1" class="border border-slate-300 rounded p-1 text-sm bg-slate-50 outline-none w-1/3" onchange="checkLab6()">
+                                <option value="">Select Role...</option><option value="ad">Active Directory</option><option value="hyperv">Hyper-V</option><option value="iis">Web Server (IIS)</option>
+                            </select>
+                            <span class="text-xs text-slate-600 w-2/3">Centralized user and permissions management.</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <select id="role-sel-2" class="border border-slate-300 rounded p-1 text-sm bg-slate-50 outline-none w-1/3" onchange="checkLab6()">
+                                <option value="">Select Role...</option><option value="ad">Active Directory</option><option value="hyperv">Hyper-V</option><option value="iis">Web Server (IIS)</option>
+                            </select>
+                            <span class="text-xs text-slate-600 w-2/3">Hosts corporate websites and web apps.</span>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <select id="role-sel-3" class="border border-slate-300 rounded p-1 text-sm bg-slate-50 outline-none w-1/3" onchange="checkLab6()">
+                                <option value="">Select Role...</option><option value="ad">Active Directory</option><option value="hyperv">Hyper-V</option><option value="iis">Web Server (IIS)</option>
+                            </select>
+                            <span class="text-xs text-slate-600 w-2/3">Hardware virtualization platform (VMs).</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LAB 7: Embedded Firmware Loop -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-rose-500">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-microchip text-rose-500 mr-2"></i>Lab 7: Thermostat Firmware Loop</h2>
+                    <p class="text-sm text-slate-600 mb-4">Embedded OSes often run infinite loops. Click the blocks in logical order (Read -> Check -> Action -> Wait) to build the program.</p>
+                    <div class="grid grid-cols-2 gap-2 mb-4" id="lab7-options">
+                        <button class="bg-rose-50 hover:bg-rose-100 border border-rose-200 p-2 rounded text-xs font-bold text-rose-800 text-left" onclick="buildLoop(this, 'wait')">4. Wait 60 Seconds</button>
+                        <button class="bg-rose-50 hover:bg-rose-100 border border-rose-200 p-2 rounded text-xs font-bold text-rose-800 text-left" onclick="buildLoop(this, 'read')">1. Read Temp Sensor</button>
+                        <button class="bg-rose-50 hover:bg-rose-100 border border-rose-200 p-2 rounded text-xs font-bold text-rose-800 text-left" onclick="buildLoop(this, 'action')">3. Trigger HVAC Relay</button>
+                        <button class="bg-rose-50 hover:bg-rose-100 border border-rose-200 p-2 rounded text-xs font-bold text-rose-800 text-left" onclick="buildLoop(this, 'check')">2. If Temp < 70°</button>
+                    </div>
+                    <div class="bg-slate-900 text-green-400 font-mono text-xs p-3 rounded-lg min-h-[100px] flex flex-col gap-1 shadow-inner">
+                        <div class="text-slate-400">while(true) {</div>
+                        <div id="lab7-code" class="pl-4"></div>
+                        <div class="text-slate-400">}</div>
+                    </div>
+                </div>
+
+                <!-- LAB 8: Does It Have an OS? -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border-l-4 border-rose-500">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2"><i class="fa-solid fa-code-branch text-rose-500 mr-2"></i>Lab 8: Does It Have an OS?</h2>
+                    <p class="text-sm text-slate-600 mb-4">Drag the device into the correct category (Embedded OS vs Simple Circuit/No OS).</p>
+                    <div class="flex flex-wrap gap-2 mb-4" id="lab8-draggables">
+                        <div class="draggable bg-slate-200 text-slate-800 text-xs font-bold px-3 py-2 rounded border border-slate-300" draggable="true" data-match="os">Smart Thermostat</div>
+                        <div class="draggable bg-slate-200 text-slate-800 text-xs font-bold px-3 py-2 rounded border border-slate-300" draggable="true" data-match="noos">Old-school Walkman</div>
+                        <div class="draggable bg-slate-200 text-slate-800 text-xs font-bold px-3 py-2 rounded border border-slate-300" draggable="true" data-match="os">ATM Machine</div>
+                        <div class="draggable bg-slate-200 text-slate-800 text-xs font-bold px-3 py-2 rounded border border-slate-300" draggable="true" data-match="noos">Digital Thermometer</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 h-24">
+                        <div class="dropzone bg-rose-50 border-2 border-dashed border-rose-300 rounded p-2 overflow-y-auto" data-target="os"><span class="block text-xs font-bold text-rose-800 text-center mb-1">Embedded OS</span></div>
+                        <div class="dropzone bg-slate-50 border-2 border-dashed border-slate-300 rounded p-2 overflow-y-auto" data-target="noos"><span class="block text-xs font-bold text-slate-500 text-center mb-1">No OS / Simple</span></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-12 text-center border-t border-slate-200 pt-8">
+                <button onclick="switchTab('quiz')" class="bg-indigo-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-indigo-500 shadow-xl transition transform hover:-translate-y-1">Take the Mastery Quiz <i class="fa-solid fa-clipboard-check ml-2"></i></button>
+            </div>
+        </div>
+
+        <!-- QUIZ TAB -->
+        <div id="quiz-section" class="tab-content no-print">
+            <div class="bg-white p-6 sm:p-10 rounded-3xl shadow-xl max-w-4xl mx-auto border border-slate-100">
+                <div class="text-center mb-8 border-b border-slate-200 pb-6">
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-3">Mastery Quiz</h1>
+                    <p class="text-slate-600 text-lg">Score 90% or higher (18/20) to earn your Certificate and unlock <strong class="text-indigo-600">Grid Racer</strong>.</p>
+                </div>
+
+                <div id="quiz-container" class="space-y-6">
+                    <!-- Questions injected via JS -->
+                </div>
+
+                <div class="mt-10 text-center border-t border-slate-200 pt-8 flex flex-col md:flex-row justify-center items-center gap-4">
+                    <button id="submit-quiz-btn" onclick="gradeQuiz()" class="bg-indigo-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-indigo-700 shadow-lg transition w-full md:w-auto">Submit Quiz</button>
+                    <button id="proceed-game-btn" onclick="switchTab('game')" class="hidden bg-emerald-500 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-emerald-600 shadow-lg transition w-full md:w-auto transform hover:scale-105">Play Grid Racer <i class="fa-solid fa-gamepad ml-2"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RETRO GAME TAB -->
+        <div id="game-section" class="tab-content no-print">
+            <div class="bg-slate-900 p-6 sm:p-8 rounded-3xl shadow-2xl max-w-4xl mx-auto border-4 border-slate-700 flex flex-col items-center">
+                <div class="text-center mb-6 w-full">
+                    <h1 class="text-4xl md:text-5xl font-extrabold text-cyan-400 mb-2 tracking-widest uppercase" style="font-family: monospace; text-shadow: 0 0 10px rgba(34,211,238,0.5);">Grid Racer</h1>
+                    <p class="text-slate-300 text-sm md:text-base">Data packets moving through the Server OS! Control the <span class="text-cyan-400 font-bold">Cyan Lightcycle</span>. Trap the rogue <span class="text-orange-500 font-bold">Orange cycle</span> by forcing it to crash into a wall or a data trail. Use Arrow Keys or the D-Pad.</p>
+                </div>
+                
+                <div class="flex justify-between items-center w-full max-w-[500px] mb-4 px-4 text-white font-mono text-xl bg-slate-800 p-3 rounded-lg border border-slate-600">
+                    <div>Score: <span id="game-score" class="text-cyan-400 font-bold">0</span></div>
+                    <div>Round: <span id="game-round" class="text-orange-400 font-bold">1</span></div>
+                </div>
+
+                <div class="relative flex justify-center w-full max-w-[500px]">
+                    <canvas id="game-canvas" width="500" height="500" class="w-full bg-black rounded shadow-[0_0_30px_rgba(34,211,238,0.2)] border-2 border-cyan-900"></canvas>
+                    
+                    <div id="game-overlay" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-80 rounded z-10 backdrop-blur-sm">
+                        <button id="start-game-btn" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold font-mono py-4 px-8 rounded-lg text-2xl border-2 border-cyan-300 uppercase transform transition hover:scale-105 shadow-[0_0_15px_rgba(34,211,238,0.6)]">Initialize Routing</button>
+                    </div>
+                </div>
+                
+                <!-- Mobile D-Pad -->
+                <div class="mt-6 grid grid-cols-3 gap-2 md:hidden">
+                    <div></div>
+                    <button class="d-pad-btn" onmousedown="setGameDirection(0,-1)" ontouchstart="setGameDirection(0,-1)"><i class="fa-solid fa-arrow-up"></i></button>
+                    <div></div>
+                    <button class="d-pad-btn" onmousedown="setGameDirection(-1,0)" ontouchstart="setGameDirection(-1,0)"><i class="fa-solid fa-arrow-left"></i></button>
+                    <button class="d-pad-btn" onmousedown="setGameDirection(0,1)" ontouchstart="setGameDirection(0,1)"><i class="fa-solid fa-arrow-down"></i></button>
+                    <button class="d-pad-btn" onmousedown="setGameDirection(1,0)" ontouchstart="setGameDirection(1,0)"><i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+
+                <div class="mt-8 text-center w-full border-t border-slate-700 pt-6">
+                    <button onclick="switchTab('cert')" class="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold text-lg hover:bg-indigo-500 shadow-lg transition w-full md:w-auto border border-indigo-400">Claim Certificate <i class="fa-solid fa-award ml-2"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CERTIFICATE TAB -->
+        <div id="cert-section" class="tab-content">
+            <div class="max-w-5xl mx-auto">
+                <div class="bg-white p-6 rounded-2xl shadow-md mb-6 no-print text-center border border-slate-200">
+                    <h2 class="text-2xl font-bold text-indigo-700 mb-2">🎉 OS Mastery Achieved! 🎉</h2>
+                    <p class="text-slate-600 mb-6">Enter your name exactly as you want it to appear on your official certificate.</p>
+                    <div class="flex flex-col md:flex-row justify-center items-center gap-4">
+                        <input type="text" id="student-name-input" value="Student Name" placeholder="First and Last Name" class="border-2 border-slate-300 rounded-lg px-4 py-3 w-full md:w-80 focus:border-indigo-500 focus:outline-none font-bold text-slate-700">
+                        <button onclick="updateCertName()" class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-indigo-700 transition shadow">Update Name</button>
+                        <button id="download-btn" onclick="downloadCert()" class="bg-slate-800 text-white px-6 py-3 rounded-lg font-bold hover:bg-slate-900 transition shadow flex items-center justify-center">
+                            <i class="fa-solid fa-download mr-2"></i>Save PNG
+                        </button>
+                    </div>
+                </div>
+
+                <div class="cert-preview-container print:p-0 print:bg-white">
+                    <div id="certificate">
+                        <div class="relative z-20 w-full h-full flex flex-col pt-[80px] px-[80px]">
+                            
+                            <div class="flex justify-between items-start w-full">
+                                <div>
+                                    <h1 class="text-[#1e293b] text-[3.5rem] leading-none font-serif font-bold tracking-widest uppercase mb-1">CERTIFICATE</h1>
+                                    <h2 class="text-indigo-700 text-[1.5rem] font-serif tracking-widest uppercase">Of Technological Mastery</h2>
+                                </div>
+                                <i class="fa-solid fa-server text-6xl text-indigo-200"></i>
+                            </div>
+                            
+                            <p class="text-[1.5rem] font-body text-slate-700 mt-16 mb-2">This document certifies that</p>
+                            
+                            <div class="relative mb-12 w-[80%]">
+                                <h3 id="cert-student-name" class="text-[4.5rem] text-[#0f172a] font-serif italic leading-none pb-2 relative z-10 block">Student Name</h3>
+                                <div class="w-full border-b-[3px] border-[#312e81] absolute bottom-[5px] left-0 z-0"></div>
+                            </div>
+                            
+                            <p class="text-[1.4rem] font-body text-slate-800 leading-relaxed w-[85%]">
+                                Has successfully completed the comprehensive assessment for 
+                                <strong class="text-[1.8rem] text-indigo-800 block mt-4 mb-2 font-serif">Cyber.org Tech+ Unit 05 Section 3.2.2</strong>
+                                <strong class="text-[1.6rem] text-black block mb-4 font-serif italic">Types of Operating Systems</strong>
+                                <span class="text-[1.1rem] text-slate-600 leading-snug block">Demonstrating proficiency in identifying and differentiating the architecture, use cases, and deployment strategies for Desktop, Mobile, Server, and Embedded Operating Systems.</span>
+                            </p>
+                            
+                            <div class="flex justify-between items-end mt-auto mb-[60px] w-full">
+                                <div class="w-16 h-16 rounded-full bg-yellow-400 border-4 border-yellow-500 shadow-lg flex items-center justify-center text-yellow-100 relative">
+                                   <i class="fa-solid fa-star text-2xl absolute z-10"></i>
+                                   <div class="w-20 h-20 rounded-full border border-yellow-300 absolute animate-ping"></div>
+                                </div>
+                                <div class="flex gap-16">
+                                    <div class="w-56">
+                                        <div class="border-b-2 border-slate-400 mb-2 h-16 flex items-end justify-center relative">
+                                            <span class="font-script text-[4rem] text-indigo-900 absolute bottom-[-15px] transform -rotate-3 opacity-90">Dr. OS. Admin</span>
+                                        </div>
+                                        <p class="font-serif text-lg text-slate-600 text-center uppercase tracking-wider text-xs font-bold">System Administrator</p>
+                                    </div>
+                                    
+                                    <div class="w-48">
+                                        <div class="border-b-2 border-slate-400 mb-2 text-center h-16 flex items-end justify-center">
+                                            <p id="cert-date" class="font-body text-xl text-slate-800 pb-1 font-bold">Date Here</p>
+                                        </div>
+                                        <p class="font-serif text-lg text-slate-600 text-center uppercase tracking-wider text-xs font-bold">Date of Mastery</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Custom Message Modal -->
+    <div id="custom-modal" class="fixed inset-0 bg-slate-900 bg-opacity-70 z-[100] hidden flex justify-center items-center backdrop-blur-sm p-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full transform transition-all border border-slate-200">
+            <div class="text-center">
+                <div id="modal-icon" class="text-6xl mb-6 drop-shadow-md"></div>
+                <h3 id="modal-title" class="text-2xl font-black mb-3 text-slate-900"></h3>
+                <p id="modal-msg" class="text-slate-600 mb-8 font-medium leading-relaxed"></p>
+                <button onclick="closeModal()" class="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 transition w-full shadow-lg text-lg">Acknowledge</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Briefing Content Modal -->
+    <div id="briefing-modal" class="fixed inset-0 bg-slate-900 bg-opacity-80 z-[120] hidden flex justify-center items-center backdrop-blur-sm p-4 sm:p-6">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col transform transition-all overflow-hidden border-4 border-indigo-600">
+            <div class="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                <div class="flex items-center gap-4">
+                    <div id="briefing-modal-icon" class="text-4xl"></div>
+                    <h3 id="briefing-modal-title" class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight"></h3>
+                </div>
+                <button onclick="closeBriefing()" class="text-slate-400 hover:text-red-600 transition text-5xl leading-none">&times;</button>
+            </div>
+            <div id="briefing-modal-content" class="p-6 md:p-10 overflow-y-auto flex-grow text-slate-700 text-lg leading-relaxed bg-white">
+                <!-- Content Injected -->
+            </div>
+            <div class="p-6 border-t border-slate-200 bg-slate-50 flex justify-end">
+                <button onclick="closeBriefing()" class="bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold text-lg hover:bg-indigo-800 transition shadow-lg">Close Details</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- BRIEFING DATA (Thorough text & images) ---
+        const briefingData = {
+            'desktop-details': {
+                title: 'Desktop & Workstation OS', icon: '<i class="fa-solid fa-desktop text-blue-600"></i>',
+                html: `
+                    <p class="mb-5">Desktop and Workstation Operating Systems represent the traditional foundation of personal computing. Originally designed for a single user interacting with a single machine—like a bulky desktop tower or a modern laptop—these systems are heavily optimized to support general computing tasks and extensive application multitasking. They act as the powerful bridge between the user's keyboard and mouse and the complex hardware processing underneath.</p>
+                    <p class="mb-5">Throughout the history of computing, Desktop OSes evolved significantly alongside hardware. Early operating systems were restricted to 16-bit architectures, meaning they could only process small chunks of data and access limited RAM (memory). As hardware advanced, OSes evolved into 32-bit systems, and eventually into the modern 64-bit architectures used today. This 64-bit capability allows modern Desktop OSes to address practically unlimited RAM and process massively complex tasks simultaneously without crashing.</p>
+                    <p class="mb-5"><strong>Microsoft Windows</strong> stands as the commercial titan of Desktop OSes, boasting the largest installed user base globally. Its evolution tells the story of modern computing. Early versions like Windows 1.0 to 3.x were merely graphical layers running on top of the text-based MS-DOS. True revolution occurred with Windows 95, which introduced the iconic Start button and Windows Explorer. Decades later, Windows XP brought stability as the first major consumer 64-bit release, while Windows 10 and 11 modernized the interface for touchscreens and advanced security.</p>
+                    <p class="mb-5"><strong>Apple macOS</strong> offers a strictly controlled, commercial alternative. Unlike Windows, which is designed to run on millions of different hardware combinations, macOS is developed exclusively for Apple's own Mac hardware. This closed ecosystem allows for incredible stability and a seamless user experience. Interestingly, modern macOS (starting with OS X) is built on a UNIX foundation, making it highly secure and deeply respected by software developers.</p>
+                    <p class="mb-5"><strong>Linux Distributions</strong> represent the open-source philosophy. Unlike commercial systems, the Linux kernel is completely free to use, view, modify, and distribute. Organizations and communities package this kernel with interfaces and software to create "distros" like Ubuntu, Linux Mint, and Kali Linux. Because Linux is highly customizable and resource-efficient, it is frequently used by developers, cybersecurity professionals, and educators reviving old hardware.</p>
+                    <p class="mb-5"><strong>ChromeOS</strong> by Google represents a modern shift in desktop computing. Originally designed as essentially just a web browser interface, it relies on the cloud for data storage and processing rather than a massive local hard drive. Now built on a Gentoo Linux core, ChromeOS is incredibly fast, simple, and secure, making it the dominant choice in K-12 education via Chromebooks.</p>
+                    <p>Finally, all Desktop OSes must provide an interface. While most everyday users rely on the intuitive <strong>Graphical User Interface (GUI)</strong>—navigating via windows, icons, menus, and a mouse pointer—these OSes also support a <strong>Command Line Interface (CLI)</strong>. Tools like Windows PowerShell or the macOS/Linux Terminal allow advanced users and IT professionals to bypass the graphical overhead and issue direct, powerful text commands to the core system.</p>
+                `
+            },
+            'desktop-usecase': {
+                title: 'Desktop OS: Use Cases', icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-blue-800 mb-2 border-b-2 border-blue-200 pb-1">Case 1: Educational Environments (K-12)</h4>
+                        <p class="mb-2 text-slate-700">Schools require operating systems that are affordable, easy for young students to use, incredibly fast to boot, and simple for a small IT team to manage remotely across thousands of devices.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-600">
+                            <li class="mb-2"><strong>Example 1 (ChromeOS):</strong> A school district deploys 5,000 Chromebooks. Because ChromeOS relies on Google cloud profiles, a student can pick up any laptop, log in, and instantly access their saved essays and browser bookmarks without waiting for heavy local profiles to load.</li>
+                            <li><strong>Example 2 (ChromeOS Flex):</strong> An underfunded school has a lab full of 10-year-old Windows PCs that are too slow to run modern Windows 11. The IT admin installs the lightweight ChromeOS Flex, instantly reviving the old hardware and saving the school thousands of dollars.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-blue-800 mb-2 border-b-2 border-blue-200 pb-1">Case 2: Software Development & IT Admin</h4>
+                        <p class="mb-2 text-slate-700">Developers and system administrators require operating systems that offer deep, unrestricted access to system files, powerful automation tools, and native support for programming environments.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-600">
+                            <li class="mb-2"><strong>Example 1 (Linux/CLI):</strong> A cybersecurity student boots into Kali Linux and uses the Command Line Interface (CLI) to run automated penetration testing scripts, bypassing the graphical interface to save memory and execute commands faster.</li>
+                            <li><strong>Example 2 (macOS):</strong> A developer uses a MacBook Pro because the underlying UNIX architecture of macOS natively supports the same terminal commands used on their remote Linux web servers, allowing for seamless local testing.</li>
+                        </ul>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-2">Concept: Desktop Architecture</p>
+                            <img src="https://images.unsplash.com/photo-1593640408182-31c70c8268f5?auto=format&fit=crop&w=600&h=350" alt="Modern computer workstation with code" class="w-full h-48 object-cover rounded-xl shadow border border-slate-200">
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-2">In Use: Student on Chromebook</p>
+                            <img src="https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=600&h=350" alt="Student studying on a laptop in a classroom" class="w-full h-48 object-cover rounded-xl shadow border border-slate-200">
+                        </div>
+                    </div>
+                `
+            },
+            'mobile-details': {
+                title: 'Mobile Operating Systems', icon: '<i class="fa-solid fa-mobile-screen-button text-emerald-600"></i>',
+                html: `
+                    <p class="mb-5">The explosion of portable technology over the last two decades demanded an entirely new paradigm in software engineering. Mobile Operating Systems were developed specifically to support smartphones, tablets, and smartwatches. Unlike desktop PCs plugged into wall outlets, mobile devices face strict physical limitations: small screens, tiny batteries, and less powerful processors. Therefore, a Mobile OS must be hyper-efficient.</p>
+                    <p class="mb-5">The most critical responsibility of a Mobile OS is aggressive resource management. To ensure a device doesn't run out of battery in two hours, the OS must constantly monitor and throttle background applications. If an app isn't actively being viewed, the OS will often pause or completely suspend its CPU usage. Furthermore, the OS optimizes network connectivity, seamlessly switching between cellular data and Wi-Fi to preserve battery life while maintaining a constant internet connection.</p>
+                    <p class="mb-5">Another defining feature is the Touch Interface paradigm. Instead of relying on the precise click of a mouse pointer, Mobile OSes are designed around capacitive touchscreens. The entire graphical user interface is built with large, tap-friendly icons, swipe gestures, and pinch-to-zoom functionalities, drastically altering how human users interact with their data.</p>
+                    <p class="mb-5"><strong>Apple's iOS and iPadOS</strong> represent a highly successful, closed-source commercial ecosystem. Because Apple manufactures both the hardware (the iPhone/iPad) and writes the software (iOS), they achieve incredible optimization. This closed ecosystem allows Apple to strictly curate their App Store, prioritizing user privacy, security against malware, and a highly consistent, seamless user experience across all devices.</p>
+                    <p class="mb-5">In stark contrast, <strong>Google's Android</strong> dominates the global market share through an open-source model. The core of Android is known as AOSP (Android Open-Source Project). Manufacturers like Samsung, Motorola, and Google themselves take this free core and heavily customize it with their own unique graphical overlays (launchers) and features. This allows Android to run on everything from ultra-cheap $50 budget phones to $1500 flagship foldables.</p>
+                    <p class="mb-5"><strong>HarmonyOS</strong>, developed by Huawei, represents the newest major player. Born out of international trade restrictions that limited Huawei's access to Google's Android services, HarmonyOS was designed from the ground up to be cross-device. It is built to seamlessly scale, running on small IoT (Internet of Things) devices, smart TVs, and flagship smartphones, aiming to create a perfectly interconnected hardware ecosystem.</p>
+                    <p>Crucially, Mobile OSes enforce strict Application Sandboxing. Because users download dozens of third-party apps, the OS must ensure that a rogue flashlight app cannot secretly read the user's banking app data or access the camera without explicit, granular permissions granted by the user via the OS privacy settings.</p>
+                `
+            },
+            'mobile-usecase': {
+                title: 'Mobile OS: Use Cases', icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-emerald-800 mb-2 border-b-2 border-emerald-200 pb-1">Case 1: Consumer Media & Communication</h4>
+                        <p class="mb-2 text-slate-700">Everyday consumers rely on their mobile devices as their primary cameras, communication hubs, and media consumption tools, requiring an OS that prioritizes seamless integration and ease of use.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-600">
+                            <li class="mb-2"><strong>Example 1 (iOS Ecosystem):</strong> A user takes a photo on their iPhone, and because of the deeply integrated iOS ecosystem, that high-resolution image is instantly synced via iCloud and available on their iPad and MacBook within seconds without any manual transfer.</li>
+                            <li><strong>Example 2 (Android Customization):</strong> A user who relies heavily on their calendar installs a custom interactive Calendar Widget directly onto their Android home screen, taking advantage of Android's open customization to see their schedule without opening an app.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-emerald-800 mb-2 border-b-2 border-emerald-200 pb-1">Case 2: Enterprise Field Work & IoT</h4>
+                        <p class="mb-2 text-slate-700">Businesses utilize mobile operating systems to empower employees in the field, process payments, and connect a vast array of smart devices.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-600">
+                            <li class="mb-2"><strong>Example 1 (Mobile POS):</strong> A delivery driver uses a rugged tablet running a specialized Android OS to capture customer signatures and process credit card payments via the cellular network while standing on a customer's porch.</li>
+                            <li><strong>Example 2 (HarmonyOS IoT):</strong> A factory manager uses a HarmonyOS smartphone to seamlessly connect, monitor, and adjust the settings of the HarmonyOS-powered smart lighting and ventilation systems across the manufacturing floor with a single tap.</li>
+                        </ul>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-2">Concept: Mobile App Ecosystem</p>
+                            <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=600&h=350" alt="Smartphones lined up displaying colorful app grids" class="w-full h-48 object-cover rounded-xl shadow border border-slate-200">
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-2">In Use: Field Tablet POS</p>
+                            <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=600&h=350" alt="Customer tapping card on mobile tablet POS system" class="w-full h-48 object-cover rounded-xl shadow border border-slate-200">
+                        </div>
+                    </div>
+                `
+            },
+            'server-details': {
+                title: 'Server Operating Systems', icon: '<i class="fa-solid fa-network-wired text-purple-600"></i>',
+                html: `
+                    <p class="mb-5">While desktop and mobile OSes are built for humans to interact with hardware, Server Operating Systems are built for computers to interact with other computers. A server's primary job is to "serve" data, applications, and services across a network to hundreds, thousands, or even millions of concurrent client connections. Consequently, Server OSes are engineered with entirely different priorities: maximum scalability, ironclad security, and extreme reliability.</p>
+                    <p class="mb-5">Reliability (uptime) is paramount. A personal laptop rebooting for an update is a minor inconvenience. A corporate server rebooting during business hours could mean thousands of employees cannot access their email or databases, costing the company millions. Server OSes are designed to run for years without crashing, supporting features like hot-swapping hardware (changing a broken hard drive while the machine is still running) and updating core services without requiring a full system reboot.</p>
+                    <p class="mb-5"><strong>Windows Server</strong> is Microsoft's commercial powerhouse for corporate environments. It shines in environments where standard Windows PCs are used. Its most defining enterprise feature is Active Directory (AD). AD allows an IT team to centrally manage user accounts, enforce security policies (like requiring a 12-character password), and map network drives for every single computer in a school or business from one central server interface. It also heavily utilizes Hyper-V for hardware virtualization.</p>
+                    <p class="mb-5">However, the backbone of the internet—the servers hosting the websites and cloud applications you use daily—is overwhelmingly dominated by <strong>Linux-Based Server OSes</strong>. Distributions like Ubuntu Server, CentOS, and Red Hat Enterprise Linux (RHEL) are favored for their incredible stability, open-source nature (which reduces licensing costs), and massive community support. Interestingly, while desktop Linux is free, many enterprise Linux servers (like RHEL) charge high fees for official corporate technical support.</p>
+                    <p class="mb-5"><strong>UNIX-Based Systems</strong> (like Oracle's Solaris or IBM's AIX) represent the incredibly robust, legacy tier of server operating systems. While losing ground to Linux in modern cloud deployments, UNIX servers are still heavily utilized in highly specialized, critical industries like global banking, manufacturing, and telecommunications, where processing massive data with absolute mathematical precision is required.</p>
+                    <p class="mb-5">Because every ounce of processing power (CPU/RAM) on a server should be dedicated to serving clients, many Server OSes are run <strong>without a Graphical User Interface (GUI)</strong>. Termmed a "headless" setup, administrators interact with these servers entirely through secure Command Line Interface (CLI) remote connections, stripping away the wasted memory required to render a visual desktop.</p>
+                    <p>Finally, modern Server OSes rely heavily on Virtualization. Rather than installing one OS on one massive physical machine, the host Server OS uses a Hypervisor to slice the physical hardware into dozens of smaller, isolated "Virtual Machines" (VMs), each running their own OS. This maximizes hardware utilization and allows cloud providers (like AWS or Azure) to rent out specific chunks of server power to clients globally.</p>
+                `
+            },
+            'server-usecase': {
+                title: 'Server OS: Use Cases', icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-purple-800 mb-2 border-b-2 border-purple-200 pb-1">Case 1: Enterprise Network Management</h4>
+                        <p class="mb-2 text-slate-700">Large organizations (like a school district or a bank) need to manage thousands of user accounts and secure internal resources effectively.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-600">
+                            <li class="mb-2"><strong>Example 1 (Active Directory):</strong> A school IT admin uses Windows Server to create new student logins. Through Active Directory Group Policy, the server dictates that no student account is allowed to access the control panel or download unauthorized software on any lab computer.</li>
+                            <li><strong>Example 2 (Print Server):</strong> Instead of installing printer drivers manually on 500 employee laptops, the company uses a Windows Server configured as a Print Server. Employees simply connect to the server, which automatically routes all print jobs and manages the driver software invisibly.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-purple-800 mb-2 border-b-2 border-purple-200 pb-1">Case 2: Cloud Computing & Web Hosting</h4>
+                        <p class="mb-2 text-slate-700">The modern internet relies on robust, scriptable server operating systems to deliver web pages and app data to millions of concurrent users instantly.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-600">
+                            <li class="mb-2"><strong>Example 1 (Linux Web Hosting):</strong> A popular streaming service uses thousands of headless Ubuntu Linux servers in a data center to host their web application. Because there is no GUI running, 100% of the server's RAM is dedicated to quickly serving video files to end users.</li>
+                            <li><strong>Example 2 (Virtualization/Hyper-V):</strong> A startup company cannot afford to buy physical servers. They rent space in a Microsoft Azure data center, where a massive physical machine running Windows Server uses Hyper-V to create a small, affordable Virtual Machine strictly dedicated to the startup's new app.</li>
+                        </ul>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-2">Concept: Data Center Servers</p>
+                            <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&h=350" alt="Endless rows of illuminated server racks in a data center" class="w-full h-48 object-cover rounded-xl shadow border border-slate-200">
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-2">In Use: IT Systems Admin</p>
+                            <img src="https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=600&h=350" alt="IT professional monitoring network traffic on multiple screens" class="w-full h-48 object-cover rounded-xl shadow border border-slate-200">
+                        </div>
+                    </div>
+                `
+            },
+            'embedded-details': {
+                title: 'Embedded Operating Systems', icon: '<i class="fa-solid fa-microchip text-rose-600"></i>',
+                html: `
+                    <p class="mb-5">An Embedded Operating System is the invisible brain behind modern smart devices. Unlike general-purpose operating systems (like Windows or iOS) that are designed to do thousands of different tasks depending on what app the user opens, an embedded OS is designed to run on specialized hardware to perform exactly one specific job. You will find them buried deep inside smart appliances, car engines, industrial robots, medical devices, and digital thermostats.</p>
+                    <p class="mb-5">The defining characteristic of an embedded OS is its strict optimization for low hardware resources. Because a smart thermostat doesn't need to render 3D video games, it doesn't need an expensive Intel processor or 16GB of RAM. Embedded OSes are stripped down to their absolute bare minimum codebase, allowing them to run flawlessly on tiny, cheap microcontrollers using minimal electricity.</p>
+                    <p class="mb-5">Many critical embedded systems function as <strong>Real-Time Operating Systems (RTOS)</strong>. In a general Desktop OS, if the CPU is busy, your mouse click might be delayed by a fraction of a second—annoying, but fine. In an RTOS, timing is a matter of life and death. If the embedded OS controlling a car's anti-lock braking system (ABS) detects a skid, it must trigger the brakes in exactly 5 milliseconds, every single time, without fail. RTOS prioritize absolute, predictable execution over multitasking.</p>
+                    <p class="mb-5">At the simplest end of the spectrum, some basic embedded devices don't use a "full" operating system at all. Instead, they rely on simple <strong>Firmware Loops</strong>. For example, a basic digital thermometer runs a tiny piece of code that repeats infinitely: Read Sensor -> Calculate Temp -> Update Display -> Sleep 1 second -> Repeat. It requires no complex task scheduler or file system.</p>
+                    <p class="mb-5">When slightly more complexity is needed, developers turn to systems like <strong>FreeRTOS</strong>. This open-source, highly lightweight RTOS is incredibly popular for Internet of Things (IoT) devices, smart lightbulbs, and simple microcontrollers, providing just enough structure to connect to Wi-Fi and manage basic sensors.</p>
+                    <p class="mb-5">For high-stakes, commercial applications, companies rely on proprietary systems like <strong>VxWorks</strong> (used famously in Mars Rovers, aviation, and surgical robots) and <strong>QNX</strong> (heavily used in automotive infotainment and industrial manufacturing). These systems are rigorously tested to ensure they literally never crash.</p>
+                    <p>Finally, for consumer devices that require rich graphical interfaces—like Smart TVs, advanced car dashboards, or smart refrigerators—manufacturers often use <strong>Embedded Linux</strong>. By taking the open-source Linux kernel and stripping out everything except what the TV needs to stream video and connect to Wi-Fi, they create a powerful, cost-effective embedded OS that users interact with daily without ever seeing the Linux code underneath.</p>
+                `
+            },
+            'embedded-usecase': {
+                title: 'Embedded OS: Use Cases', icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-rose-800 mb-2 border-b-2 border-rose-200 pb-1">Case 1: Smart Home Automation (IoT)</h4>
+                        <p class="mb-2 text-slate-700">Modern homes are filled with internet-connected devices that must operate invisibly, reliably, and on very low power for years at a time.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-600">
+                            <li class="mb-2"><strong>Example 1 (Smart Thermostat):</strong> A Nest thermostat runs a lightweight embedded OS (often a variant of Linux or FreeRTOS) that simply reads temperature sensors, learns schedule patterns, and connects to the home Wi-Fi. It has a single, specialized UI just for temperature control.</li>
+                            <li><strong>Example 2 (Security Camera):</strong> A doorbell camera utilizes a tiny embedded OS whose sole purpose is to keep the camera sensor asleep to save battery until the motion detector is triggered, at which point the OS instantly wakes up the network chip to stream video to the owner's phone.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-rose-800 mb-2 border-b-2 border-rose-200 pb-1">Case 2: Industrial & Critical Systems</h4>
+                        <p class="mb-2 text-slate-700">In manufacturing, aviation, and medicine, embedded systems must execute commands with absolute precision, where a crashed OS could result in catastrophe.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-600">
+                            <li class="mb-2"><strong>Example 1 (RTOS in Cars):</strong> A modern vehicle contains dozens of microcontrollers. The airbag deployment system runs a Real-Time Operating System (RTOS) like QNX that guarantees if a crash sensor is triggered, the airbag fires in exact milliseconds without any OS lag or "buffering."</li>
+                            <li><strong>Example 2 (Manufacturing Robots):</strong> A robotic arm on a car assembly line runs an embedded OS that processes coordinate mathematics in an infinite, highly precise loop, ensuring the welding torch hits the exact millimeter mark on 10,000 cars a day without fail.</li>
+                        </ul>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-2">Concept: Microcontroller / RTOS</p>
+                            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&h=350" alt="Close up of a green computer circuit board and microchip" class="w-full h-48 object-cover rounded-xl shadow border border-slate-200">
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-2">In Use: Smart Thermostat</p>
+                            <img src="https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=600&h=350" alt="Modern smart thermostat on a wall displaying temperature" class="w-full h-48 object-cover rounded-xl shadow border border-slate-200">
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        // --- STREAMING_CHUNK:Configuring UI Tab Switching and Modals... ---
+        function openBriefing(key) {
+            const modal = document.getElementById('briefing-modal');
+            const data = briefingData[key];
+            if(data) {
+                document.getElementById('briefing-modal-icon').innerHTML = data.icon;
+                document.getElementById('briefing-modal-title').innerText = data.title;
+                document.getElementById('briefing-modal-content').innerHTML = data.html;
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; 
+            }
+        }
+
+        function closeBriefing() {
+            document.getElementById('briefing-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto'; 
+        }
+
+        document.getElementById('briefing-modal').addEventListener('click', function(e) {
+            if(e.target === this) closeBriefing();
+        });
+        
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId + '-section').classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-indigo-700'));
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if(activeBtn && tabId !== 'cert') activeBtn.classList.add('bg-indigo-700');
+            
+            document.querySelectorAll('.nav-btn-mobile').forEach(btn => btn.classList.remove('bg-indigo-700'));
+            const activeMobileBtn = document.getElementById('nav-' + tabId + '-mobile');
+            if(activeMobileBtn && tabId !== 'cert') activeMobileBtn.classList.add('bg-indigo-700');
+
+            window.scrollTo(0,0);
+            
+            if (tabId === 'game' && !gameRunning) { drawStaticGame(); }
+        }
+
+        function showModal(title, message, type = 'info') {
+            const modal = document.getElementById('custom-modal');
+            const icon = document.getElementById('modal-icon');
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-msg').innerText = message;
+            
+            if(type === 'success') { icon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-500"></i>'; }
+            else if (type === 'error') { icon.innerHTML = '<i class="fa-solid fa-circle-xmark text-rose-500"></i>'; }
+            else if (type === 'warning') { icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-yellow-500"></i>'; }
+            else { icon.innerHTML = '<i class="fa-solid fa-circle-info text-blue-500"></i>'; }
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('custom-modal').classList.add('hidden'); }
+
+        // --- STREAMING_CHUNK:Implementing Interactive Lab Logic... ---
+        // Universal Drag and Drop Setup
+        function setupDragAndDrop(draggableQuery, dropzoneQuery, successCallback) {
+            let draggedItem = null;
+            document.querySelectorAll(draggableQuery).forEach(item => {
+                item.addEventListener('dragstart', function() {
+                    draggedItem = this; setTimeout(() => this.classList.add('opacity-50'), 0);
+                });
+                item.addEventListener('dragend', function() {
+                    setTimeout(() => this.classList.remove('opacity-50'), 0); draggedItem = null;
+                });
+            });
+
+            document.querySelectorAll(dropzoneQuery).forEach(zone => {
+                zone.addEventListener('dragover', e => e.preventDefault());
+                zone.addEventListener('dragenter', function(e) { e.preventDefault(); this.classList.add('drag-over'); });
+                zone.addEventListener('dragleave', function() { this.classList.remove('drag-over'); });
+                zone.addEventListener('drop', function() {
+                    this.classList.remove('drag-over');
+                    if(draggedItem && draggedItem.dataset.match === this.dataset.target) {
+                        this.appendChild(draggedItem);
+                        draggedItem.classList.remove('cursor-grab', 'draggable');
+                        draggedItem.classList.add('w-full', 'mt-2', 'bg-green-100', 'border-green-400', 'text-green-800');
+                        draggedItem.setAttribute('draggable', 'false');
+                        successCallback();
+                    }
+                });
+            });
+        }
+
+        // Lab 1: Desktop Drag/Drop
+        let lab1Count = 0;
+        setupDragAndDrop('#lab1-draggables .draggable', '.dropzone[data-target="win95"], .dropzone[data-target="osx"], .dropzone[data-target="winxp"], .dropzone[data-target="chrome"]', () => {
+            lab1Count++;
+            if(lab1Count === 4) showModal('Lab 1 Complete!', 'You successfully mapped the OS milestones.', 'success');
+        });
+
+        // Lab 2: GUI vs CLI
+        let lab2GUIdone = false; let lab2CLIdone = false;
+        function solveLab2GUI() {
+            lab2GUIdone = true; checkLab2Complete();
+            document.getElementById('lab2-feedback').innerText = "GUI Method Complete. Now try the CLI.";
+        }
+        function checkLab2CLI(e) {
+            if(e.key === 'Enter') {
+                const val = document.getElementById('lab2-cli-input').value.trim().toLowerCase();
+                if(val === 'xdg-open https://cyber.org') {
+                    lab2CLIdone = true; document.getElementById('lab2-cli-input').disabled = true;
+                    checkLab2Complete();
+                } else {
+                    document.getElementById('lab2-feedback').innerText = "CLI Error: Command not recognized. Try again.";
+                    document.getElementById('lab2-feedback').className = "text-xs font-bold text-right mt-2 text-rose-500 h-4";
+                }
+            }
+        }
+        function checkLab2Complete() {
+            if(lab2GUIdone && lab2CLIdone) {
+                document.getElementById('lab2-feedback').innerText = "Task executed successfully via both interfaces.";
+                document.getElementById('lab2-feedback').className = "text-xs font-bold text-right mt-2 text-emerald-500 h-4";
+                setTimeout(() => showModal('Lab 2 Complete!', 'You demonstrated how to achieve the same goal via GUI and CLI.', 'success'), 500);
+            }
+        }
+
+        // Lab 3: Mobile Battery
+        function updateLab3() {
+            const screen = parseInt(document.getElementById('slide-screen').value);
+            const cpu = parseInt(document.getElementById('slide-cpu').value);
+            const ant = parseInt(document.getElementById('slide-ant').value);
+            const total = screen + cpu + ant;
+            
+            document.getElementById('val-screen').innerText = screen + "%";
+            document.getElementById('val-cpu').innerText = cpu + "%";
+            document.getElementById('val-ant').innerText = ant + "%";
+            
+            const totSpan = document.getElementById('val-total');
+            totSpan.innerText = total + "%";
+            
+            if(total > 100) { totSpan.className = "text-rose-500"; } 
+            else if (total < 100) { totSpan.className = "text-yellow-600"; }
+            else { 
+                totSpan.className = "text-emerald-500"; 
+                if(screen === 50) {
+                    setTimeout(() => showModal('Lab 3 Complete!', 'Excellent resource management. You balanced the strict power limits of a mobile OS.', 'success'), 300);
+                }
+            }
+        }
+
+        // Lab 4: Mobile OS Sorter
+        let lab4Count = 0;
+        setupDragAndDrop('#lab4-draggables .draggable', '.dropzone[data-target="android"], .dropzone[data-target="ios"], .dropzone[data-target="harmony"]', () => {
+            lab4Count++;
+            if(lab4Count === 3) showModal('Lab 4 Complete!', 'Mobile OS ecosystems categorized successfully.', 'success');
+        });
+
+        // Lab 5: Server Load Balancer
+        let srvLoads = [80, 30, 60];
+        let packetsRouted = 0;
+        
+        function updateServerUI() {
+            document.getElementById('srv1-load').style.height = srvLoads[0] + "%";
+            document.getElementById('srv2-load').style.height = srvLoads[1] + "%";
+            document.getElementById('srv3-load').style.height = srvLoads[2] + "%";
+            
+            [0,1,2].forEach(i => {
+                let el = document.getElementById(`srv${i+1}-load`);
+                if(srvLoads[i] > 85) el.className = "absolute bottom-0 w-full bg-rose-500 rounded transition-all duration-300";
+                else if(srvLoads[i] > 50) el.className = "absolute bottom-0 w-full bg-yellow-500 rounded transition-all duration-300";
+                else el.className = "absolute bottom-0 w-full bg-emerald-500 rounded transition-all duration-300";
+            });
+        }
+        function routePacket(srvNum) {
+            if(packetsRouted >= 10) return;
+            let targetIdx = srvNum - 1;
+            
+            // Check if user picked the lowest load
+            let minLoad = Math.min(...srvLoads);
+            if(srvLoads[targetIdx] !== minLoad) {
+                showModal('Traffic Overload!', 'You routed a packet to a busy server! The server OS crashed. Routing reset.', 'error');
+                srvLoads = [80, 30, 60]; packetsRouted = 0;
+            } else {
+                srvLoads[targetIdx] += 15; // Load increases on the one picked
+                // Others decrease slightly
+                for(let i=0; i<3; i++) { if(i !== targetIdx) srvLoads[i] = Math.max(10, srvLoads[i] - 10); }
+                packetsRouted++;
+                document.getElementById('lab5-count').innerText = packetsRouted;
+                if(packetsRouted === 10) {
+                    setTimeout(() => showModal('Lab 5 Complete!', 'You successfully balanced the incoming client traffic like a pro.', 'success'), 300);
+                }
+            }
+            updateServerUI();
+        }
+
+        // Lab 6: Server Roles Matrix
+        function checkLab6() {
+            const v1 = document.getElementById('role-sel-1').value;
+            const v2 = document.getElementById('role-sel-2').value;
+            const v3 = document.getElementById('role-sel-3').value;
+            
+            if(v1 === 'ad' && v2 === 'iis' && v3 === 'hyperv') {
+                showModal('Lab 6 Complete!', 'Enterprise Server Roles accurately configured.', 'success');
+                document.getElementById('role-sel-1').disabled = true;
+                document.getElementById('role-sel-2').disabled = true;
+                document.getElementById('role-sel-3').disabled = true;
+            }
+        }
+
+        // Lab 7: Embedded Firmware Loop
+        let firmwareOrder = [];
+        function buildLoop(btn, type) {
+            firmwareOrder.push(type);
+            btn.classList.add('opacity-50', 'pointer-events-none');
+            
+            let text = "";
+            if(type === 'read') text = "sensorData = readTempSensor();";
+            if(type === 'check') text = "if (sensorData < 70) {";
+            if(type === 'action') text = "  triggerRelay(HVAC_ON); }";
+            if(type === 'wait') text = "sleep(60000);";
+            
+            const div = document.createElement('div'); div.innerText = text;
+            if(type === 'action') div.className = "pl-4 text-emerald-400";
+            document.getElementById('lab7-code').appendChild(div);
+            
+            if(firmwareOrder.length === 4) {
+                if(firmwareOrder.join(',') === 'read,check,action,wait') {
+                    showModal('Lab 7 Complete!', 'Firmware loop compiled successfully! The embedded system is running efficiently.', 'success');
+                } else {
+                    showModal('Logic Error!', 'Firmware crashed! You must Read, then Check, then Action, then Wait. Try again.', 'error');
+                    firmwareOrder = []; document.getElementById('lab7-code').innerHTML = '';
+                    document.querySelectorAll('#lab7-options button').forEach(b => b.classList.remove('opacity-50', 'pointer-events-none'));
+                }
+            }
+        }
+
+        // Lab 8: Does It Have an OS?
+        let lab8Count = 0;
+        setupDragAndDrop('#lab8-draggables .draggable', '.dropzone[data-target="os"], .dropzone[data-target="noos"]', () => {
+            lab8Count++;
+            if(lab8Count === 4) showModal('Lab 8 Complete!', 'Embedded devices categorized correctly.', 'success');
+        });
+
+        // --- STREAMING_CHUNK:Configuring the Mastery Quiz Data and Logic... ---
+        const quizData = [
+            { q: "What is one key function of an operating system?", options: ["Running antivirus software", "Browsing the internet", "Managing hardware resources", "Providing cloud storage"], answer: 2 },
+            { q: "Which of the following is an example of a commercial desktop operating system?", options: ["Ubuntu", "Kali Linux", "macOS", "FreeRTOS"], answer: 2 },
+            { q: "Which operating system type is designed to manage multiple client connections and provide network services?", options: ["Mobile OS", "Desktop OS", "Embedded OS", "Server OS"], answer: 3 },
+            { q: "Which of these operating systems is primarily designed for use on smartphones and tablets?", options: ["Windows Server", "HarmonyOS", "CentOS", "macOS"], answer: 1 },
+            { q: "What is a major benefit of open-source operating systems like Linux?", options: ["They are guaranteed to work only on Apple hardware.", "They cost more than commercial alternatives.", "They cannot be modified by users.", "They allow users to modify and distribute the source code."], answer: 3 },
+            { q: "What distinguishes ChromeOS from traditional desktop operating systems?", options: ["It doesn’t support touchscreens.", "It requires constant use of the command line.", "It’s based on the Chrome browser and cloud apps.", "It is only available in 32-bit versions."], answer: 2 },
+            { q: "Which of the following desktop operating systems is built on a UNIX foundation?", options: ["Windows 10", "ChromeOS Flex", "macOS", "Windows 95"], answer: 2 },
+            { q: "A Command Line Interface (CLI) is preferred by some users because:", options: ["It requires no typing.", "It has more colorful icons.", "It uses fewer system resources and allows scripting.", "It automatically updates all software."], answer: 2 },
+            { q: "Which type of operating system is most likely to run inside a smart TV or smart refrigerator?", options: ["Server", "Mobile", "Embedded", "Desktop"], answer: 2 },
+            { q: "Which of the following is an example of a popular Server Operating System?", options: ["Windows Server", "ChromeOS", "Android", "FreeRTOS"], answer: 0 },
+            
+            // New questions based on briefing
+            { q: "As hardware advanced, Desktop OSes evolved from 16-bit to 32-bit, and eventually to what architecture standard used today?", options: ["48-bit", "64-bit", "128-bit", "8-bit"], answer: 1 },
+            { q: "Which version of Windows fundamentally revolutionized the interface by introducing the iconic Start button and Windows Explorer?", options: ["Windows 3.1", "Windows 95", "Windows XP", "Windows 8"], answer: 1 },
+            { q: "Why must a Mobile Operating System be hyper-efficient compared to a Desktop OS?", options: ["They have infinite cloud processing power.", "They face strict physical limits like tiny batteries and less RAM.", "They only run one application ever.", "They do not use Wi-Fi."], answer: 1 },
+            { q: "What is the core, open-source foundation of the Android Operating System called?", options: ["AOSP (Android Open-Source Project)", "Google Kernel", "Harmony Base", "Linux Mobile"], answer: 0 },
+            { q: "To protect user privacy on a mobile device, what OS mechanism ensures a flashlight app cannot secretly read banking data?", options: ["Application Sandboxing", "Hardware Virtualization", "Active Directory", "Firmware Looping"], answer: 0 },
+            { q: "For a corporate Windows Server, what critical enterprise feature allows IT admins to centrally manage thousands of user accounts and permissions?", options: ["Hypervisor", "Command Line Interface", "Active Directory", "Task Manager"], answer: 2 },
+            { q: "Why are many massive data center servers run \"headless\" without a Graphical User Interface (GUI)?", options: ["Because monitors are too expensive.", "To dedicate 100% of processing power (RAM/CPU) to serving clients.", "Because GUIs are illegal in data centers.", "Because Linux cannot render graphics."], answer: 1 },
+            { q: "What is the primary characteristic of a Real-Time Operating System (RTOS) used in critical embedded environments (like a car's ABS brakes)?", options: ["It renders 3D graphics beautifully.", "It connects to social media instantly.", "It executes commands with absolute, predictable timing (e.g., in exact milliseconds).", "It has the largest app store."], answer: 2 },
+            { q: "For the simplest embedded devices (like a basic digital thermometer), what is used instead of a 'full' operating system?", options: ["A Hypervisor", "A simple Firmware Loop", "Windows Server 2022", "A 64-bit Kernel"], answer: 1 },
+            { q: "Which embedded operating system is open-source and incredibly popular for simple Internet of Things (IoT) devices and microcontrollers?", options: ["VxWorks", "QNX", "macOS", "FreeRTOS"], answer: 3 }
+        ];
+
+        const quizContainer = document.getElementById('quiz-container');
+        quizData.forEach((item, index) => {
+            const qDiv = document.createElement('div');
+            qDiv.className = "bg-slate-50 p-6 rounded-2xl border border-slate-200";
+            
+            const qTitle = document.createElement('h3');
+            qTitle.className = "font-bold text-lg text-slate-800 mb-4";
+            qTitle.innerText = `${index + 1}. ${item.q}`;
+            qDiv.appendChild(qTitle);
+            
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = "space-y-3";
+            
+            item.options.forEach((opt, optIndex) => {
+                const label = document.createElement('label');
+                label.className = "flex items-center space-x-3 p-3 rounded-lg bg-white border border-slate-300 hover:bg-indigo-50 cursor-pointer transition";
+                
+                const radio = document.createElement('input');
+                radio.type = "radio"; radio.name = `q${index}`; radio.value = optIndex;
+                radio.className = "form-radio h-5 w-5 text-indigo-600";
+                
+                const span = document.createElement('span'); span.className = "text-slate-700 font-medium"; span.innerText = opt;
+                
+                label.appendChild(radio); label.appendChild(span); optionsDiv.appendChild(label);
+            });
+            qDiv.appendChild(optionsDiv); quizContainer.appendChild(qDiv);
+        });
+
+        function gradeQuiz() {
+            let score = 0; let allAnswered = true;
+            for(let i = 0; i < quizData.length; i++) {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                if(selected) { if(parseInt(selected.value) === quizData[i].answer) score++; } 
+                else { allAnswered = false; }
+            }
+            
+            if(!allAnswered) { showModal('Incomplete Quiz', 'Please answer all 20 questions before submitting.', 'warning'); return; }
+            
+            const percentage = (score / quizData.length) * 100;
+            if(score >= 18) { 
+                const navGame = document.getElementById('nav-game');
+                const navGameMobile = document.getElementById('nav-game-mobile');
+                
+                navGame.classList.remove('text-gray-400', 'cursor-not-allowed');
+                navGame.classList.add('text-white', 'hover:bg-indigo-600');
+                navGame.disabled = false; navGame.innerHTML = '<i class="fa-solid fa-gamepad mr-1"></i>Game';
+                
+                navGameMobile.classList.remove('text-gray-500', 'cursor-not-allowed');
+                navGameMobile.classList.add('text-white', 'hover:bg-indigo-600');
+                navGameMobile.disabled = false; navGameMobile.innerHTML = '<i class="fa-solid fa-gamepad"></i> Game';
+
+                document.getElementById('nav-cert').classList.remove('hidden');
+                document.getElementById('nav-cert-mobile').classList.remove('hidden');
+                
+                document.getElementById('proceed-game-btn').classList.remove('hidden');
+                document.getElementById('submit-quiz-btn').classList.add('hidden');
+
+                showModal('Mastery Achieved!', `Incredible! You scored ${score}/20 (${percentage}%). You have unlocked your Certificate and the Grid Racer retro game!`, 'success');
+            } else {
+                quizData.forEach((_, i) => { const s = document.querySelector(`input[name="q${i}"]:checked`); if(s) s.checked = false; });
+                showModal('Review Needed', `You scored ${score}/20 (${percentage}%). You need 90% (18/20) to pass. Your answers have been cleared. Review the briefing and try again.`, 'error');
+                document.getElementById('quiz-section').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // --- STREAMING_CHUNK:Implementing the Retro Game (Grid Racer - Tron Clone)... ---
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Grid setup (500x500 canvas, 10x10 grid size = 50x50 grid)
+        const gridSize = 10;
+        const gridW = canvas.width / gridSize;
+        const gridH = canvas.height / gridSize;
+        
+        let gameRunning = false;
+        let animationId;
+        let p1, cpu;
+        let grid; // 2D array to track solid trails
+        let gameScore = 0;
+        let gameRound = 1;
+        let gameSpeed = 100; // ms per frame
+        let lastTime = 0;
+
+        const overlay = document.getElementById('game-overlay');
+        const startBtn = document.getElementById('start-game-btn');
+        startBtn.addEventListener('click', startGame);
+
+        function resetGrid() {
+            grid = new Array(gridW).fill(0).map(() => new Array(gridH).fill(0));
+            p1 = { x: 10, y: 25, dx: 1, dy: 0, color: '#22d3ee', nextDx: 1, nextDy: 0 }; // Cyan
+            cpu = { x: 40, y: 25, dx: -1, dy: 0, color: '#f97316' }; // Orange
+        }
+
+        // Input Handling
+        window.addEventListener('keydown', e => {
+            if(!gameRunning) return;
+            if(e.key === 'ArrowUp' && p1.dy !== 1) setGameDirection(0, -1);
+            if(e.key === 'ArrowDown' && p1.dy !== -1) setGameDirection(0, 1);
+            if(e.key === 'ArrowLeft' && p1.dx !== 1) setGameDirection(-1, 0);
+            if(e.key === 'ArrowRight' && p1.dx !== -1) setGameDirection(1, 0);
+        });
+
+        function setGameDirection(dx, dy) {
+            if(!gameRunning) return;
+            // Prevent immediate 180 reverse
+            if (dx !== 0 && p1.dx === -dx) return;
+            if (dy !== 0 && p1.dy === -dy) return;
+            p1.nextDx = dx; p1.nextDy = dy;
+        }
+
+        // Simple CPU AI
+        function updateCPU() {
+            // Check current path forward
+            let nextX = cpu.x + cpu.dx;
+            let nextY = cpu.y + cpu.dy;
+            
+            // If next space is invalid (wall or trail)
+            if(nextX < 0 || nextX >= gridW || nextY < 0 || nextY >= gridH || grid[nextX][nextY] !== 0) {
+                // Try turning
+                let dirs = [];
+                if (cpu.dx !== 0) { dirs = [{dx:0, dy:-1}, {dx:0, dy:1}]; } 
+                else { dirs = [{dx:-1, dy:0}, {dx:1, dy:0}]; }
+                
+                // Shuffle for randomness
+                dirs.sort(() => Math.random() - 0.5);
+                
+                for(let dir of dirs) {
+                    let testX = cpu.x + dir.dx;
+                    let testY = cpu.y + dir.dy;
+                    if(testX >= 0 && testX < gridW && testY >= 0 && testY < gridH && grid[testX][testY] === 0) {
+                        cpu.dx = dir.dx; cpu.dy = dir.dy;
+                        break;
+                    }
+                }
+            } else {
+                // Occasional random turn if safe
+                if(Math.random() < 0.05) {
+                    let dirs = [];
+                    if (cpu.dx !== 0) { dirs = [{dx:0, dy:-1}, {dx:0, dy:1}]; } 
+                    else { dirs = [{dx:-1, dy:0}, {dx:1, dy:0}]; }
+                    let dir = dirs[Math.floor(Math.random()*dirs.length)];
+                    let testX = cpu.x + dir.dx; let testY = cpu.y + dir.dy;
+                    if(testX >= 0 && testX < gridW && testY >= 0 && testY < gridH && grid[testX][testY] === 0) {
+                        cpu.dx = dir.dx; cpu.dy = dir.dy;
+                    }
+                }
+            }
+        }
+
+        function gameLoop(timestamp) {
+            if(!gameRunning) return;
+            
+            if (timestamp - lastTime > gameSpeed) {
+                lastTime = timestamp;
+                
+                // Apply P1 queued input
+                p1.dx = p1.nextDx; p1.dy = p1.nextDy;
+                
+                updateCPU();
+
+                // Move
+                p1.x += p1.dx; p1.y += p1.dy;
+                cpu.x += cpu.dx; cpu.y += cpu.dy;
+                
+                let p1Crash = false; let cpuCrash = false;
+                
+                // Collision Bounds
+                if(p1.x < 0 || p1.x >= gridW || p1.y < 0 || p1.y >= gridH) p1Crash = true;
+                if(cpu.x < 0 || cpu.x >= gridW || cpu.y < 0 || cpu.y >= gridH) cpuCrash = true;
+                
+                // Collision Trails
+                if(!p1Crash && grid[p1.x][p1.y] !== 0) p1Crash = true;
+                if(!cpuCrash && grid[cpu.x][cpu.y] !== 0) cpuCrash = true;
+                
+                // Head on
+                if(p1.x === cpu.x && p1.y === cpu.y) { p1Crash = true; cpuCrash = true; }
+
+                if(p1Crash || cpuCrash) {
+                    handleGameOver(p1Crash, cpuCrash);
+                    return;
+                }
+                
+                // Mark grid
+                grid[p1.x][p1.y] = 1; // 1 = p1
+                grid[cpu.x][cpu.y] = 2; // 2 = cpu
+                
+                // Draw Trails
+                ctx.fillStyle = p1.color;
+                ctx.fillRect(p1.x * gridSize, p1.y * gridSize, gridSize, gridSize);
+                ctx.shadowBlur = 10; ctx.shadowColor = p1.color; // glow
+                
+                ctx.fillStyle = cpu.color;
+                ctx.fillRect(cpu.x * gridSize, cpu.y * gridSize, gridSize, gridSize);
+                ctx.shadowColor = cpu.color;
+                ctx.shadowBlur = 0; // reset
+            }
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        function handleGameOver(p1Crash, cpuCrash) {
+            gameRunning = false;
+            overlay.classList.remove('hidden');
+            
+            if(p1Crash && cpuCrash) {
+                startBtn.innerText = "Mutual Crash! Retry";
+                startBtn.classList.replace('bg-cyan-600', 'bg-yellow-600');
+                startBtn.classList.replace('border-cyan-300', 'border-yellow-300');
+            } else if (p1Crash) {
+                startBtn.innerText = "System Crash! Reboot";
+                startBtn.classList.replace('bg-cyan-600', 'bg-rose-600');
+                startBtn.classList.replace('border-cyan-300', 'border-rose-300');
+                gameScore = 0; gameRound = 1; gameSpeed = 100;
+            } else if (cpuCrash) {
+                gameScore += 100 * gameRound;
+                gameRound++;
+                gameSpeed = Math.max(30, gameSpeed - 10); // faster
+                document.getElementById('game-score').innerText = gameScore;
+                document.getElementById('game-round').innerText = gameRound;
+                
+                startBtn.innerText = "Rogue Trapped! Next Round";
+                startBtn.classList.replace('bg-rose-600', 'bg-cyan-600');
+                startBtn.classList.replace('border-rose-300', 'border-cyan-300');
+                startBtn.classList.replace('bg-yellow-600', 'bg-cyan-600');
+                startBtn.classList.replace('border-yellow-300', 'border-cyan-300');
+            }
+        }
+
+        function startGame() {
+            overlay.classList.add('hidden');
+            resetGrid();
+            drawStaticGame(); // clear canvas
+            
+            // Draw starting heads
+            ctx.fillStyle = p1.color; ctx.fillRect(p1.x * gridSize, p1.y * gridSize, gridSize, gridSize);
+            ctx.fillStyle = cpu.color; ctx.fillRect(cpu.x * gridSize, cpu.y * gridSize, gridSize, gridSize);
+            
+            grid[p1.x][p1.y] = 1; grid[cpu.x][cpu.y] = 2;
+            
+            gameRunning = true;
+            lastTime = performance.now();
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        function drawStaticGame() {
+            ctx.fillStyle = '#020617';
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            // Draw Grid Lines
+            ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 1;
+            for(let i=0; i<canvas.width; i+=gridSize*2) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+            }
+            for(let i=0; i<canvas.height; i+=gridSize*2) {
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+            }
+        }
+        drawStaticGame();
+
+        // --- STREAMING_CHUNK:Configuring Certificate Generation Logic... ---
+        function updateCertName() {
+            let name = document.getElementById('student-name-input').value.trim();
+            if(name) {
+                document.getElementById('cert-student-name').innerText = name;
+            } else {
+                showModal('Wait!', 'Please enter your name to update the certificate.', 'warning');
+            }
+        }
+
+        document.getElementById('cert-date').innerText = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        function downloadCert() {
+            const certEl = document.getElementById('certificate');
+            const name = document.getElementById('cert-student-name').innerText;
+            let filename = 'TechPlus_OS_Certificate.png';
+            if (name && name !== 'Student Name') {
+                filename = `${name.replace(/\s+/g, '_')}_OS_Mastery.png`;
+            }
+
+            const originalTransform = certEl.style.transform;
+            certEl.style.transform = 'none';
+
+            const btn = document.getElementById('download-btn');
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Rendering...';
+            btn.disabled = true;
+
+            html2canvas(certEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
+                certEl.style.transform = originalTransform;
+                btn.innerHTML = originalBtnText; btn.disabled = false;
+                
+                const link = document.createElement('a');
+                link.download = filename; link.href = canvas.toDataURL('image/png'); link.click();
+            }).catch(err => {
+                console.error(err);
+                certEl.style.transform = originalTransform;
+                btn.innerHTML = originalBtnText; btn.disabled = false;
+                showModal('Error', 'Failed to generate image. Please try on a desktop browser.', 'error');
+            });
+        }
+    </script>
+</body>
+</html>

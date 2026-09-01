@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 04 Section 2.9.1 Mastery - Small Wireless Networks</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Qwitcher+Grypen:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0fdf4; color: #1f2937; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .io-dropzone { min-height: 70px; min-width: 130px; border: 2px dashed #9ca3af; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #f9fafb; transition: all 0.2s; padding: 0.5rem;}
+        .io-dropzone.drag-over { background: #e5e7eb; border-color: #16a34a; box-shadow: inset 0 0 10px rgba(22, 163, 74, 0.2);}
+        .io-item { cursor: grab; transition: transform 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin: 0.25rem; text-align: center; }
+        .io-item:active { cursor: grabbing; transform: scale(0.95); }
+        .cat-dropzone { transition: background-color 0.2s ease; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e5e7eb; }
+        ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #059669; }
+
+        /* Packet-Man Canvas styling */
+        #game-canvas { background-color: #111827; border: 4px solid #374151; border-radius: 8px; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); max-width: 100%; height: auto; }
+        
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .font-body { font-family: 'Lora', serif; }
+        .font-script { font-family: 'Qwitcher Grypen', cursive; }
+        
+        .cert-preview-container { width: 100%; overflow: auto; display: flex; justify-content: center; background: #e5e7eb; padding: 2rem; border-radius: 0.5rem; }
+        #certificate { width: 1056px !important; height: 816px !important; flex-shrink: 0; background-color: #ffffff; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1056" height="816"><polygon points="0,0 250,0 0,650" fill="%23fcd34d"/><polygon points="0,0 350,0 0,900" fill="%23d97706" opacity="0.8"/><polygon points="0,0 120,0 0,300" fill="%23fcd34d"/><polygon points="0,450 650,816 0,816" fill="%23fcd34d"/><polygon points="0,550 450,816 0,816" fill="%23d97706" opacity="0.8"/><polygon points="800,0 1056,0 1056,256" fill="%23f3f4f6"/><polygon points="1056,500 1056,816 750,816" fill="%23f3f4f6"/></svg>'); background-size: cover; border: 4px solid #e5e7eb; }
+        .gold-seal { position: absolute; left: 110px; top: 350px; width: 170px; height: 170px; border-radius: 50%; background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c, #fcf6ba); display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(0,0,0,0.3), inset 0 0 15px rgba(255,255,255,0.7), inset 0 0 25px rgba(139,105,20,0.9); z-index: 10; }
+        .gold-seal::before { content: ''; position: absolute; top: -4px; bottom: -4px; left: -4px; right: -4px; border-radius: 50%; border: 6px dashed #d4af37; }
+        .gold-seal-inner-1 { width: 140px; height: 140px; border-radius: 50%; border: 2px solid rgba(139, 105, 20, 0.4); display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #e8c678, #dbab46); box-shadow: inset 0 4px 8px rgba(0,0,0,0.2), 0 2px 5px rgba(255,255,255,0.7); z-index: 1; }
+        .gold-seal-inner-2 { width: 120px; height: 120px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.5); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: radial-gradient(circle, #fcf6ba, #d4af37); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); padding: 10px; }
+        .embossed-text { color: #b38728; text-shadow: 1px 1px 0px rgba(255,255,255,0.7), -1px -1px 0px rgba(0,0,0,0.2); font-family: 'Playfair Display', serif; font-weight: 800; line-height: 1.1; text-transform: uppercase; }
+        .embossed-text-large { font-size: 14px; letter-spacing: 1px; }
+        .embossed-text-small { font-size: 11px; letter-spacing: 2px; margin: 2px 0; }
+        .embossed-star { font-size: 12px; color: #b38728; text-shadow: 1px 1px 0px rgba(255,255,255,0.7), -1px -1px 0px rgba(0,0,0,0.2); margin: 2px 0; }
+
+        @media (max-width: 1100px) { #certificate { transform: scale(0.7); transform-origin: top left; margin-bottom: -240px; margin-right: -310px; } }
+        @media (max-width: 768px) { #certificate { transform: scale(0.4); transform-origin: top left; margin-bottom: -490px; margin-right: -630px; } }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="bg-green-700 text-white shadow-lg sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-wifi text-2xl"></i>
+                    <span class="font-bold text-xl tracking-wider hidden sm:inline-block">Tech+ Unit 04 Section 2.9.1</span>
+                    <span class="font-bold text-xl tracking-wider sm:hidden">2.9.1</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-2">
+                        <button onclick="switchTab('briefing')" class="nav-btn bg-green-900 px-3 py-2 rounded-md text-sm font-medium hover:bg-green-600 transition" id="nav-briefing"><i class="fa-solid fa-book-open mr-1"></i>Briefing</button>
+                        <button onclick="switchTab('activity')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-green-600 transition" id="nav-activity"><i class="fa-solid fa-flask mr-1"></i>Lab Activity</button>
+                        <button onclick="switchTab('quiz')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-green-600 transition" id="nav-quiz"><i class="fa-solid fa-clipboard-check mr-1"></i>Quiz</button>
+                        <button onclick="switchTab('game')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-gray-400 cursor-not-allowed transition" id="nav-game" disabled><i class="fa-solid fa-lock mr-1"></i>Game</button>
+                        <button onclick="switchTab('cert')" class="nav-btn hidden px-3 py-2 rounded-md text-sm font-medium text-yellow-300 hover:bg-green-600 transition" id="nav-cert"><i class="fa-solid fa-award mr-1"></i>Certificate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="md:hidden flex flex-wrap justify-center gap-2 py-2 px-2 bg-green-800">
+            <button onclick="switchTab('briefing')" class="nav-btn-mobile px-3 py-1 text-sm rounded bg-green-900" id="nav-briefing-mobile">Briefing</button>
+            <button onclick="switchTab('activity')" class="nav-btn-mobile px-3 py-1 text-sm rounded" id="nav-activity-mobile">Lab</button>
+            <button onclick="switchTab('quiz')" class="nav-btn-mobile px-3 py-1 text-sm rounded" id="nav-quiz-mobile">Quiz</button>
+            <button onclick="switchTab('game')" class="nav-btn-mobile px-3 py-1 text-sm rounded text-gray-400 cursor-not-allowed" id="nav-game-mobile" disabled><i class="fa-solid fa-lock"></i></button>
+            <button onclick="switchTab('cert')" id="nav-cert-mobile" class="hidden px-2 py-1 text-sm text-yellow-300 rounded"><i class="fa-solid fa-award"></i></button>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <!-- BRIEFING SECTION -->
+        <div id="briefing-section" class="tab-content active no-print">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">Small Wireless Network Basics</h1>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">Explore how wireless networks transmit data, the factors affecting their performance, frequency bands, and modern Wi-Fi standards.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Tile 1 -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-blue-500 overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-blue-700"><i class="fa-solid fa-tachometer-fast mr-2"></i>Network Performance</h2>
+                        <ul class="space-y-3 text-gray-700 mb-4">
+                            <li><strong>Wireless Networks:</strong> Connect devices using radio waves instead of cables.</li>
+                            <li><strong>Speed vs Latency:</strong> Speed is data transfer rate; latency is the delay before data starts moving.</li>
+                            <li><strong>Measurement:</strong> Speed in Mbps/Gbps; Latency in milliseconds (ms).</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-50 border-t border-gray-100 p-4 flex gap-4">
+                        <button onclick="openBriefing('perf-details')" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                        <button onclick="openBriefing('perf-usecase')" class="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-900 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-lightbulb text-yellow-600 mr-2"></i> Use Cases</button>
+                    </div>
+                </div>
+
+                <!-- Tile 2 -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-red-500 overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-red-700"><i class="fa-solid fa-wave-square mr-2"></i>Attenuation & Interference</h2>
+                        <ul class="space-y-3 text-gray-700 mb-4">
+                            <li><strong>Attenuation:</strong> Signal weakness caused by distance or physical obstacles like walls and floors.</li>
+                            <li><strong>Interference:</strong> Disruption from overlapping networks, microwaves, and Bluetooth.</li>
+                            <li><strong>Symptoms:</strong> Slower speeds, dropped connections, and fewer signal bars.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-50 border-t border-gray-100 p-4 flex gap-4">
+                        <button onclick="openBriefing('att-details')" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                        <button onclick="openBriefing('att-usecase')" class="flex-1 bg-red-100 hover:bg-red-200 text-red-900 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-lightbulb text-yellow-600 mr-2"></i> Use Cases</button>
+                    </div>
+                </div>
+
+                <!-- Tile 3 -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-purple-500 overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-purple-700"><i class="fa-solid fa-layer-group mr-2"></i>Frequency Bands</h2>
+                        <ul class="space-y-3 text-gray-700 mb-4">
+                            <li><strong>2.4 GHz:</strong> Longest range, slowest speed, highly susceptible to interference.</li>
+                            <li><strong>5 GHz:</strong> Medium range, faster speeds, low interference.</li>
+                            <li><strong>6 GHz:</strong> Shortest range, blazing fast speeds, zero congestion.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-50 border-t border-gray-100 p-4 flex gap-4">
+                        <button onclick="openBriefing('band-details')" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                        <button onclick="openBriefing('band-usecase')" class="flex-1 bg-purple-100 hover:bg-purple-200 text-purple-900 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-lightbulb text-yellow-600 mr-2"></i> Use Cases</button>
+                    </div>
+                </div>
+
+                <!-- Tile 4 -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-orange-500 overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-orange-700"><i class="fa-solid fa-microchip mr-2"></i>Wi-Fi Standards</h2>
+                        <ul class="space-y-3 text-gray-700 mb-4">
+                            <li><strong>Progression:</strong> From 802.11n (Wi-Fi 4) to 802.11ac (Wi-Fi 5) and 802.11ax (Wi-Fi 6).</li>
+                            <li><strong>MIMO & MU-MIMO:</strong> Utilizing multiple antennas to send data to single or multiple users simultaneously.</li>
+                            <li><strong>OFDMA & TWT:</strong> Channel splitting for efficiency and scheduling sleep cycles for battery saving.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-50 border-t border-gray-100 p-4 flex gap-4">
+                        <button onclick="openBriefing('std-details')" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                        <button onclick="openBriefing('std-usecase')" class="flex-1 bg-orange-100 hover:bg-orange-200 text-orange-900 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-lightbulb text-yellow-600 mr-2"></i> Use Cases</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 flex justify-center">
+                <button onclick="switchTab('activity')" class="bg-green-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-green-500 shadow-lg transition transform hover:scale-105">Proceed to Lab Activities <i class="fa-solid fa-arrow-right ml-2"></i></button>
+            </div>
+        </div>
+
+        <!-- LAB ACTIVITY SECTION -->
+        <div id="activity-section" class="tab-content no-print">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Interactive Lab Activities</h1>
+                <p class="text-gray-600">Complete all 8 modules (2 per concept) to reinforce your mastery.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Concept 1 Labs -->
+                <div class="bg-white p-5 rounded-xl shadow border border-gray-200">
+                    <h2 class="text-lg font-bold mb-2 text-blue-700">Lab 1: Speed vs. Latency Metrics</h2>
+                    <p class="text-xs text-gray-600 mb-3">Drag the measurement or analogy to the correct category.</p>
+                    <div class="flex flex-wrap gap-2 mb-4" id="c1-items">
+                        <div class="io-item px-2 py-1 bg-blue-50 border border-blue-300 rounded text-xs font-bold" draggable="true" data-type="speed">Megabits per sec (Mbps)</div>
+                        <div class="io-item px-2 py-1 bg-blue-50 border border-blue-300 rounded text-xs font-bold" draggable="true" data-type="lat">Milliseconds (ms)</div>
+                        <div class="io-item px-2 py-1 bg-blue-50 border border-blue-300 rounded text-xs font-bold" draggable="true" data-type="speed">Highway Lanes</div>
+                        <div class="io-item px-2 py-1 bg-blue-50 border border-blue-300 rounded text-xs font-bold" draggable="true" data-type="lat">Red Light at On-Ramp</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="cat-dropzone flex-1 border-2 border-dashed border-blue-400 bg-gray-50 rounded p-2 text-center text-sm font-bold min-h-[60px]" data-target="speed">Speed</div>
+                        <div class="cat-dropzone flex-1 border-2 border-dashed border-red-400 bg-gray-50 rounded p-2 text-center text-sm font-bold min-h-[60px]" data-target="lat">Latency</div>
+                    </div>
+                    <div id="lab1-feedback" class="text-center text-xs font-bold mt-2 h-4 text-green-600"></div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl shadow border border-gray-200">
+                    <h2 class="text-lg font-bold mb-2 text-blue-700">Lab 2: Latency Rating Matcher</h2>
+                    <p class="text-xs text-gray-600 mb-3">Match the ping latency rating to the user experience.</p>
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between items-center bg-gray-50 p-2 border rounded text-sm"><span>1-9 ms</span> <select class="lab2-sel border p-1 rounded" data-ans="exc"><option value="">--Select--</option><option value="acc">Acceptable</option><option value="exc">Excellent</option><option value="bad">Noticeable Delay</option></select></div>
+                        <div class="flex justify-between items-center bg-gray-50 p-2 border rounded text-sm"><span>50-150 ms</span> <select class="lab2-sel border p-1 rounded" data-ans="acc"><option value="">--Select--</option><option value="acc">Acceptable</option><option value="exc">Excellent</option><option value="bad">Noticeable Delay</option></select></div>
+                        <div class="flex justify-between items-center bg-gray-50 p-2 border rounded text-sm"><span>150+ ms</span> <select class="lab2-sel border p-1 rounded" data-ans="bad"><option value="">--Select--</option><option value="acc">Acceptable</option><option value="exc">Excellent</option><option value="bad">Noticeable Delay</option></select></div>
+                    </div>
+                    <button onclick="checkLab2()" class="mt-2 w-full bg-blue-600 text-white text-sm py-1 rounded">Check Answers</button>
+                    <div id="lab2-feedback" class="text-center text-xs font-bold mt-2 h-4 text-green-600"></div>
+                </div>
+
+                <!-- Concept 2 Labs -->
+                <div class="bg-white p-5 rounded-xl shadow border border-gray-200">
+                    <h2 class="text-lg font-bold mb-2 text-red-700">Lab 3: Attenuation Sorting</h2>
+                    <p class="text-xs text-gray-600 mb-3">Drag items into the correct type of signal disruption.</p>
+                    <div class="flex flex-wrap gap-2 mb-4" id="c3-items">
+                        <div class="io-item px-2 py-1 bg-red-50 border border-red-300 rounded text-xs font-bold" draggable="true" data-type="att">Concrete Walls</div>
+                        <div class="io-item px-2 py-1 bg-red-50 border border-red-300 rounded text-xs font-bold" draggable="true" data-type="int">Microwave Ovens</div>
+                        <div class="io-item px-2 py-1 bg-red-50 border border-red-300 rounded text-xs font-bold" draggable="true" data-type="att">Distance / Range</div>
+                        <div class="io-item px-2 py-1 bg-red-50 border border-red-300 rounded text-xs font-bold" draggable="true" data-type="int">Bluetooth Devices</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="cat-dropzone flex-1 border-2 border-dashed border-red-400 bg-gray-50 rounded p-2 text-center text-sm font-bold min-h-[60px]" data-target="att">Attenuation (Weakening)</div>
+                        <div class="cat-dropzone flex-1 border-2 border-dashed border-orange-400 bg-gray-50 rounded p-2 text-center text-sm font-bold min-h-[60px]" data-target="int">Interference (Disruption)</div>
+                    </div>
+                    <div id="lab3-feedback" class="text-center text-xs font-bold mt-2 h-4 text-green-600"></div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl shadow border border-gray-200">
+                    <h2 class="text-lg font-bold mb-2 text-red-700">Lab 4: Congestion Resolution</h2>
+                    <p class="text-xs text-gray-600 mb-3">Match the disruption symptom to the best fix.</p>
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between items-center bg-gray-50 p-2 border rounded text-xs"><span>Too many neighbor Wi-Fi signals</span> <select class="lab4-sel border p-1 rounded w-24" data-ans="band"><option value="">-Select-</option><option value="move">Move Closer</option><option value="band">Switch to 5/6GHz</option></select></div>
+                        <div class="flex justify-between items-center bg-gray-50 p-2 border rounded text-xs"><span>Far away with brick walls</span> <select class="lab4-sel border p-1 rounded w-24" data-ans="move"><option value="">-Select-</option><option value="move">Move Closer</option><option value="band">Switch to 5/6GHz</option></select></div>
+                    </div>
+                    <button onclick="checkLab4()" class="mt-2 w-full bg-red-600 text-white text-sm py-1 rounded">Check Answers</button>
+                    <div id="lab4-feedback" class="text-center text-xs font-bold mt-2 h-4 text-green-600"></div>
+                </div>
+
+                <!-- Concept 3 Labs -->
+                <div class="bg-white p-5 rounded-xl shadow border border-gray-200">
+                    <h2 class="text-lg font-bold mb-2 text-purple-700">Lab 5: Band Capabilities</h2>
+                    <p class="text-xs text-gray-600 mb-3">Drag the band frequency to its correct defining trait.</p>
+                    <div class="flex flex-wrap gap-2 mb-4" id="c5-items">
+                        <div class="io-item px-2 py-1 bg-purple-50 border border-purple-300 rounded text-xs font-bold" draggable="true" data-type="b24">2.4 GHz</div>
+                        <div class="io-item px-2 py-1 bg-purple-50 border border-purple-300 rounded text-xs font-bold" draggable="true" data-type="b5">5 GHz</div>
+                        <div class="io-item px-2 py-1 bg-purple-50 border border-purple-300 rounded text-xs font-bold" draggable="true" data-type="b6">6 GHz</div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div class="cat-dropzone border-2 border-dashed border-purple-400 bg-gray-50 rounded p-1 text-center text-xs font-bold" data-target="b24">Longest Range, Most Crowded</div>
+                        <div class="cat-dropzone border-2 border-dashed border-purple-400 bg-gray-50 rounded p-1 text-center text-xs font-bold" data-target="b5">Medium Range, Fast, Less Crowded</div>
+                        <div class="cat-dropzone border-2 border-dashed border-purple-400 bg-gray-50 rounded p-1 text-center text-xs font-bold" data-target="b6">Shortest Range, Fastest, New Devices</div>
+                    </div>
+                    <div id="lab5-feedback" class="text-center text-xs font-bold mt-2 h-4 text-green-600"></div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl shadow border border-gray-200">
+                    <h2 class="text-lg font-bold mb-2 text-purple-700">Lab 6: Device Assignment</h2>
+                    <p class="text-xs text-gray-600 mb-3">Select the ideal Wi-Fi band for the smart device.</p>
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between items-center bg-gray-50 p-2 border rounded text-xs"><span>Smart Thermostat (Needs range, low data)</span> <select class="lab6-sel border p-1 rounded" data-ans="24"><option value="">-</option><option value="24">2.4 GHz</option><option value="6">6 GHz</option></select></div>
+                        <div class="flex justify-between items-center bg-gray-50 p-2 border rounded text-xs"><span>Gaming Console (Needs speed, near router)</span> <select class="lab6-sel border p-1 rounded" data-ans="6"><option value="">-</option><option value="24">2.4 GHz</option><option value="6">6/5 GHz</option></select></div>
+                    </div>
+                    <button onclick="checkLab6()" class="mt-2 w-full bg-purple-600 text-white text-sm py-1 rounded">Check Answers</button>
+                    <div id="lab6-feedback" class="text-center text-xs font-bold mt-2 h-4 text-green-600"></div>
+                </div>
+
+                <!-- Concept 4 Labs -->
+                <div class="bg-white p-5 rounded-xl shadow border border-gray-200">
+                    <h2 class="text-lg font-bold mb-2 text-orange-700">Lab 7: Wi-Fi Features</h2>
+                    <p class="text-xs text-gray-600 mb-3">Drag the advanced feature to its definition.</p>
+                    <div class="flex flex-wrap gap-2 mb-4" id="c7-items">
+                        <div class="io-item px-2 py-1 bg-orange-50 border border-orange-300 rounded text-xs font-bold" draggable="true" data-type="mimo">MU-MIMO</div>
+                        <div class="io-item px-2 py-1 bg-orange-50 border border-orange-300 rounded text-xs font-bold" draggable="true" data-type="twt">TWT</div>
+                        <div class="io-item px-2 py-1 bg-orange-50 border border-orange-300 rounded text-xs font-bold" draggable="true" data-type="ofdma">OFDMA</div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div class="cat-dropzone border-2 border-dashed border-orange-400 bg-gray-50 rounded p-1 text-center text-xs font-bold" data-target="ofdma">Splits channels (Carpooling)</div>
+                        <div class="cat-dropzone border-2 border-dashed border-orange-400 bg-gray-50 rounded p-1 text-center text-xs font-bold" data-target="mimo">Talks to multiple devices at once</div>
+                        <div class="cat-dropzone border-2 border-dashed border-orange-400 bg-gray-50 rounded p-1 text-center text-xs font-bold" data-target="twt">Schedules sleep to save battery</div>
+                    </div>
+                    <div id="lab7-feedback" class="text-center text-xs font-bold mt-2 h-4 text-green-600"></div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl shadow border border-gray-200">
+                    <h2 class="text-lg font-bold mb-2 text-orange-700">Lab 8: Standards Timeline</h2>
+                    <p class="text-xs text-gray-600 mb-3">Match the 802.11 standard to its common generation name.</p>
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between items-center bg-gray-50 p-2 border rounded text-xs"><span>802.11n (2009)</span> <select class="lab8-sel border p-1 rounded w-20" data-ans="4"><option value="">-</option><option value="4">Wi-Fi 4</option><option value="5">Wi-Fi 5</option><option value="6">Wi-Fi 6</option></select></div>
+                        <div class="flex justify-between items-center bg-gray-50 p-2 border rounded text-xs"><span>802.11ac (2014)</span> <select class="lab8-sel border p-1 rounded w-20" data-ans="5"><option value="">-</option><option value="4">Wi-Fi 4</option><option value="5">Wi-Fi 5</option><option value="6">Wi-Fi 6</option></select></div>
+                        <div class="flex justify-between items-center bg-gray-50 p-2 border rounded text-xs"><span>802.11ax (2019)</span> <select class="lab8-sel border p-1 rounded w-20" data-ans="6"><option value="">-</option><option value="4">Wi-Fi 4</option><option value="5">Wi-Fi 5</option><option value="6">Wi-Fi 6</option></select></div>
+                    </div>
+                    <button onclick="checkLab8()" class="mt-2 w-full bg-orange-600 text-white text-sm py-1 rounded">Check Answers</button>
+                    <div id="lab8-feedback" class="text-center text-xs font-bold mt-2 h-4 text-green-600"></div>
+                </div>
+            </div>
+
+            <div class="text-center mt-8">
+                <button onclick="switchTab('quiz')" class="bg-green-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-green-500 shadow-lg transition transform hover:scale-105">Take the Mastery Quiz <i class="fa-solid fa-clipboard-check ml-2"></i></button>
+            </div>
+        </div>
+
+        <!-- QUIZ SECTION -->
+        <div id="quiz-section" class="tab-content no-print">
+            <div class="bg-white p-6 sm:p-10 rounded-2xl shadow-xl max-w-4xl mx-auto">
+                <div class="text-center mb-8 border-b pb-4">
+                    <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Unit 04 Section 2.9.1 Mastery Quiz</h1>
+                    <p class="text-gray-600">Score 90% or higher (18/20) to earn your Certificate of Mastery and unlock the Retro Game!</p>
+                </div>
+
+                <div id="quiz-container" class="space-y-8">
+                    <!-- Questions injected via JS -->
+                </div>
+
+                <div class="mt-10 text-center border-t pt-6 flex flex-col md:flex-row justify-center items-center gap-4">
+                    <button id="submit-quiz-btn" onclick="gradeQuiz()" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-blue-700 shadow-lg transition w-full md:w-auto">Submit Quiz</button>
+                    <button id="proceed-game-btn" onclick="switchTab('game')" class="hidden bg-purple-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-purple-700 shadow-lg transition w-full md:w-auto">Play Retro Game <i class="fa-solid fa-gamepad ml-2"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RETRO GAME SECTION (Packet-Man) -->
+        <div id="game-section" class="tab-content no-print">
+            <div class="bg-gray-900 p-6 sm:p-8 rounded-2xl shadow-xl max-w-4xl mx-auto border-4 border-gray-700">
+                <div class="text-center mb-4">
+                    <h1 class="text-3xl font-extrabold text-blue-400 mb-2 tracking-widest uppercase" style="font-family: monospace;">Packet-Man</h1>
+                    <p class="text-gray-300 text-sm">Navigate the smart-home maze as a Data Packet! Collect all Bandwidth Dots. Use <span class="font-bold text-green-400">6GHz Power Nodes</span> to clear Interference Ghosts (Microwaves, Bluetooth, etc.). Use Arrow Keys.</p>
+                </div>
+                
+                <div class="flex justify-between items-center mb-2 px-4 text-white font-mono text-xl">
+                    <div>Score: <span id="game-score" class="text-green-400 font-bold">0</span></div>
+                    <div>Lives: <span id="game-lives" class="text-red-400 font-bold">3</span></div>
+                </div>
+
+                <div class="relative flex justify-center w-full">
+                    <!-- 390x390 Canvas for 15x15 grid of 26px tiles -->
+                    <canvas id="game-canvas" width="390" height="390" class="w-full max-w-[390px] sm:max-w-[450px]"></canvas>
+                    <div id="game-overlay" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 rounded-lg max-w-[390px] sm:max-w-[450px] mx-auto z-10">
+                        <button id="start-game-btn" class="bg-blue-500 hover:bg-blue-400 text-white font-bold font-mono py-3 px-6 rounded-lg text-xl border-4 border-blue-700 uppercase transform transition hover:scale-105">Insert Coin (Start)</button>
+                    </div>
+                </div>
+
+                <!-- Mobile Controls -->
+                <div class="grid grid-cols-3 gap-2 w-48 mx-auto mt-6 sm:hidden">
+                    <div></div>
+                    <button class="game-btn bg-gray-700 text-white rounded p-4 active:bg-gray-500" id="btn-up"><i class="fa-solid fa-arrow-up"></i></button>
+                    <div></div>
+                    <button class="game-btn bg-gray-700 text-white rounded p-4 active:bg-gray-500" id="btn-left"><i class="fa-solid fa-arrow-left"></i></button>
+                    <button class="game-btn bg-gray-700 text-white rounded p-4 active:bg-gray-500" id="btn-down"><i class="fa-solid fa-arrow-down"></i></button>
+                    <button class="game-btn bg-gray-700 text-white rounded p-4 active:bg-gray-500" id="btn-right"><i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+
+                <div class="mt-8 text-center border-t border-gray-700 pt-6">
+                    <!-- Single-file HTML/JS app setup perfect for CTE Cybersecurity/Coding integration & GitHub Pages deployment -->
+                    <button onclick="switchTab('cert')" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-blue-700 shadow-lg transition w-full md:w-auto">View Certificate <i class="fa-solid fa-award ml-2"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CERTIFICATE SECTION -->
+        <div id="cert-section" class="tab-content">
+            <div class="max-w-5xl mx-auto">
+                <div class="bg-white p-6 rounded shadow mb-6 no-print text-center border border-gray-200">
+                    <h2 class="text-2xl font-bold text-green-600 mb-2">🎉 Congratulations! 🎉</h2>
+                    <p class="text-gray-700 mb-4">You have achieved mastery of Small Wireless Networks.</p>
+                    <div class="flex flex-col md:flex-row justify-center items-center gap-4">
+                        <input type="text" id="student-name-input" value="Student" placeholder="Enter your first name" class="border-2 border-gray-300 rounded px-4 py-2 w-full md:w-64 focus:border-green-500 focus:outline-none">
+                        <button onclick="updateCertName()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">Update Name</button>
+                        <button id="download-btn" onclick="downloadCert()" class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition flex items-center justify-center">
+                            <i class="fa-solid fa-download mr-2"></i>Download PNG
+                        </button>
+                    </div>
+                </div>
+
+                <div class="cert-preview-container print:p-0 print:bg-white">
+                    <div id="certificate">
+                        <div class="gold-seal">
+                            <div class="gold-seal-inner-1">
+                                <div class="gold-seal-inner-2">
+                                     <span class="embossed-text embossed-text-large">Certificate</span>
+                                     <i class="fa-solid fa-star embossed-star"></i>
+                                     <span class="embossed-text embossed-text-small">Of</span>
+                                     <i class="fa-solid fa-star embossed-star"></i>
+                                     <span class="embossed-text embossed-text-large">Excellence</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="relative z-20 w-full h-full flex flex-col pt-[48px] pl-[380px] pr-[48px]">
+                            <h1 class="text-[#1e3a8a] text-[4.5rem] leading-none font-serif font-bold tracking-wide uppercase mb-2">CERTIFICATE</h1>
+                            <h2 class="text-gray-800 text-3xl font-serif tracking-widest uppercase mb-10">Of Achievement</h2>
+                            <p class="text-[1.4rem] font-body text-gray-800 mb-4">This is to certify that</p>
+                            <div class="relative mb-8 w-full">
+                                <h3 id="cert-student-name" class="text-[4rem] text-[#1e3a8a] font-serif italic leading-none pb-2 relative z-10 text-center w-full block">Student</h3>
+                                <div class="w-full border-b-[2px] border-[#1e3a8a] absolute bottom-[4px] left-0 z-0"></div>
+                                <div class="w-full border-b-[2px] border-dotted border-red-500 absolute bottom-[0px] left-0 z-0"></div>
+                            </div>
+                            <p class="text-[1.3rem] font-body text-gray-800 leading-relaxed w-full pr-4">
+                                Has successfully completed the assessment for 
+                                <strong class="text-[1.8rem] text-[#1e3a8a] block mt-4 mb-2 font-serif">Tech+ Unit 04 Section 2.9.1</strong>
+                                <strong class="text-[1.5rem] text-black block mb-4 font-serif italic">Small Wireless Networks Basics</strong>
+                                <span class="text-[1.1rem] text-gray-700 leading-snug block">Demonstrating proficiency in evaluating speed versus latency, analyzing signal attenuation and interference, distinguishing between frequency bands (2.4, 5, 6 GHz), and identifying Wi-Fi efficiency standards.</span>
+                            </p>
+                            <div class="flex justify-end gap-16 items-end mt-auto mb-[60px] w-full pr-8">
+                                <div class="w-64">
+                                    <div class="border-b border-gray-600 mb-2 h-20 flex items-end justify-center relative">
+                                        <span class="font-script text-[5rem] text-[#1e3a8a] absolute bottom-[-10px] transform -rotate-3 opacity-90">Dr. M. S</span>
+                                    </div>
+                                    <p class="font-serif text-xl text-gray-800 text-center">Administration</p>
+                                </div>
+                                <div class="w-64">
+                                    <div class="border-b border-gray-600 mb-2 text-center h-20 flex items-end justify-center">
+                                        <p id="cert-date" class="font-body text-2xl text-gray-800 pb-1">Date Here</p>
+                                    </div>
+                                    <p class="font-serif text-xl text-gray-800 text-center">Date</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex justify-center items-center backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+            <div class="text-center">
+                <div id="modal-icon" class="text-5xl mb-4"></div>
+                <h3 id="modal-title" class="text-2xl font-bold mb-2 text-gray-900"></h3>
+                <p id="modal-msg" class="text-gray-600 mb-6"></p>
+                <button onclick="closeModal()" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700 transition w-full">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="briefing-modal" class="fixed inset-0 bg-black bg-opacity-70 z-[120] hidden flex justify-center items-center backdrop-blur-sm p-4 sm:p-6">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col transform transition-all overflow-hidden border-4 border-green-700">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                <div class="flex items-center gap-4">
+                    <div id="briefing-modal-icon" class="text-4xl"></div>
+                    <h3 id="briefing-modal-title" class="text-2xl md:text-3xl font-bold text-gray-900"></h3>
+                </div>
+                <button onclick="closeBriefing()" class="text-gray-400 hover:text-red-600 transition text-4xl leading-none">&times;</button>
+            </div>
+            <div id="briefing-modal-content" class="p-6 md:p-10 overflow-y-auto flex-grow text-gray-700 text-lg leading-relaxed bg-white"></div>
+            <div class="p-6 border-t border-gray-200 bg-gray-50 flex justify-end">
+                <button onclick="closeBriefing()" class="bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-green-800 transition shadow-md">Acknowledge & Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const briefingData = {
+            'perf-details': {
+                title: 'Network Performance Details',
+                icon: '<i class="fa-solid fa-tachometer-fast text-blue-600"></i>',
+                html: `
+                    <p class="mb-5">A wireless network connects devices using radio waves instead of physical cables. This fundamental technology enables the mobility and flexibility that modern society relies upon, allowing users to work on a laptop in bed, stream videos on a bus, or text from virtually anywhere without being tethered to a wall. However, this mobility comes with inherent performance tradeoffs that must be managed.</p>
+                    <p class="mb-5">When evaluating the performance of a small wireless network, two critical metrics must be understood: speed and latency. While users often use these terms interchangeably when complaining about a "slow" network, they refer to entirely different technical concepts. Speed is defined as the data transfer rate, specifically how much data can move across the network in a given amount of time. It is typically measured in megabits per second (Mbps) or gigabits per second (Gbps).</p>
+                    <p class="mb-5">Latency, on the other hand, is the delay before data starts moving. It represents the time it takes for a data packet to travel from a device to the server and back. Latency is measured in milliseconds (ms), and lower numbers indicate better performance. To visualize this, speed is akin to the number of lanes on a highway, determining how much traffic can flow simultaneously, while latency is like the red light at an on-ramp, determining how long cars must wait before they can even begin their journey.</p>
+                    <p class="mb-5">In real-world applications, latency often dictates the user experience more critically than sheer speed. For real-time applications such as competitive gaming, video conferencing, or voice-over-IP calls, low latency is absolutely essential. A network with massive speed but high latency will result in noticeable lag, disjointed conversations, and a poor user experience.</p>
+                    <p class="mb-5">Network latency ratings generally fall into predictable categories. A latency of 1-9 ms provides an excellent experience, feeling instantaneous to the user. A latency between 10-50 ms is considered good and remains acceptable for most online activities. Latencies spanning 50-150 ms are acceptable but will introduce noticeable lag, while anything over 150 ms results in a severe, disruptive delay.</p>
+                    <p class="mb-5">To measure these metrics, network technicians and users rely on specific tools. The "Ping" command, often used in network diagnostics, specifically measures latency by sending a small data packet to a destination and timing its return. Furthermore, modern speed test websites and mobile applications evaluate both speed and latency, usually testing the connection between the user's local device and their Internet Service Provider (ISP).</p>
+                    <p class="mb-5">Ultimately, optimizing a small wireless network requires balancing both speed and latency. While increasing channel widths (like using 80 MHz or 160 MHz channels) or upgrading to newer Wi-Fi standards (like 802.11ac or 802.11ax) can drastically improve the bandwidth and theoretical speed, technicians must also manage network congestion and signal paths to ensure latency remains low enough for modern interactive applications.</p>
+                `
+            },
+            'perf-usecase': {
+                title: 'Network Performance: Use Cases',
+                icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-blue-800 mb-2 border-b-2 border-blue-200 pb-1">Use Case 1: High Latency in Real-Time Applications</h4>
+                        <ul class="list-disc pl-5 mb-4 text-gray-700">
+                            <li><strong>Example 1:</strong> A remote worker attempts to host a Zoom video conference. Despite having a 500 Mbps connection (high speed), their network latency is spiking over 200 ms. This results in the worker constantly talking over their colleagues due to the audio delay.</li>
+                            <li><strong>Example 2:</strong> A competitive gamer is playing a fast-paced online shooter. High latency causes their button presses to register seconds after they happen on-screen, rendering the game unplayable despite high overall bandwidth.</li>
+                        </ul>
+                        <img src="https://placehold.co/800x300/e0f2fe/0369a1?text=Latency+Delay+in+Video+Calls" alt="Latency Concept" class="w-full h-auto rounded-lg mb-4 shadow-sm border border-gray-200">
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-blue-800 mb-2 border-b-2 border-blue-200 pb-1">Use Case 2: Utilizing High Speed (Bandwidth)</h4>
+                        <ul class="list-disc pl-5 mb-4 text-gray-700">
+                            <li><strong>Example 1:</strong> A photographer needs to upload a 50 GB folder of RAW images to a cloud server. The high-speed connection allows the massive volume of data to travel across the "wide highway" quickly, while latency is largely irrelevant for this bulk transfer.</li>
+                            <li><strong>Example 2:</strong> A household has four people simultaneously streaming 4K Netflix movies. The high speed ensures there is enough bandwidth for all video streams to play without buffering.</li>
+                        </ul>
+                        <img src="https://placehold.co/800x300/e0f2fe/0369a1?text=High+Bandwidth+File+Upload" alt="Speed Concept" class="w-full h-auto rounded-lg mb-4 shadow-sm border border-gray-200">
+                    </div>
+                `
+            },
+            'att-details': {
+                title: 'Attenuation & Interference Details',
+                icon: '<i class="fa-solid fa-wave-square text-red-600"></i>',
+                html: `
+                    <p class="mb-5">Even with perfectly configured hardware, wireless networks face immense physical challenges as radio waves travel through the air. The two primary culprits that degrade wireless performance in homes and businesses are attenuation and interference. Understanding how these phenomena occur is vital for correctly placing network hardware and troubleshooting user connectivity issues.</p>
+                    <p class="mb-5">Attenuation is strictly defined as the weakening of a wireless signal as it travels over a distance or passes through physical barriers. As radio waves radiate outward from a router's antenna, they naturally disperse, losing energy the further they travel. This is why devices situated at the far edges of a house often display only one or two signal bars and suffer from drastically slower connection speeds.</p>
+                    <p class="mb-5">However, pure distance is rarely the only cause of attenuation indoors; physical obstacles play a massive role. Different building materials block Wi-Fi signals at different rates. Standard interior drywall causes relatively minor signal loss, allowing waves to pass through reasonably well. Conversely, dense materials like concrete, brick, and heavy metals block a significant amount of the signal. Even large bodies of water, such as large home fish tanks or water heaters, are notorious for severely attenuating wireless signals.</p>
+                    <p class="mb-5">Interference, on the other hand, occurs when external signals disrupt the Wi-Fi transmission. Unlike attenuation, which is a physical blocking of the wave, interference is a chaotic overlap of radio frequencies. If a router's signal is the "voice" of the network, interference is the loud "noise" in the room making it impossible to hear the message clearly. When interference is high, packets of data are often corrupted or lost, forcing the devices to re-transmit them, which drastically slows down the network.</p>
+                    <p class="mb-5">The 2.4 GHz frequency band is particularly vulnerable to interference. Because it is a universally open band, it is crowded not just by neighboring Wi-Fi routers, but by completely different technologies. Everyday household items like Bluetooth speakers, cordless telephones, baby monitors, and even operating microwave ovens emit radio waves in or near the 2.4 GHz spectrum. Turning on a microwave can instantly cause a nearby video stream on the 2.4 GHz band to freeze due to overwhelming interference.</p>
+                    <p class="mb-5">Overlapping Wi-Fi networks are another major source of interference, especially in dense housing like apartment buildings. If an apartment complex has dozens of routers all broadcasting on the same limited 2.4 GHz channels, the signals collide, leading to slower speeds for everyone involved. The symptoms of both attenuation and interference present identically to the end user: dropped connections, fewer signal bars, and lethargic speeds.</p>
+                    <p class="mb-5">To mitigate these issues, technicians must strategically place wireless access points centrally, avoiding dense walls and interference sources. Furthermore, whenever possible, shifting modern devices off the congested 2.4 GHz band and onto the less crowded 5 GHz or 6 GHz bands provides an immediate, effective escape from heavy interference environments.</p>
+                `
+            },
+            'att-usecase': {
+                title: 'Attenuation & Interference: Use Cases',
+                icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-red-800 mb-2 border-b-2 border-red-200 pb-1">Use Case 1: Attenuation from Building Materials</h4>
+                        <ul class="list-disc pl-5 mb-4 text-gray-700">
+                            <li><strong>Example 1:</strong> A user places their wireless router in the basement behind a concrete structural wall. Devices on the second floor receive almost zero signal because the concrete severely attenuates the radio waves.</li>
+                            <li><strong>Example 2:</strong> A smart TV placed directly behind a large 100-gallon saltwater aquarium constantly buffers. The water acts as a massive physical barrier, absorbing the Wi-Fi signal before it reaches the TV.</li>
+                        </ul>
+                        <img src="https://placehold.co/800x300/fee2e2/991b1b?text=Concrete+Wall+Blocking+Signal" alt="Attenuation Concept" class="w-full h-auto rounded-lg mb-4 shadow-sm border border-gray-200">
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-red-800 mb-2 border-b-2 border-red-200 pb-1">Use Case 2: External Interference Sources</h4>
+                        <ul class="list-disc pl-5 mb-4 text-gray-700">
+                            <li><strong>Example 1:</strong> During lunch, an office worker heats food in the breakroom microwave. Simultaneously, their wireless headset (operating on 2.4 GHz) completely drops the audio connection due to heavy localized interference.</li>
+                            <li><strong>Example 2:</strong> In a dense apartment building, a user's Wi-Fi is agonizingly slow because 15 neighboring routers are all broadcasting on the exact same 2.4 GHz channel, causing massive signal overlap.</li>
+                        </ul>
+                        <img src="https://placehold.co/800x300/fee2e2/991b1b?text=Microwave+Interfering+with+Wi-Fi" alt="Interference Concept" class="w-full h-auto rounded-lg mb-4 shadow-sm border border-gray-200">
+                    </div>
+                `
+            },
+            'band-details': {
+                title: 'Frequency Bands & Bandwidth Details',
+                icon: '<i class="fa-solid fa-layer-group text-purple-600"></i>',
+                html: `
+                    <p class="mb-5">In the realm of small wireless networks, radio frequencies are organized into specific ranges known as bands. Think of these bands as different neighborhoods or highways that wireless traffic can utilize. The three primary frequency bands utilized in modern Wi-Fi networks are 2.4 GHz, 5 GHz, and the newly integrated 6 GHz. Each band possesses distinct physical characteristics that dictate its optimal use case.</p>
+                    <p class="mb-5">The 2.4 GHz band is the oldest and most universally supported frequency. Its defining characteristic is its long physical range and its superior ability to penetrate solid obstacles like walls and floors. However, this long range comes at a steep cost: it provides the slowest data transfer speeds of the three bands. Furthermore, because it has been the standard for decades, it is incredibly crowded, suffering from high interference from household appliances like microwaves and Bluetooth devices.</p>
+                    <p class="mb-5">The 5 GHz band represents a significant middle ground. It offers vastly faster data transfer speeds compared to 2.4 GHz and operates in a frequency space that is largely free from appliance interference. However, the physics of higher frequency radio waves dictates that they cannot travel as far. Consequently, 5 GHz has a medium range and struggles significantly more when trying to pass through solid walls, making it ideal for devices located in the same room or a closely adjacent room to the router.</p>
+                    <p class="mb-5">The 6 GHz band is the newest frontier in wireless networking. It provides blazing fast speeds and operates in an entirely new, uncrowded spectrum, resulting in very low interference. The major caveat with 6 GHz is that its extremely high frequency results in a very short operational range; it demands a clear, unobstructed path between the router and the device. Additionally, only the newest, specifically compatible hardware can access the 6 GHz band.</p>
+                    <p class="mb-5">Within these bands, the concept of bandwidth comes into play. Bandwidth determines how wide the communication channel is, directly correlating to how much data can move at once. If a frequency band is a highway, channel bandwidth dictates how many lanes that highway possesses. Standard channels might be 20 MHz wide, while advanced configurations can bond channels together to create massive 80 MHz or even 160 MHz pathways for massive data throughput.</p>
+                    <p class="mb-5">A critical strategic element of managing a small wireless network involves knowing which devices belong on which band. Devices that require consistent connection across long distances but move very little data—such as smart home thermostats or smart doorbells—should be relegated to the 2.4 GHz band. This ensures they stay connected regardless of where they are in the house.</p>
+                    <p class="mb-5">Conversely, high-performance devices that require high speed and low latency—such as gaming consoles, 4K streaming smart TVs, or work laptops—should always be connected to the 5 GHz or 6 GHz bands. By actively managing band assignments, users can drastically reduce network congestion and ensure that the demanding devices receive the necessary bandwidth to function properly without being bottlenecked by older legacy hardware.</p>
+                `
+            },
+            'band-usecase': {
+                title: 'Frequency Bands: Use Cases',
+                icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-purple-800 mb-2 border-b-2 border-purple-200 pb-1">Use Case 1: Strategic 2.4 GHz Assignment</h4>
+                        <ul class="list-disc pl-5 mb-4 text-gray-700">
+                            <li><strong>Example 1:</strong> A smart doorbell located outside on a brick porch needs to connect to the router located deep inside the living room. The 2.4 GHz band is chosen because its long-range signal can penetrate the exterior brick wall.</li>
+                            <li><strong>Example 2:</strong> A smart thermostat requires a tiny amount of data to update the temperature every hour. Assigning it to 2.4 GHz keeps the faster 5 GHz lanes clear for heavy streaming devices.</li>
+                        </ul>
+                        <img src="https://placehold.co/800x300/f3e8ff/6b21a8?text=Smart+Doorbell+on+2.4GHz" alt="2.4GHz Range Concept" class="w-full h-auto rounded-lg mb-4 shadow-sm border border-gray-200">
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-purple-800 mb-2 border-b-2 border-purple-200 pb-1">Use Case 2: Utilizing 5 GHz / 6 GHz for Speed</h4>
+                        <ul class="list-disc pl-5 mb-4 text-gray-700">
+                            <li><strong>Example 1:</strong> A user's gaming console is located in the same room as the router. They connect to the 5 GHz band to ensure the lowest latency and fastest download speeds for large game updates, avoiding the crowded 2.4 GHz interference.</li>
+                            <li><strong>Example 2:</strong> A patron in a crowded coffee shop connects their brand-new smartphone to the shop's 6 GHz network. Because few people have 6 GHz devices, their connection is incredibly fast and avoids the massive congestion on the older bands.</li>
+                        </ul>
+                        <img src="https://placehold.co/800x300/f3e8ff/6b21a8?text=Gaming+Console+on+5GHz" alt="5GHz Speed Concept" class="w-full h-auto rounded-lg mb-4 shadow-sm border border-gray-200">
+                    </div>
+                `
+            },
+            'std-details': {
+                title: 'Wi-Fi Standards & Efficiency Details',
+                icon: '<i class="fa-solid fa-microchip text-orange-600"></i>',
+                html: `
+                    <p class="mb-5">The technology behind wireless networking is continuously evolving, governed by the Institute of Electrical and Electronics Engineers (IEEE) under the 802.11 family of standards. Because memorizing complex letter designations can be confusing for consumers, the industry recently adopted a simplified naming convention based on generation numbers. Understanding this progression is essential for recognizing how newer routers handle dense traffic environments far better than their predecessors.</p>
+                    <p class="mb-5">The timeline of significant modern standards begins with 802.11n, retroactively named Wi-Fi 4, introduced around 2009. It was revolutionary because it was the first standard to operate simultaneously on both the 2.4 GHz and 5 GHz bands, pushing maximum speeds up to roughly 600 Mbps. Following this, 802.11ac (Wi-Fi 5) debuted in 2014, operating exclusively on the 5 GHz band and pushing theoretical speeds over 1.3 Gbps. The most recent widely adopted standard is 802.11ax (Wi-Fi 6 and 6E), which operates across 2.4, 5, and the new 6 GHz bands, supporting massive speeds near 9.6 Gbps.</p>
+                    <p class="mb-5">However, the true power of newer Wi-Fi standards is not just raw theoretical speed, but <em>efficiency</em> in crowded spaces. A major innovation introduced in older standards and perfected over time is MIMO (Multiple Input, Multiple Output). MIMO allows a router to use multiple physical antennas to send and receive separate data streams simultaneously, vastly increasing data throughput without requiring more bandwidth.</p>
+                    <p class="mb-5">This technology evolved into MU-MIMO (Multi-User MIMO), a critical feature of Wi-Fi 5 and Wi-Fi 6. Before MU-MIMO, a router essentially had to rapidly switch its attention between devices, serving one device at a time in microseconds. MU-MIMO allows the router to actually talk to multiple distinct devices at the exact same physical instant, drastically reducing wait times on a crowded network.</p>
+                    <p class="mb-5">Wi-Fi 6 (802.11ax) introduced another groundbreaking efficiency feature called OFDMA (Orthogonal Frequency Division Multiple Access). Instead of dedicating an entire wide channel to a single device's small data request, OFDMA splits the Wi-Fi channel into much smaller sub-channels. It acts like highly efficient carpooling; instead of sending an empty bus to pick up one passenger, it packs data for multiple different devices onto a single transmission, eliminating wasted airtime.</p>
+                    <p class="mb-5">Finally, modern networks must accommodate the explosive growth of battery-powered IoT (Internet of Things) devices. To address this, Wi-Fi 6 introduced Target Wake Time (TWT). TWT allows the router and the connected devices to actively negotiate and schedule exactly when the device needs to wake up and communicate.</p>
+                    <p class="mb-5">By scheduling these check-ins, devices do not need to keep their Wi-Fi radios constantly powered on, listening for a signal. They can sleep deeply, wake up at the precise microsecond to transmit their small packet of data, and go back to sleep. This battery-friendly feature ensures that smart sensors, mobile phones, and wireless security cameras last significantly longer on a single charge while connected to a Wi-Fi 6 network.</p>
+                `
+            },
+            'std-usecase': {
+                title: 'Wi-Fi Standards: Use Cases',
+                icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-orange-800 mb-2 border-b-2 border-orange-200 pb-1">Use Case 1: Managing Crowded Environments</h4>
+                        <ul class="list-disc pl-5 mb-4 text-gray-700">
+                            <li><strong>Example 1:</strong> A high school classroom has 30 students all trying to load an interactive web quiz simultaneously. A Wi-Fi 6 router uses <strong>OFDMA</strong> to bundle all 30 small data requests into single, efficient transmissions, preventing the network from crashing.</li>
+                            <li><strong>Example 2:</strong> In a modern smart home, four people are video calling and streaming movies. The router utilizes <strong>MU-MIMO</strong> to beam data streams to all four devices at the exact same time, eliminating buffering wait times.</li>
+                        </ul>
+                        <img src="https://placehold.co/800x300/ffedd5/c2410c?text=OFDMA+Carpooling+Concept" alt="OFDMA Concept" class="w-full h-auto rounded-lg mb-4 shadow-sm border border-gray-200">
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-orange-800 mb-2 border-b-2 border-orange-200 pb-1">Use Case 2: Enhancing Battery Life</h4>
+                        <ul class="list-disc pl-5 mb-4 text-gray-700">
+                            <li><strong>Example 1:</strong> A battery-powered smart door lock connects to a Wi-Fi 6 router. Using <strong>Target Wake Time (TWT)</strong>, the lock sleeps completely and only activates its radio when a visitor pushes the button, extending its battery life from months to years.</li>
+                            <li><strong>Example 2:</strong> A smartphone connected to an 802.11ax network utilizes TWT to schedule background email syncs, preventing the Wi-Fi radio from draining the battery while the phone sits idle in a user's pocket.</li>
+                        </ul>
+                        <img src="https://placehold.co/800x300/ffedd5/c2410c?text=Target+Wake+Time+(TWT)+Sleep+Cycle" alt="TWT Concept" class="w-full h-auto rounded-lg mb-4 shadow-sm border border-gray-200">
+                    </div>
+                `
+            }
+        };
+
+        // Modals
+        function openBriefing(key) {
+            const modal = document.getElementById('briefing-modal');
+            const data = briefingData[key];
+            if(data) {
+                document.getElementById('briefing-modal-icon').innerHTML = data.icon;
+                document.getElementById('briefing-modal-title').innerText = data.title;
+                document.getElementById('briefing-modal-content').innerHTML = data.html;
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; 
+            }
+        }
+
+        function closeBriefing() {
+            document.getElementById('briefing-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto'; 
+        }
+
+        document.getElementById('briefing-modal').addEventListener('click', function(e) {
+            if(e.target === this) closeBriefing();
+        });
+
+        function showModal(title, message, type = 'info') {
+            const modal = document.getElementById('custom-modal');
+            const icon = document.getElementById('modal-icon');
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-msg').innerText = message;
+            
+            if(type === 'success') {
+                icon.innerHTML = '<i class="fa-solid fa-circle-check text-green-500"></i>';
+            } else if (type === 'error') {
+                icon.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-500"></i>';
+            } else if (type === 'warning') {
+                icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-yellow-500"></i>';
+            } else {
+                icon.innerHTML = '<i class="fa-solid fa-circle-info text-blue-500"></i>';
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('custom-modal').classList.add('hidden'); }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId + '-section').classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-green-900'));
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if(activeBtn && tabId !== 'cert') activeBtn.classList.add('bg-green-900');
+            
+            document.querySelectorAll('.nav-btn-mobile').forEach(btn => btn.classList.remove('bg-green-900'));
+            const activeMobileBtn = document.getElementById('nav-' + tabId + '-mobile');
+            if(activeMobileBtn && tabId !== 'cert') activeMobileBtn.classList.add('bg-green-900');
+
+            window.scrollTo(0,0);
+
+            if (tabId === 'game' && !gameRunning) {
+                resetGame();
+                drawGame();
+            }
+        }
+
+        // Lab Logic
+        let draggedItem = null;
+
+        document.querySelectorAll('.io-item').forEach(item => {
+            item.addEventListener('dragstart', function() {
+                draggedItem = this;
+                setTimeout(() => this.classList.add('opacity-50'), 0);
+            });
+            item.addEventListener('dragend', function() {
+                setTimeout(() => this.classList.remove('opacity-50'), 0);
+                draggedItem = null;
+            });
+        });
+
+        document.querySelectorAll('.cat-dropzone').forEach(zone => {
+            zone.addEventListener('dragover', e => e.preventDefault());
+            zone.addEventListener('dragenter', function(e) { e.preventDefault(); this.classList.add('brightness-95'); });
+            zone.addEventListener('dragleave', function() { this.classList.remove('brightness-95'); });
+            zone.addEventListener('drop', function() {
+                this.classList.remove('brightness-95');
+                if(draggedItem) {
+                    if(draggedItem.dataset.type === this.dataset.target) {
+                        this.appendChild(draggedItem);
+                        draggedItem.classList.remove('cursor-grab');
+                        draggedItem.classList.add('cursor-default');
+                        draggedItem.setAttribute('draggable', 'false');
+                        
+                        let fb = this.parentElement.parentElement.querySelector('div[id$="-feedback"]');
+                        if(fb) {
+                            fb.innerText = "Correct Placement!";
+                            fb.className = "text-center text-xs font-bold mt-2 h-4 text-green-600";
+                        }
+                    } else {
+                        let fb = this.parentElement.parentElement.querySelector('div[id$="-feedback"]');
+                        if(fb) {
+                            fb.innerText = "Incorrect category. Try again.";
+                            fb.className = "text-center text-xs font-bold mt-2 h-4 text-red-600";
+                        }
+                    }
+                }
+            });
+        });
+
+        // Lab Checkers
+        function checkDropdownLab(selClass, feedbackId) {
+            const selects = document.querySelectorAll(selClass);
+            let correct = 0;
+            selects.forEach(sel => {
+                if(sel.value === sel.dataset.ans) correct++;
+            });
+            const fb = document.getElementById(feedbackId);
+            if(correct === selects.length) {
+                fb.innerText = "All answers correct!";
+                fb.className = "text-center text-xs font-bold mt-2 h-4 text-green-600";
+            } else {
+                fb.innerText = `${correct}/${selects.length} correct. Try again.`;
+                fb.className = "text-center text-xs font-bold mt-2 h-4 text-red-600";
+            }
+        }
+
+        function checkLab2() { checkDropdownLab('.lab2-sel', 'lab2-feedback'); }
+        function checkLab4() { checkDropdownLab('.lab4-sel', 'lab4-feedback'); }
+        function checkLab6() { checkDropdownLab('.lab6-sel', 'lab6-feedback'); }
+        function checkLab8() { checkDropdownLab('.lab8-sel', 'lab8-feedback'); }
+
+        // Quiz Logic
+        const quizData = [
+            { q: "What does a wireless network use to connect devices?", options: ["Radio waves", "Physical Ethernet Cables", "Infrared signals", "Satellite dishes"], answer: 0 },
+            { q: "Which of the following affect the performance of a wireless network?", options: ["The color of the device case", "Speed, Interference, and Signal range", "Only the amount of data sent", "Whether the device is plugged into power"], answer: 1 },
+            { q: "What does latency measure in a wireless network?", options: ["The width of the channel bandwidth", "The total amount of data moved per second", "The delay before data starts moving", "The length of the physical antenna"], answer: 2 },
+            { q: "True or False: A high latency number is ideal for real-time applications like gaming or video calls.", options: ["True", "False"], answer: 1 },
+            { q: "Which of the following is a common cause of interference on the 2.4 GHz band?", options: ["Concrete walls", "Microwave ovens and Bluetooth devices", "Heavy rain", "Fiber optic lines"], answer: 1 },
+            { q: "What does attenuation refer to in wireless networking?", options: ["Signal weakening over distance or through barriers", "Splitting channels into smaller OFDMA segments", "Assigning static IP addresses automatically", "Interference from overlapping Wi-Fi networks"], answer: 0 },
+            { q: "Which of the following correctly describes the 5 GHz band?", options: ["Longest range, slowest speed", "Shortest range, fastest speed, no congestion", "Medium range, medium speed, low interference", "Highest interference, best penetration"], answer: 2 },
+            { q: "Which band can pass through concrete walls more easily due to its lower frequency?", options: ["2.4 GHz", "5 GHz", "6 GHz", "None of them"], answer: 0 },
+            { q: "What are the benefits of newer Wi-Fi standards like 802.11ac and 802.11ax?", options: ["They eliminate the need for routers completely", "They support more devices at once and include features like MU-MIMO", "They convert wireless signals into wired Ethernet signals", "They only operate on 2.4 GHz for better range"], answer: 1 },
+            { q: "Which of the following features helps devices save battery by letting them sleep and wake on schedule?", options: ["OFDMA", "MU-MIMO", "Target Wake Time (TWT)", "WPA3"], answer: 2 },
+            
+            { q: "What is the standard measurement unit used to represent network speed (bandwidth)?", options: ["Milliseconds (ms)", "Megabits per second (Mbps)", "Hertz (Hz)", "Gigabytes (GB)"], answer: 1 },
+            { q: "What does the efficiency feature OFDMA do?", options: ["It uses multiple antennas to boost raw power", "It forces all devices to use 6 GHz", "It splits channels into smaller parts to handle more devices at once (Carpooling)", "It acts as a firewall against hackers"], answer: 2 },
+            { q: "What does the acronym MU-MIMO stand for?", options: ["Multi-user multiple input, multiple output", "Massive user multimedia interface", "Multi-unit micro input", "Multiple utility memory interaction"], answer: 0 },
+            { q: "Which frequency band provides the absolute fastest speeds but has the shortest physical range?", options: ["2.4 GHz", "5 GHz", "6 GHz", "900 MHz"], answer: 2 },
+            { q: "Which physical material is known to block and severely attenuate Wi-Fi signals?", options: ["Standard drywall", "Glass windows", "Concrete and metal", "Wood doors"], answer: 2 },
+            { q: "In the highway analogy, if speed is the number of lanes, what is 'channel width'?", options: ["The size of the cars", "How wide the highway is (e.g., 20 MHz vs 160 MHz)", "The stoplights at the on-ramp", "The distance to the destination"], answer: 1 },
+            { q: "Which IEEE 802.11 standard introduced operations across the 2.4, 5, and 6 GHz bands (Wi-Fi 6E)?", options: ["802.11b", "802.11n", "802.11ac", "802.11ax"], answer: 3 },
+            { q: "Which band is the best choice for a smart home thermostat that requires a tiny amount of data but a very long connection range?", options: ["6 GHz", "5 GHz", "2.4 GHz", "Wired Ethernet"], answer: 2 },
+            { q: "What network diagnostic command is specifically used to measure the latency (delay) to a destination server in milliseconds?", options: ["ipconfig", "ping", "traceroute", "netstat"], answer: 1 },
+            { q: "If an apartment has 15 routers all broadcasting on channel 6 of the 2.4 GHz band, what issue will users experience?", options: ["Attenuation", "Massive interference and slow speeds", "Instant disconnects due to security features", "Increased range"], answer: 1 }
+        ];
+
+        const quizContainer = document.getElementById('quiz-container');
+        quizData.forEach((item, index) => {
+            const qDiv = document.createElement('div');
+            qDiv.className = "bg-gray-50 p-6 rounded-lg border border-gray-200 transition-all";
+            qDiv.id = `q-block-${index}`;
+            
+            const qTitle = document.createElement('h3');
+            qTitle.className = "font-bold text-lg text-gray-800 mb-4";
+            qTitle.innerText = `${index + 1}. ${item.q}`;
+            qDiv.appendChild(qTitle);
+            
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = "space-y-3";
+            
+            item.options.forEach((opt, optIndex) => {
+                const label = document.createElement('label');
+                label.className = "flex items-center space-x-3 p-3 rounded bg-white border border-gray-300 hover:bg-green-50 cursor-pointer transition";
+                const radio = document.createElement('input');
+                radio.type = "radio";
+                radio.name = `q${index}`;
+                radio.value = optIndex;
+                radio.className = "form-radio h-5 w-5 text-green-600";
+                const span = document.createElement('span');
+                span.className = "text-gray-700";
+                span.innerText = opt;
+                label.appendChild(radio);
+                label.appendChild(span);
+                optionsDiv.appendChild(label);
+            });
+            
+            qDiv.appendChild(optionsDiv);
+            quizContainer.appendChild(qDiv);
+        });
+
+        function gradeQuiz() {
+            let score = 0;
+            let allAnswered = true;
+            for(let i = 0; i < quizData.length; i++) {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                if(selected) { if(parseInt(selected.value) === quizData[i].answer) score++; } 
+                else { allAnswered = false; }
+            }
+            if(!allAnswered) {
+                showModal('Incomplete Quiz', 'Please answer all 20 questions before submitting.', 'warning');
+                return;
+            }
+            const percentage = (score / quizData.length) * 100;
+            if(score >= 18) { 
+                const navGame = document.getElementById('nav-game');
+                const navGameMobile = document.getElementById('nav-game-mobile');
+                navGame.classList.remove('text-gray-400', 'cursor-not-allowed');
+                navGame.classList.add('text-white', 'hover:bg-green-600');
+                navGame.disabled = false;
+                navGame.innerHTML = '<i class="fa-solid fa-gamepad mr-1"></i>Game';
+                navGameMobile.classList.remove('text-gray-400', 'cursor-not-allowed');
+                navGameMobile.classList.add('text-white', 'hover:bg-green-600');
+                navGameMobile.disabled = false;
+                navGameMobile.innerHTML = '<i class="fa-solid fa-gamepad"></i> Game';
+                document.getElementById('nav-cert').classList.remove('hidden');
+                document.getElementById('nav-cert-mobile').classList.remove('hidden');
+                document.getElementById('proceed-game-btn').classList.remove('hidden');
+                document.getElementById('submit-quiz-btn').classList.add('hidden');
+                showModal('Outstanding!', `You scored ${score}/20 (${percentage}%). You have unlocked your Certificate of Mastery AND the Retro Game!`, 'success');
+            } else {
+                quizData.forEach((_, i) => {
+                    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                    if(selected) selected.checked = false;
+                });
+                showModal('Keep Trying!', `You scored ${score}/20 (${percentage}%). You need 90% (18/20) to earn the certificate. Your answers have been reset so you can try again.`, 'error');
+                document.getElementById('quiz-section').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // --- RETRO GAME LOGIC: PACKET-MAN ---
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const tileSize = 26;
+        const cols = 15;
+        const rows = 15;
+
+        // Map Legend: 0 = Dot, 1 = Wall, 2 = Power Pellet, 3 = Empty/Cleared
+        const initialMap = [
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,2,0,0,0,0,0,1,0,0,0,0,0,2,1],
+            [1,0,1,1,0,1,0,1,0,1,0,1,1,0,1],
+            [1,0,0,0,0,1,0,0,0,1,0,0,0,0,1],
+            [1,0,1,1,0,1,1,1,1,1,0,1,1,0,1],
+            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+            [1,1,1,0,1,1,3,3,3,1,1,0,1,1,1],
+            [3,3,3,0,1,3,3,3,3,3,1,0,3,3,3],
+            [1,1,1,0,1,1,1,1,1,1,1,0,1,1,1],
+            [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+            [1,0,1,1,0,1,1,1,1,1,0,1,1,0,1],
+            [1,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+            [1,1,0,1,0,1,0,1,0,1,0,1,0,1,1],
+            [1,2,0,0,0,1,0,0,0,1,0,0,0,2,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        ];
+
+        let map = [];
+        let score = 0;
+        let lives = 3;
+        let gameRunning = false;
+        let animationId;
+        
+        let powerMode = false;
+        let powerTimer = 0;
+
+        let player = { c: 7, r: 11, x: 7 * tileSize, y: 11 * tileSize, dx: 0, dy: 0, nextDx: 0, nextDy: 0, speed: 2 };
+        
+        const ghostColors = ['#ef4444', '#f472b6', '#06b6d4', '#f97316']; // Red, Pink, Cyan, Orange
+        let ghosts = [];
+
+        const overlay = document.getElementById('game-overlay');
+        const startBtn = document.getElementById('start-game-btn');
+        startBtn.addEventListener('click', startGame);
+
+        document.addEventListener("keydown", keyDownHandler, false);
+
+        // Touch Controls
+        const btnUp = document.getElementById('btn-up');
+        const btnDown = document.getElementById('btn-down');
+        const btnLeft = document.getElementById('btn-left');
+        const btnRight = document.getElementById('btn-right');
+
+        function setupBtn(btn, dx, dy) {
+            btn.addEventListener("touchstart", (e) => { e.preventDefault(); player.nextDx = dx; player.nextDy = dy; }, {passive: false});
+            btn.addEventListener("mousedown", () => { player.nextDx = dx; player.nextDy = dy; });
+        }
+        setupBtn(btnUp, 0, -1);
+        setupBtn(btnDown, 0, 1);
+        setupBtn(btnLeft, -1, 0);
+        setupBtn(btnRight, 1, 0);
+
+        function keyDownHandler(e) {
+            if(!gameRunning) return;
+            if(e.key === "ArrowUp") { e.preventDefault(); player.nextDx = 0; player.nextDy = -1; }
+            else if(e.key === "ArrowDown") { e.preventDefault(); player.nextDx = 0; player.nextDy = 1; }
+            else if(e.key === "ArrowLeft") { e.preventDefault(); player.nextDx = -1; player.nextDy = 0; }
+            else if(e.key === "ArrowRight") { e.preventDefault(); player.nextDx = 1; player.nextDy = 0; }
+        }
+
+        function initMap() {
+            map = [];
+            for (let r = 0; r < rows; r++) {
+                map.push([...initialMap[r]]);
+            }
+        }
+
+        function initEntities() {
+            player = { c: 7, r: 11, x: 7 * tileSize, y: 11 * tileSize, dx: 0, dy: 0, nextDx: 0, nextDy: 0, speed: 2 };
+            ghosts = [
+                { c: 6, r: 7, x: 6 * tileSize, y: 7 * tileSize, dx: 1, dy: 0, speed: 1.5, color: ghostColors[0] },
+                { c: 7, r: 7, x: 7 * tileSize, y: 7 * tileSize, dx: -1, dy: 0, speed: 1.5, color: ghostColors[1] },
+                { c: 8, r: 7, x: 8 * tileSize, y: 7 * tileSize, dx: 0, dy: -1, speed: 1.5, color: ghostColors[2] },
+                { c: 7, r: 6, x: 7 * tileSize, y: 6 * tileSize, dx: 1, dy: 0, speed: 1.5, color: ghostColors[3] }
+            ];
+            powerMode = false;
+            powerTimer = 0;
+        }
+
+        function resetGame() {
+            score = 0;
+            lives = 3;
+            document.getElementById('game-score').innerText = score;
+            document.getElementById('game-lives').innerText = lives;
+            initMap();
+            initEntities();
+        }
+
+        function startGame() {
+            overlay.classList.add('hidden');
+            if(!gameRunning) {
+                resetGame();
+                gameRunning = true;
+                drawGame();
+            }
+        }
+
+        function isWall(c, r) {
+            if (c < 0 || c >= cols || r < 0 || r >= rows) return false; // allow tunnel
+            return map[r][c] === 1;
+        }
+
+        function updateEntity(ent) {
+            // Check if entity is perfectly aligned in a tile
+            if (ent.x % tileSize === 0 && ent.y % tileSize === 0) {
+                ent.c = ent.x / tileSize;
+                ent.r = ent.y / tileSize;
+                
+                // Wrap around tunnel
+                if (ent.c <= -1) { ent.x = (cols - 1) * tileSize; ent.c = cols - 1; }
+                if (ent.c >= cols) { ent.x = 0; ent.c = 0; }
+
+                // Player: try to apply next move
+                if (ent === player && (player.nextDx !== 0 || player.nextDy !== 0)) {
+                    if (!isWall(ent.c + player.nextDx, ent.r + player.nextDy)) {
+                        ent.dx = player.nextDx;
+                        ent.dy = player.nextDy;
+                    }
+                }
+
+                // Stop if hitting wall
+                if (isWall(ent.c + ent.dx, ent.r + ent.dy)) {
+                    ent.dx = 0;
+                    ent.dy = 0;
+                }
+
+                // Ghost AI (Simple Random at intersections)
+                if (ent !== player) {
+                    let possibleMoves = [];
+                    const dirs = [[0,-1], [0,1], [-1,0], [1,0]];
+                    for(let d of dirs) {
+                        // Prevent instant 180 reversal unless stuck
+                        if (d[0] === -ent.dx && d[1] === -ent.dy && (ent.dx !== 0 || ent.dy !== 0)) continue;
+                        if (!isWall(ent.c + d[0], ent.r + d[1])) possibleMoves.push(d);
+                    }
+                    if (possibleMoves.length > 0) {
+                        let move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+                        ent.dx = move[0];
+                        ent.dy = move[1];
+                    } else {
+                        ent.dx *= -1;
+                        ent.dy *= -1;
+                    }
+                }
+            }
+
+            ent.x += ent.dx * ent.speed;
+            ent.y += ent.dy * ent.speed;
+        }
+
+        function drawGame() {
+            if(!gameRunning) return;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            let dotsRemaining = 0;
+
+            // Draw Map
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    let tile = map[r][c];
+                    let tx = c * tileSize;
+                    let ty = r * tileSize;
+                    
+                    if (tile === 1) { // Wall
+                        ctx.fillStyle = '#1e3a8a';
+                        ctx.fillRect(tx, ty, tileSize, tileSize);
+                        ctx.strokeStyle = '#3b82f6';
+                        ctx.strokeRect(tx, ty, tileSize, tileSize);
+                    } else if (tile === 0) { // Bandwidth Dot
+                        dotsRemaining++;
+                        ctx.fillStyle = '#fef08a';
+                        ctx.beginPath();
+                        ctx.arc(tx + tileSize/2, ty + tileSize/2, 3, 0, Math.PI*2);
+                        ctx.fill();
+                    } else if (tile === 2) { // 6GHz Power Node
+                        dotsRemaining++;
+                        ctx.fillStyle = '#4ade80';
+                        if (Math.floor(Date.now() / 200) % 2 === 0) { // Blink
+                            ctx.beginPath();
+                            ctx.arc(tx + tileSize/2, ty + tileSize/2, 8, 0, Math.PI*2);
+                            ctx.fill();
+                        }
+                    }
+                }
+            }
+
+            if (dotsRemaining === 0) {
+                // Win Level
+                initMap();
+                initEntities();
+            }
+
+            // Move & Draw Player
+            updateEntity(player);
+            
+            // Eat dots
+            let pc = Math.floor((player.x + tileSize/2) / tileSize);
+            let pr = Math.floor((player.y + tileSize/2) / tileSize);
+            if (pc >= 0 && pc < cols && pr >= 0 && pr < rows) {
+                if (map[pr][pc] === 0) {
+                    map[pr][pc] = 3;
+                    score += 10;
+                    document.getElementById('game-score').innerText = score;
+                } else if (map[pr][pc] === 2) {
+                    map[pr][pc] = 3;
+                    score += 50;
+                    document.getElementById('game-score').innerText = score;
+                    powerMode = true;
+                    powerTimer = 400; // frames
+                }
+            }
+
+            // Draw Player (Packet)
+            ctx.fillStyle = '#facc15';
+            ctx.beginPath();
+            let mouth = (Math.floor(Date.now() / 150) % 2 === 0) ? 0.2 : 0;
+            let angle = 0;
+            if (player.dx === 1) angle = 0;
+            if (player.dx === -1) angle = Math.PI;
+            if (player.dy === 1) angle = Math.PI/2;
+            if (player.dy === -1) angle = -Math.PI/2;
+            
+            ctx.arc(player.x + tileSize/2, player.y + tileSize/2, tileSize/2 * 0.8, angle + mouth*Math.PI, angle + (2-mouth)*Math.PI);
+            ctx.lineTo(player.x + tileSize/2, player.y + tileSize/2);
+            ctx.fill();
+
+            // Power Mode Logic
+            if (powerMode) {
+                powerTimer--;
+                if (powerTimer <= 0) powerMode = false;
+            }
+
+            // Move & Draw Ghosts
+            for (let i = 0; i < ghosts.length; i++) {
+                let g = ghosts[i];
+                updateEntity(g);
+                
+                // Draw Ghost
+                ctx.fillStyle = powerMode ? (powerTimer < 100 && Math.floor(powerTimer/10)%2===0 ? '#ffffff' : '#2dd4bf') : g.color;
+                ctx.beginPath();
+                ctx.arc(g.x + tileSize/2, g.y + tileSize/2, tileSize/2 * 0.8, Math.PI, 0);
+                ctx.lineTo(g.x + tileSize*0.9, g.y + tileSize*0.9);
+                ctx.lineTo(g.x + tileSize*0.5, g.y + tileSize*0.7);
+                ctx.lineTo(g.x + tileSize*0.1, g.y + tileSize*0.9);
+                ctx.closePath();
+                ctx.fill();
+
+                // Collision
+                let dist = Math.abs(player.x - g.x) + Math.abs(player.y - g.y);
+                if (dist < tileSize * 0.7) {
+                    if (powerMode) {
+                        // Eat ghost
+                        score += 100;
+                        document.getElementById('game-score').innerText = score;
+                        g.x = 7 * tileSize;
+                        g.y = 7 * tileSize;
+                    } else {
+                        // Lose life
+                        lives--;
+                        document.getElementById('game-lives').innerText = lives;
+                        if (lives <= 0) {
+                            gameRunning = false;
+                            cancelAnimationFrame(animationId);
+                            overlay.classList.remove('hidden');
+                            startBtn.innerText = "Network Crash! Try Again";
+                            startBtn.classList.replace('bg-blue-500', 'bg-red-500');
+                            startBtn.classList.replace('border-blue-700', 'border-red-700');
+                            return;
+                        } else {
+                            initEntities();
+                        }
+                    }
+                }
+            }
+
+            animationId = requestAnimationFrame(drawGame);
+        }
+
+        // Certificate Logic
+        function updateCertName() {
+            let name = document.getElementById('student-name-input').value.trim();
+            if(name) {
+                if (name.includes(' ')) {
+                    name = name.split(' ')[0];
+                    document.getElementById('student-name-input').value = name;
+                    showModal('Notice', 'Only your first name has been applied to the certificate.', 'info');
+                }
+                document.getElementById('cert-student-name').innerText = name;
+            } else {
+                showModal('Wait!', 'Please enter your first name to update the certificate.', 'warning');
+            }
+        }
+
+        const today = new Date();
+        document.getElementById('cert-date').innerText = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        function downloadCert() {
+            const certEl = document.getElementById('certificate');
+            const name = document.getElementById('cert-student-name').innerText;
+            let filename = 'Certificate.png';
+            if (name && name !== 'Student') {
+                filename = `${name.replace(/\s+/g, '_')}_Certificate.png`;
+            }
+
+            const originalTransform = certEl.style.transform;
+            certEl.style.transform = 'none';
+
+            const btn = document.getElementById('download-btn');
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Generating...';
+            btn.disabled = true;
+
+            html2canvas(certEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
+                certEl.style.transform = originalTransform;
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(err => {
+                console.error(err);
+                certEl.style.transform = originalTransform;
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+                showModal('Error', 'Failed to generate image. Try using a desktop browser.', 'error');
+            });
+        }
+    </script>
+</body>
+</html>
