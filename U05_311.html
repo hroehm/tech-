@@ -1,0 +1,1372 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 05 Section 3.1.1 Mastery - OS File Systems</title>
+    
+    <!-- Load Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load HTML2Canvas for Certificate Download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Load Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Qwitcher+Grypen:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; 
+            color: #0f172a;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Interactive Elements CSS */
+        .io-dropzone { min-height: 80px; border: 2px dashed #94a3b8; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 0.5rem; background: #f1f5f9; transition: all 0.2s;}
+        .io-dropzone.drag-over { background: #e2e8f0; border-color: #3b82f6; box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.2);}
+        
+        .io-item { cursor: grab; transition: transform 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; text-align: center; margin-bottom: 0.5rem; }
+        .io-item:active { cursor: grabbing; transform: scale(0.95); }
+        
+        .process-row { transition: background-color 0.2s; cursor: pointer; }
+        .process-row:hover { background-color: #e0f2fe; }
+        .process-row.active { background-color: #bae6fd; border-left: 4px solid #0284c7; }
+
+        .disk-block { transition: all 0.2s; cursor: pointer; }
+        .disk-block:hover { transform: scale(1.05); }
+        .disk-block.allocated { background-color: #3b82f6; color: white; border-color: #1e40af; }
+        .disk-block.error { background-color: #ef4444; color: white; animation: shake 0.4s; }
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; }
+        ::-webkit-scrollbar-thumb { background: #0284c7; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #0369a1; }
+
+        /* Retro Game Canvas */
+        #game-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; }
+        #game-canvas {
+            background-color: #020617;
+            border: 4px solid #334155;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+            width: 100%;
+            height: auto;
+            touch-action: none; 
+            image-rendering: pixelated;
+        }
+        .game-controls { display: flex; justify-content: space-between; margin-top: 10px; user-select: none; }
+        .game-btn { background: #1e293b; color: white; border: 2px solid #475569; padding: 15px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; touch-action: manipulation;}
+        .game-btn:active { background: #334155; transform: scale(0.95); }
+
+        /* Certificate Styles */
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .font-body { font-family: 'Lora', serif; }
+        .font-script { font-family: 'Qwitcher Grypen', cursive; }
+        
+        .cert-preview-container {
+            width: 100%;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            background: #cbd5e1;
+            padding: 2rem;
+            border-radius: 0.5rem;
+        }
+
+        #certificate {
+            width: 1056px !important;
+            height: 816px !important;
+            flex-shrink: 0;
+            background-color: #ffffff;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1056" height="816"><rect width="1056" height="816" fill="%23f8fafc"/><path d="M0 0 L300 0 L0 300 Z" fill="%230284c7" opacity="0.1"/><path d="M1056 816 L756 816 L1056 516 Z" fill="%230284c7" opacity="0.1"/><rect x="20" y="20" width="1016" height="776" fill="none" stroke="%230284c7" stroke-width="4"/><rect x="30" y="30" width="996" height="756" fill="none" stroke="%2338bdf8" stroke-width="2"/></svg>');
+            background-size: cover;
+        }
+
+        .gold-seal {
+            position: absolute;
+            left: 110px;
+            top: 350px;
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c, #fcf6ba);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+        .gold-seal-inner {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 2px dashed #8b6914;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: radial-gradient(circle, #fcf6ba, #d4af37);
+        }
+        .embossed-text {
+            color: #b38728;
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.7), -1px -1px 0px rgba(0,0,0,0.2);
+            font-family: 'Playfair Display', serif;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 1100px) { #certificate { transform: scale(0.7); transform-origin: top left; margin-bottom: -240px; margin-right: -310px; } }
+        @media (max-width: 768px) { #certificate { transform: scale(0.4); transform-origin: top left; margin-bottom: -490px; margin-right: -630px; } }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="bg-slate-900 text-white shadow-xl sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-folder-tree text-2xl text-sky-400"></i>
+                    <span class="font-bold text-xl tracking-wider hidden sm:inline-block">Tech+ Unit 05 Section 3.1.1</span>
+                    <span class="font-bold text-xl tracking-wider sm:hidden">3.1.1</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-2">
+                        <button onclick="switchTab('briefing')" class="nav-btn bg-sky-700 px-3 py-2 rounded-md text-sm font-medium hover:bg-sky-500 transition" id="nav-briefing"><i class="fa-solid fa-book-open mr-1"></i>Briefing</button>
+                        <button onclick="switchTab('activity')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-sky-500 transition" id="nav-activity"><i class="fa-solid fa-flask mr-1"></i>Lab Activity</button>
+                        <button onclick="switchTab('quiz')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium hover:bg-sky-500 transition" id="nav-quiz"><i class="fa-solid fa-clipboard-check mr-1"></i>Quiz</button>
+                        <button onclick="switchTab('game')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-slate-500 cursor-not-allowed transition" id="nav-game" disabled><i class="fa-solid fa-lock mr-1"></i>Game</button>
+                        <button onclick="switchTab('cert')" class="nav-btn hidden px-3 py-2 rounded-md text-sm font-medium text-yellow-400 hover:bg-sky-500 transition" id="nav-cert"><i class="fa-solid fa-award mr-1"></i>Certificate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Nav -->
+        <div class="md:hidden flex flex-wrap justify-center gap-2 py-2 px-2 bg-slate-800 border-t border-slate-700">
+            <button onclick="switchTab('briefing')" class="nav-btn-mobile px-3 py-1 text-sm rounded bg-sky-700" id="nav-briefing-mobile">Briefing</button>
+            <button onclick="switchTab('activity')" class="nav-btn-mobile px-3 py-1 text-sm rounded" id="nav-activity-mobile">Lab</button>
+            <button onclick="switchTab('quiz')" class="nav-btn-mobile px-3 py-1 text-sm rounded" id="nav-quiz-mobile">Quiz</button>
+            <button onclick="switchTab('game')" class="nav-btn-mobile px-3 py-1 text-sm rounded text-slate-500 cursor-not-allowed" id="nav-game-mobile" disabled><i class="fa-solid fa-lock"></i></button>
+            <button onclick="switchTab('cert')" id="nav-cert-mobile" class="hidden px-2 py-1 text-sm text-yellow-400 rounded"><i class="fa-solid fa-award"></i></button>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <!-- BRIEFING SECTION -->
+        <div id="briefing-section" class="tab-content active no-print">
+            <div class="text-center mb-10">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">OS File Systems</h1>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">Explore how an operating system organizes, describes, protects, and compresses the digital files we interact with every single day.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Tile 1 -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-blue-500 overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-blue-800"><i class="fa-solid fa-sitemap mr-2 text-blue-600"></i>Filesystems & Allocation</h2>
+                        <ul class="space-y-3 text-slate-700 mb-4">
+                            <li><strong>Role:</strong> Organizes raw binary data on a disk into accessible files and folders.</li>
+                            <li><strong>Structure:</strong> Hierarchical (tree-like with subfolders) vs. Flat (single-level directory).</li>
+                            <li><strong>Allocation:</strong> Methods include Contiguous, Linked, and Indexed block tracking.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-50 border-t border-slate-100 p-4">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('fs-details')" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('fs-usecase')" class="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-900 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-lightbulb text-yellow-600 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tile 2 -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-green-500 overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-green-800"><i class="fa-solid fa-file-zipper mr-2 text-green-600"></i>File Compression</h2>
+                        <ul class="space-y-3 text-slate-700 mb-4">
+                            <li><strong>Lossless:</strong> Preserves 100% of original data (ZIP, PNG, GZIP). Removes redundant patterns.</li>
+                            <li><strong>Lossy:</strong> Permanently removes some data to drastically reduce size (JPEG, MP3, MP4).</li>
+                            <li><strong>Efficiency:</strong> Compressing an already compressed file yields little to no reduction.</li>
+                        </ul>
+                    </div>
+                     <div class="bg-slate-50 border-t border-slate-100 p-4">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('comp-details')" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('comp-usecase')" class="flex-1 bg-green-100 hover:bg-green-200 text-green-900 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-lightbulb text-yellow-600 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tile 3 -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-purple-500 overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-purple-800"><i class="fa-solid fa-lock mr-2 text-purple-600"></i>Encryption & Security</h2>
+                        <ul class="space-y-3 text-slate-700 mb-4">
+                            <li><strong>Encryption:</strong> Converts data into unreadable code requiring a decryption key.</li>
+                            <li><strong>Symmetric vs Asymmetric:</strong> Single shared key vs. Public/Private key pairs.</li>
+                            <li><strong>ACLs & Permissions:</strong> Access Control Lists define Read, Write, and Execute rights.</li>
+                        </ul>
+                    </div>
+                     <div class="bg-slate-50 border-t border-slate-100 p-4">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('enc-details')" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('enc-usecase')" class="flex-1 bg-purple-100 hover:bg-purple-200 text-purple-900 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-lightbulb text-yellow-600 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tile 4 -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-amber-500 overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <h2 class="text-2xl font-bold mb-3 text-amber-800"><i class="fa-solid fa-tags mr-2 text-amber-600"></i>Types, Metadata & Journaling</h2>
+                        <ul class="space-y-3 text-slate-700 mb-4">
+                            <li><strong>Common Filesystems:</strong> NTFS (Windows), ext4 (Linux), APFS (macOS), FAT32 (Removable).</li>
+                            <li><strong>Journaling:</strong> Logs changes before committing to disk to prevent crash corruption.</li>
+                            <li><strong>Metadata & Extensions:</strong> Hidden file properties (size, dates) and program associations.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-50 border-t border-slate-100 p-4">
+                        <div class="flex gap-4">
+                            <button onclick="openBriefing('meta-details')" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-book-open mr-2"></i> Details</button>
+                            <button onclick="openBriefing('meta-usecase')" class="flex-1 bg-amber-100 hover:bg-amber-200 text-amber-900 py-3 rounded text-sm font-bold transition flex items-center justify-center shadow-sm"><i class="fa-solid fa-lightbulb text-yellow-600 mr-2"></i> Use Cases</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-10 flex justify-center">
+                <button onclick="switchTab('activity')" class="bg-sky-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-sky-500 shadow-lg transition transform hover:scale-105">Proceed to Lab Activity <i class="fa-solid fa-arrow-right ml-2"></i></button>
+            </div>
+        </div>
+
+        <!-- LAB ACTIVITY SECTION -->
+        <div id="activity-section" class="tab-content no-print">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Interactive Filesystem Labs</h1>
+                <p class="text-slate-600">Apply your knowledge across 4 distinct OS simulations to master filesystem concepts.</p>
+            </div>
+
+            <!-- Lab 1: Compression Sorter -->
+            <div class="bg-white p-6 rounded-xl shadow-md mb-8 border border-slate-200">
+                <h2 class="text-xl font-bold mb-4 text-green-700"><i class="fa-solid fa-file-zipper mr-2"></i>Lab 1: Compression Classifier</h2>
+                <p class="text-sm text-slate-600 mb-4">Drag the file formats and algorithms and drop them into their correct compression methodology.</p>
+                
+                <div class="flex flex-wrap justify-center gap-3 mb-6" id="comp-items">
+                    <div class="io-item px-4 py-2 bg-slate-100 border border-slate-300 rounded font-bold text-sm" draggable="true" data-type="lossless">ZIP Archive</div>
+                    <div class="io-item px-4 py-2 bg-slate-100 border border-slate-300 rounded font-bold text-sm" draggable="true" data-type="lossy">JPEG Image</div>
+                    <div class="io-item px-4 py-2 bg-slate-100 border border-slate-300 rounded font-bold text-sm" draggable="true" data-type="lossless">PNG Image</div>
+                    <div class="io-item px-4 py-2 bg-slate-100 border border-slate-300 rounded font-bold text-sm" draggable="true" data-type="lossy">MP3 Audio</div>
+                    <div class="io-item px-4 py-2 bg-slate-100 border border-slate-300 rounded font-bold text-sm" draggable="true" data-type="lossless">GZIP Archive</div>
+                    <div class="io-item px-4 py-2 bg-slate-100 border border-slate-300 rounded font-bold text-sm" draggable="true" data-type="lossy">MP4 Video</div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="io-dropzone bg-blue-50 border-blue-300" data-target="lossless">
+                        <h3 class="font-bold text-blue-800 mb-2 border-b border-blue-200 w-full text-center pb-2">Lossless (Preserves 100% Data)</h3>
+                    </div>
+                    <div class="io-dropzone bg-red-50 border-red-300" data-target="lossy">
+                        <h3 class="font-bold text-red-800 mb-2 border-b border-red-200 w-full text-center pb-2">Lossy (Permanently Removes Data)</h3>
+                    </div>
+                </div>
+                <div id="lab1-feedback" class="text-center font-bold mt-4 h-6 text-sky-600"></div>
+            </div>
+
+            <!-- Lab 2: Metadata Inspector -->
+            <div class="bg-white p-6 rounded-xl shadow-md mb-8 border border-slate-200">
+                <h2 class="text-xl font-bold mb-4 text-amber-700"><i class="fa-solid fa-magnifying-glass mr-2"></i>Lab 2: Metadata Inspector</h2>
+                <p class="text-sm text-slate-600 mb-4">Click on the files below to read their hidden metadata. Identify and flag the suspicious file whose <strong>actual metadata size</strong> makes no sense for a plain text document (indicating disguised malware).</p>
+                
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="w-full md:w-1/2 border rounded border-slate-300 overflow-hidden" id="metadata-file-list">
+                        <!-- Rows -->
+                        <div class="process-row px-4 py-3 border-b border-slate-200 flex text-sm" onclick="showMetadata(0, this)">
+                            <div class="w-2/3"><i class="fa-solid fa-file-lines text-slate-500 mr-2"></i>notes.txt</div>
+                            <div class="w-1/3 text-right">Text Doc</div>
+                        </div>
+                        <div class="process-row px-4 py-3 border-b border-slate-200 flex text-sm" onclick="showMetadata(1, this)">
+                            <div class="w-2/3"><i class="fa-solid fa-file-lines text-slate-500 mr-2"></i>readme.txt</div>
+                            <div class="w-1/3 text-right">Text Doc</div>
+                        </div>
+                        <div class="process-row px-4 py-3 border-b border-slate-200 flex text-sm" onclick="showMetadata(2, this)">
+                            <div class="w-2/3"><i class="fa-solid fa-file-lines text-slate-500 mr-2"></i>invoice_update.txt</div>
+                            <div class="w-1/3 text-right">Text Doc</div>
+                        </div>
+                        <div class="process-row px-4 py-3 flex text-sm" onclick="showMetadata(3, this)">
+                            <div class="w-2/3"><i class="fa-solid fa-file-lines text-slate-500 mr-2"></i>config.txt</div>
+                            <div class="w-1/3 text-right">Text Doc</div>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full md:w-1/2 bg-slate-800 text-green-400 p-4 rounded-lg font-mono text-sm relative min-h-[200px]">
+                        <h4 class="text-white border-b border-slate-600 pb-1 mb-3">OS Metadata Viewer</h4>
+                        <div id="meta-display">Select a file to view properties...</div>
+                        <button id="flag-btn" onclick="checkLab2()" class="absolute bottom-4 right-4 bg-red-600 text-white px-4 py-2 rounded font-bold hover:bg-red-500 hidden">Flag as Suspicious</button>
+                    </div>
+                </div>
+                <div id="lab2-feedback" class="text-center font-bold mt-4 h-6 text-sky-600"></div>
+            </div>
+            
+            <!-- Lab 3: Allocation Methods -->
+            <div class="bg-white p-6 rounded-xl shadow-md mb-8 border border-slate-200">
+                <h2 class="text-xl font-bold mb-4 text-blue-700"><i class="fa-solid fa-hard-drive mr-2"></i>Lab 3: Contiguous Allocation</h2>
+                <p class="text-sm text-slate-600 mb-4">To maximize read speeds, older filesystems used <strong>Contiguous Allocation</strong>. Select exactly 4 <em>adjacent</em> blocks (in a single continuous line horizontally or vertically) to save a 4-block file.</p>
+                
+                <div class="grid grid-cols-5 gap-2 w-max mx-auto bg-slate-200 p-3 rounded" id="alloc-grid">
+                    <!-- JS Generated Grid -->
+                </div>
+                <div class="text-center mt-4">
+                    <button class="bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-700" onclick="checkLab3()">Save File (Commit)</button>
+                </div>
+                <div id="lab3-feedback" class="text-center font-bold mt-4 h-6 text-sky-600"></div>
+            </div>
+            
+            <!-- Lab 4: Cross-FS Compatibility -->
+            <div class="bg-white p-6 rounded-xl shadow-md mb-8 border border-slate-200">
+                <h2 class="text-xl font-bold mb-4 text-purple-700"><i class="fa-solid fa-shuffle mr-2"></i>Lab 4: Filesystem Transfer Security</h2>
+                <p class="text-sm text-slate-600 mb-4">You are copying a highly secure file from your modern Windows laptop (NTFS) to an older USB flash drive (FAT32) to share with a friend. Based on filesystem limitations, toggle what happens to the file properties during the transfer.</p>
+                
+                <div class="bg-slate-50 border rounded p-6 max-w-2xl mx-auto">
+                    <div class="flex justify-between items-center mb-4 pb-4 border-b">
+                        <span class="font-bold">The actual text/image data is copied intact.</span>
+                        <button class="w-16 h-8 rounded-full bg-green-500 relative transition-colors focus:outline-none" disabled><span class="absolute right-1 top-1 bg-white w-6 h-6 rounded-full"></span></button>
+                    </div>
+                    <div class="flex justify-between items-center mb-4 pb-4 border-b">
+                        <span class="font-bold text-slate-700">Access Control Lists (Permissions) are maintained.</span>
+                        <button id="toggle-acl" onclick="toggleSwitch(this)" class="w-16 h-8 rounded-full bg-slate-300 relative transition-colors focus:outline-none"><span class="absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform"></span></button>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-slate-700">Journaling protection applies to the USB drive.</span>
+                        <button id="toggle-journ" onclick="toggleSwitch(this)" class="w-16 h-8 rounded-full bg-slate-300 relative transition-colors focus:outline-none"><span class="absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform"></span></button>
+                    </div>
+                </div>
+                <div class="text-center mt-6">
+                    <button class="bg-purple-600 text-white px-6 py-2 rounded font-bold hover:bg-purple-700" onclick="checkLab4()">Execute Transfer</button>
+                </div>
+                <div id="lab4-feedback" class="text-center font-bold mt-4 h-6 text-sky-600"></div>
+            </div>
+
+            <div class="text-center">
+                <button onclick="switchTab('quiz')" class="bg-sky-600 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-sky-500 shadow-lg transition transform hover:scale-105">Take the Mastery Quiz <i class="fa-solid fa-clipboard-check ml-2"></i></button>
+            </div>
+        </div>
+
+        <!-- QUIZ SECTION -->
+        <div id="quiz-section" class="tab-content no-print">
+            <div class="bg-white p-6 sm:p-10 rounded-2xl shadow-xl max-w-4xl mx-auto">
+                <div class="text-center mb-8 border-b pb-4">
+                    <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Unit 05 Section 3.1.1 Mastery Quiz</h1>
+                    <p class="text-slate-600">Score 90% or higher (18/20) to earn your Certificate of Mastery and unlock the Retro Game!</p>
+                </div>
+
+                <div id="quiz-container" class="space-y-8">
+                    <!-- Questions injected via JS -->
+                </div>
+
+                <div class="mt-10 text-center border-t pt-6 flex flex-col md:flex-row justify-center items-center gap-4">
+                    <button id="submit-quiz-btn" onclick="gradeQuiz()" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-blue-700 shadow-lg transition w-full md:w-auto">Submit Quiz</button>
+                    <button id="proceed-game-btn" onclick="switchTab('game')" class="hidden bg-purple-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-purple-700 shadow-lg transition w-full md:w-auto">Play Retro Game <i class="fa-solid fa-gamepad ml-2"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RETRO GAME SECTION -->
+        <div id="game-section" class="tab-content no-print">
+            <div class="bg-slate-900 p-6 sm:p-8 rounded-2xl shadow-xl max-w-4xl mx-auto border-4 border-slate-700 flex flex-col items-center">
+                <div class="text-center mb-4 w-full">
+                    <h1 class="text-3xl font-extrabold text-sky-400 mb-2 tracking-widest uppercase" style="font-family: monospace;">Data Blaster</h1>
+                    <p class="text-slate-300 text-sm">Defend the filesystem! Move your antivirus ship to shoot down incoming Malware <span class="text-red-500 font-bold">(Red)</span> and Lossy data chunks <span class="text-orange-500 font-bold">(Orange)</span>.</p>
+                </div>
+                
+                <div class="flex justify-between items-center w-full max-w-[600px] mb-2 px-4 text-white font-mono text-xl">
+                    <div>Score: <span id="game-score" class="text-green-400 font-bold">0</span></div>
+                    <div>Integrity: <span id="game-lives" class="text-red-400 font-bold">3</span></div>
+                </div>
+
+                <div id="game-container">
+                    <canvas id="game-canvas" width="600" height="400"></canvas>
+                    
+                    <!-- Overlay Start Button -->
+                    <div id="game-overlay" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 rounded-lg z-10">
+                        <button id="start-game-btn" class="bg-sky-600 hover:bg-sky-500 text-white font-bold font-mono py-3 px-6 rounded-lg text-xl border-4 border-sky-800 uppercase transform transition hover:scale-105">Initialize Scan (Start)</button>
+                    </div>
+                </div>
+
+                <!-- Mobile Controls -->
+                <div class="game-controls w-full max-w-[600px] md:hidden">
+                    <button class="game-btn flex-1 mr-2" id="btn-left"><i class="fa-solid fa-arrow-left"></i></button>
+                    <button class="game-btn flex-1 mx-2 bg-red-800 border-red-900" id="btn-fire">FIRE</button>
+                    <button class="game-btn flex-1 ml-2" id="btn-right"><i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+                <p class="text-slate-400 text-xs mt-4 font-mono hidden md:block">Controls: Left/Right Arrows to move. Spacebar to fire.</p>
+
+                <div class="mt-8 text-center w-full border-t border-slate-700 pt-6">
+                    <button onclick="switchTab('cert')" class="bg-emerald-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:bg-emerald-700 shadow-lg transition w-full md:w-auto">Claim Certificate <i class="fa-solid fa-award ml-2"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CERTIFICATE SECTION -->
+        <div id="cert-section" class="tab-content">
+            <div class="max-w-5xl mx-auto">
+                <!-- Controls -->
+                <div class="bg-white p-6 rounded shadow mb-6 no-print text-center border border-slate-200">
+                    <h2 class="text-2xl font-bold text-sky-600 mb-2">🎉 Authorization Granted! 🎉</h2>
+                    <p class="text-slate-700 mb-4">You have successfully mastered the architecture and security of OS File Systems.</p>
+                    <div class="flex flex-col md:flex-row justify-center items-center gap-4">
+                        <input type="text" id="student-name-input" value="Student" placeholder="Enter your first name" class="border-2 border-slate-300 rounded px-4 py-2 w-full md:w-64 focus:border-sky-500 focus:outline-none">
+                        <button onclick="updateCertName()" class="bg-sky-600 text-white px-4 py-2 rounded hover:bg-sky-700 transition">Update Name</button>
+                        <button id="download-btn" onclick="downloadCert()" class="bg-slate-800 text-white px-4 py-2 rounded hover:bg-slate-900 transition flex items-center justify-center">
+                            <i class="fa-solid fa-download mr-2"></i>Download PNG
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Certificate Render Container -->
+                <div class="cert-preview-container print:p-0 print:bg-white">
+                    <div id="certificate">
+                        <div class="gold-seal">
+                            <div class="gold-seal-inner">
+                                <span class="embossed-text text-sm tracking-widest">Mastery</span>
+                                <i class="fa-solid fa-shield-halved text-2xl text-yellow-700 my-1 drop-shadow-md"></i>
+                                <span class="embossed-text text-sm tracking-widest">Certified</span>
+                            </div>
+                        </div>
+
+                        <div class="relative z-20 w-full h-full flex flex-col pt-[60px] pl-[340px] pr-[60px]">
+                            <h1 class="text-sky-900 text-[3.8rem] leading-none font-serif font-bold tracking-widest uppercase mb-1">CERTIFICATE</h1>
+                            <h2 class="text-slate-700 text-2xl font-serif tracking-[0.3em] uppercase mb-10">Of File System Mastery</h2>
+                            
+                            <p class="text-[1.2rem] font-body text-slate-700 mb-2">This official document certifies that</p>
+                            
+                            <div class="relative mb-6 w-full">
+                                <h3 id="cert-student-name" class="text-[3.5rem] text-sky-800 font-serif italic leading-none pb-2 relative z-10 text-center w-full block">Student</h3>
+                                <div class="w-full border-b-[2px] border-sky-800 absolute bottom-[4px] left-0 z-0"></div>
+                            </div>
+                            
+                            <p class="text-[1.1rem] font-body text-slate-800 leading-relaxed w-full pr-4 text-justify">
+                                Has successfully completed the rigorous assessment requirements for 
+                                <strong class="text-[1.4rem] text-sky-900 block mt-3 mb-1 font-serif uppercase tracking-wider">Cyber.org Tech+ Unit 05 Section 3.1.1</strong>
+                                <strong class="text-[1.4rem] text-black block mb-3 font-serif italic">OS File Systems</strong>
+                                <span class="text-[1rem] text-slate-700 leading-snug block">Demonstrating comprehensive proficiency in data allocation architecture, compression methodologies (Lossy vs. Lossless), advanced cryptographic security (Symmetric/Asymmetric), and Access Control List (ACL) governance across modern operating systems.</span>
+                            </p>
+                            
+                            <div class="flex justify-end gap-12 items-end mt-auto mb-[50px] w-full pr-8">
+                                <div class="w-56">
+                                    <div class="border-b border-slate-500 mb-1 h-16 flex items-end justify-center relative">
+                                        <span class="font-script text-[4rem] text-sky-900 absolute bottom-[-15px] transform -rotate-6 opacity-90">CIC Admin</span>
+                                    </div>
+                                    <p class="font-serif text-lg text-slate-700 text-center uppercase tracking-widest">Administration</p>
+                                </div>
+                                <div class="w-48">
+                                    <div class="border-b border-slate-500 mb-1 text-center h-16 flex items-end justify-center">
+                                        <p id="cert-date" class="font-body text-xl text-slate-800 pb-1">Date Here</p>
+                                    </div>
+                                    <p class="font-serif text-lg text-slate-700 text-center uppercase tracking-widest">Date</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Custom Modal -->
+    <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex justify-center items-center backdrop-blur-sm px-4">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full transform transition-all text-center">
+            <div id="modal-icon" class="text-6xl mb-4"></div>
+            <h3 id="modal-title" class="text-2xl font-bold mb-3 text-slate-900"></h3>
+            <p id="modal-msg" class="text-slate-600 mb-8 leading-relaxed"></p>
+            <button onclick="closeModal()" class="bg-sky-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-sky-700 transition w-full shadow-md">Acknowledge</button>
+        </div>
+    </div>
+
+    <!-- Content Briefing Modal -->
+    <div id="briefing-modal" class="fixed inset-0 bg-black bg-opacity-70 z-[120] hidden flex justify-center items-center backdrop-blur-sm p-4 sm:p-6">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col transform transition-all overflow-hidden border-4 border-sky-600">
+            <div class="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                <div class="flex items-center gap-4">
+                    <div id="briefing-modal-icon" class="text-4xl"></div>
+                    <h3 id="briefing-modal-title" class="text-2xl md:text-3xl font-bold text-slate-900"></h3>
+                </div>
+                <button onclick="closeBriefing()" class="text-slate-400 hover:text-red-600 transition text-4xl leading-none">&times;</button>
+            </div>
+            <div id="briefing-modal-content" class="p-6 md:p-10 overflow-y-auto flex-grow text-slate-700 text-lg leading-relaxed bg-white">
+                <!-- Dynamic Content -->
+            </div>
+            <div class="p-4 border-t border-slate-200 bg-slate-50 flex justify-end">
+                <button onclick="closeBriefing()" class="bg-sky-700 text-white px-8 py-3 rounded-lg font-bold hover:bg-sky-800 transition shadow-md">Close Briefing</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- BRIEFING DATA (Extensive Content) ---
+        const briefingData = {
+            'fs-details': {
+                title: 'Filesystems & Allocation',
+                icon: '<i class="fa-solid fa-sitemap text-blue-600"></i>',
+                html: `
+                    <p class="mb-5">At its absolute lowest level, a computer's hard drive or solid-state drive is nothing more than a massive expanse of raw binary storage capacity. Without an organizational structure, data written to the drive would simply be a continuous, indistinguishable string of 1s and 0s. A <strong>Filesystem</strong> is the vital component of the Operating System that acts as a comprehensive map and index. It defines exactly how data is structured, where it physically lives on the hardware, and how it can be reliably retrieved when a user requests it.</p>
+                    
+                    <p class="mb-5">When designing a filesystem, one of the first structural decisions is whether to use a Flat or Hierarchical layout. A <strong>Flat Filesystem</strong> stores every single file in one massive, single-level directory. While incredibly simple and requiring very little overhead, flat filesystems quickly become unmanageable if a user has thousands of files. They are extremely rare in modern desktop computing, typically only found internally on minimal microcontrollers (like the BBC micro:bit) or highly specialized embedded systems.</p>
+                    
+                    <p class="mb-5">In contrast, modern consumer operating systems exclusively use a <strong>Hierarchical Filesystem</strong>. This structure organizes data logically into a branching, tree-like structure using directories (folders) and subdirectories. This allows users to group related files together—such as placing all vacation photos into a specific "Hawaii 2024" folder, nested inside a general "Pictures" directory. This hierarchy not only helps human users find their data but allows the OS to search and index files significantly faster by ignoring irrelevant branches of the tree.</p>
+                    
+                    <p class="mb-5">Underneath this logical folder structure, the filesystem must determine exactly how to physically write the file data to the storage blocks on the disk. This is known as the allocation method. The simplest approach is <strong>Contiguous Allocation</strong>, where a file is saved in a single, unbroken sequence of blocks on the disk. Because the drive's read head doesn't have to jump around, this offers the absolute fastest read performance. However, as files are deleted and created, the disk suffers from severe fragmentation, making it incredibly difficult to find contiguous space for new, large files.</p>
+                    
+                    <p class="mb-5">To solve the fragmentation problem, early filesystems moved to <strong>Linked Allocation</strong>. In this method, a file is broken into smaller blocks, and each block contains a "pointer" (a memory address) that directs the system to the next block, wherever it happens to be randomly scattered on the disk. While this completely eliminates fragmentation issues and maximizes storage space efficiency, it drastically reduces read speeds, because the OS must chase a digital paper trail across the entire disk to load a single file.</p>
+                    
+                    <p class="mb-5">The ultimate compromise used by almost all modern filesystems is <strong>Indexed Allocation</strong>. Instead of linking blocks sequentially, the OS creates a specific "index block" for every file. This index block acts like a table of contents, containing a master list of pointers to all the scattered data blocks that make up the file. When a file is opened, the OS immediately reads the index block and knows exactly where to retrieve all the pieces simultaneously, offering excellent speed without fragmentation penalties.</p>
+                    
+                    <p>Understanding these filesystem architectures is critical for IT professionals. If a user complains that an older mechanical hard drive is taking minutes to open large video files, the technician must understand that the drive's allocation method may be struggling with severe fragmentation. By understanding the underlying filesystem mechanics, the technician can run defragmentation tools to reorganize scattered linked/indexed blocks back into a semi-contiguous state, instantly restoring system performance.</p>
+                `
+            },
+            'fs-usecase': {
+                title: 'Filesystems & Allocation: Use Cases',
+                icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-blue-800 mb-2 border-b-2 border-blue-200 pb-1">Case 1: Structuring Data Environments</h4>
+                        <p class="mb-2">Different hardware environments require vastly different organizational structures to function optimally.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-700">
+                            <li class="mb-2"><strong>Example 1 (Hierarchical):</strong> A corporate server hosting terabytes of financial data utilizes a deep hierarchical filesystem, allowing administrators to neatly organize files by Year -> Quarter -> Department -> Employee, ensuring human readability.</li>
+                            <li><strong>Example 2 (Flat):</strong> A robotics engineering student programs a simple BBC micro:bit device to record temperature data. Because the device has tiny storage and only runs one program, it uses a flat filesystem, storing all logs in a single un-foldered list to save memory overhead.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-blue-800 mb-2 border-b-2 border-blue-200 pb-1">Case 2: Disk Performance Management</h4>
+                        <p class="mb-2">The physical allocation method chosen by the OS directly impacts how fast data can be read or written.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-700">
+                            <li class="mb-2"><strong>Example 1 (Contiguous Issues):</strong> An older security camera system uses contiguous allocation for speed. After a month, the drive is heavily fragmented with small gaps. When it tries to save a massive 4GB continuous video file, the system crashes because no single 4GB gap exists, even though the total free space is 20GB.</li>
+                            <li><strong>Example 2 (Indexed Efficiency):</strong> A modern database server relies heavily on Indexed Allocation. When searching for a specific customer record, the OS instantly reads the master index block, jumping directly to the correct data sector without having to scan through gigabytes of linked files.</li>
+                        </ul>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-1">Concept: Physical Allocation</p>
+                            <img src="https://images.unsplash.com/photo-1597852074816-d933c7d2b988?auto=format&fit=crop&w=600&h=350" alt="Physical hard drive internals" class="w-full h-auto rounded shadow border border-slate-200 object-cover">
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-1">In Use: Hierarchical Folders</p>
+                            <img src="https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?auto=format&fit=crop&w=600&h=350" alt="Folders inside folders conceptual" class="w-full h-auto rounded shadow border border-slate-200 object-cover">
+                        </div>
+                    </div>
+                `
+            },
+            'comp-details': {
+                title: 'File Compression',
+                icon: '<i class="fa-solid fa-file-zipper text-green-600"></i>',
+                html: `
+                    <p class="mb-5">In the digital world, storage space and network bandwidth are finite and often expensive resources. To maximize efficiency, operating systems utilize <strong>Compression</strong>—a mathematical process that significantly reduces the overall size of a file, allowing it to take up less space on a hard drive and transfer much faster over a network connection. Compression works by analyzing the raw binary data of a file and identifying patterns that can be represented more efficiently.</p>
+                    
+                    <p class="mb-5">The fundamental concept behind compression is the removal of redundancy. Consider a standard plain text (.txt) file containing a novel. The space character alone will appear tens of thousands of times. Common words like "the", "and", and "it" are repeated constantly. Instead of storing the literal, multi-byte sequence of characters for the word "the" every single time it appears, a compression algorithm might assign it a tiny, unique two-bit code. The algorithm then creates a "dictionary" so the OS knows how to translate the code back to the word "the" later.</p>
+                    
+                    <p class="mb-5">There are two primary categories of compression, dictated by whether the original data needs to survive intact. The first is <strong>Lossless Compression</strong>. As the name implies, lossless algorithms guarantee that when the file is decompressed (restored), it will be an absolute, 100% bit-for-bit identical match to the original file. This is mandatory for things like text documents, spreadsheets, executable programs, and certain high-quality graphics formats (like PNG or ZIP archives). Losing even one line of code in a program would cause it to crash.</p>
+                    
+                    <p class="mb-5">The second category is <strong>Lossy Compression</strong>. Lossy algorithms achieve drastically smaller file sizes by identifying and permanently deleting data that the human eye or ear cannot easily detect. For example, in a JPEG photograph of a blue sky, a lossy algorithm might realize there are 400 slightly different shades of blue and simplify them down to just 10 shades. The resulting file is incredibly small, but the deleted color data is gone forever and can never be restored. Common lossy formats include JPEG (photos), MP3 (audio), and MP4 (video).</p>
+                    
+                    <p class="mb-5">Filesystems and software rely on several famous mathematical algorithms to achieve these results. <strong>Huffman Coding</strong> analyzes data to find the most frequently occurring characters and assigns them the shortest possible binary codes. <strong>Run-Length Encoding (RLE)</strong> is highly effective for data with long repeating sequences (like a digital image of a solid black square); instead of storing "black pixel, black pixel, black pixel" 100 times, it simply stores "100x black pixels". <strong>Lempel-Ziv-Welch (LZW)</strong> dynamically builds a dictionary of recurring data sequences on the fly.</p>
+                    
+                    <p class="mb-5">A crucial concept for IT professionals to grasp is the law of diminishing returns regarding compression. If a user has a folder full of MP3 music files and JPEG photos, and they place them into a ZIP archive, they will likely be disappointed to find the ZIP file is almost the exact same size as the original folder. This is because JPEGs and MP3s are <em>already</em> heavily compressed using lossy algorithms. The redundancy has already been stripped out, leaving the lossless ZIP algorithm with nothing left to optimize.</p>
+                    
+                    <p>Historically, compression was a critical, everyday OS function simply because hard drives were tiny (measured in Megabytes). Windows still includes legacy features like "Compress this drive to save disk space" which automatically applies lossless compression to background OS files. Today, while storage is cheaper, compression remains absolutely vital for network transmission, allowing 4K streaming video (highly lossy MP4) and massive software downloads (lossless ZIP) to travel quickly across the global internet.</p>
+                `
+            },
+            'comp-usecase': {
+                title: 'File Compression: Use Cases',
+                icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-green-800 mb-2 border-b-2 border-green-200 pb-1">Case 1: Web Design and Media Delivery</h4>
+                        <p class="mb-2">Web developers must balance visual quality against the speed at which a website loads, relying heavily on different compression methods.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-700">
+                            <li class="mb-2"><strong>Example 1 (Lossy):</strong> A photographer uploads a massive 50MB raw photograph to their blog. To ensure the page loads quickly on mobile phones, the server automatically runs a Lossy compression algorithm, permanently discarding imperceptible color data to create a tiny 200KB JPEG image.</li>
+                            <li><strong>Example 2 (Lossless):</strong> A designer creates a company logo featuring crisp, sharp text and a transparent background. They must save this using Lossless compression (PNG format). If they used a lossy JPEG, the sharp text edges would become blurry and pixelated due to data loss.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-green-800 mb-2 border-b-2 border-green-200 pb-1">Case 2: Data Archiving and Transfer</h4>
+                        <p class="mb-2">IT administrators frequently bundle and compress massive amounts of raw text data for storage and compliance.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-700">
+                            <li class="mb-2"><strong>Example 1 (High Redundancy):</strong> A server generates 5 Gigabytes of plain-text system logs a day, filled with highly repetitive timestamps and error codes. Because the text is so repetitive, running it through a lossless GZIP compression algorithm shrinks the 5GB file down to a highly manageable 500MB archive.</li>
+                            <li><strong>Example 2 (Failed Compression):</strong> A user tries to email a 50MB folder of already-compressed MP4 videos. They attempt to "ZIP" the folder to get it under the 25MB email limit. However, because the video is already compressed, the ZIP file only shrinks to 49.5MB, and the email still fails.</li>
+                        </ul>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-1">Concept: Lossy Compression</p>
+                            <img src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=600&h=350" alt="Pixelated digital artifact representation" class="w-full h-auto rounded shadow border border-slate-200 object-cover">
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-1">In Use: Lossless Server Logs</p>
+                            <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&h=350" alt="Server rack representing log archiving" class="w-full h-auto rounded shadow border border-slate-200 object-cover">
+                        </div>
+                    </div>
+                `
+            },
+            'enc-details': {
+                title: 'Encryption & Security',
+                icon: '<i class="fa-solid fa-lock text-purple-600"></i>',
+                html: `
+                    <p class="mb-5">While the filesystem is responsible for organizing data, it is equally responsible for protecting it from unauthorized access. The most powerful tool at the operating system's disposal for protecting data confidentiality is <strong>Encryption</strong>. Encryption is the mathematical process of scrambling readable plaintext data into an unreadable format (ciphertext) using a complex algorithm. Even if a malicious actor completely bypasses OS passwords and physically steals the hard drive, encrypted data remains useless gibberish without the correct mathematical key.</p>
+                    
+                    <p class="mb-5">There are two primary paradigms of encryption. The first is <strong>Symmetric Encryption</strong>, which utilizes a single, shared key to both lock (encrypt) and unlock (decrypt) the data. Because it only requires one key, symmetric algorithms—like the Advanced Encryption Standard (AES) or the older Data Encryption Standard (DES)—are incredibly fast and efficient. They are widely used by operating systems for encrypting large local hard drives where the user locking the data is the same user unlocking it later.</p>
+                    
+                    <p class="mb-5">The second paradigm is <strong>Asymmetric Encryption</strong>, which uses a mathematically linked key pair: a Public Key for encrypting data, and a Private Key for decrypting it. The Public Key can be shared with anyone in the world. If someone wants to send you a secure file, they encrypt it with your Public Key. Once encrypted, <em>only</em> your highly guarded Private Key can unlock it. Technologies like RSA (Rivest-Shamir-Adleman) form the backbone of secure internet transmissions (like HTTPS/TLS), allowing computers that have never met to securely exchange data.</p>
+                    
+                    <p class="mb-5">Operating systems apply these encryption concepts in several ways. At the granular level, systems like Windows offer the <strong>Encrypting File System (EFS)</strong>. EFS provides file-level encryption, meaning a user can encrypt a single sensitive document while leaving the rest of the folder unencrypted. EFS uniquely ties the decryption key directly to the user's Windows login profile. If the user logs in, the file decrypts transparently in the background; if any other user account tries to open the file, access is denied.</p>
+                    
+                    <p class="mb-5">For comprehensive security, modern OSs provide <strong>Full-Disk Encryption (FDE)</strong>, such as Microsoft BitLocker or Apple FileVault. Rather than encrypting file by file, FDE encrypts the entire volume at the hardware sector level. The OS cannot even boot without the user supplying a PIN, password, or physical TPM (Trusted Platform Module) key. This provides absolute protection against physical hardware theft, ensuring corporate laptops lost at airports do not result in massive data breaches.</p>
+                    
+                    <p class="mb-5">Beyond cryptographic encryption, the filesystem enforces daily security via <strong>Access Control Lists (ACLs)</strong>. Every file and folder maintains an ACL metadata tag detailing exactly which user accounts are permitted to interact with it. The standard permissions are Read (view the file), Write (modify or delete), and Execute (run it as a program). The OS kernel checks the ACL against the user's ID every single time a file operation is attempted, strictly enforcing the principle of least privilege.</p>
+                    
+                    <p>A critical point of failure in filesystem security occurs during data transfer. <strong>Permissions and ACLs are tied to specific filesystem types.</strong> For example, the modern NTFS filesystem supports complex ACLs. However, older filesystems like FAT32 (commonly used on USB drives for universal compatibility) do not support ACLs at all. If a user copies a highly secured, restricted document from an NTFS drive onto a FAT32 flash drive, all security permissions are immediately stripped away, leaving the file completely unprotected and accessible to anyone who finds the drive.</p>
+                `
+            },
+            'enc-usecase': {
+                title: 'Encryption & Security: Use Cases',
+                icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-purple-800 mb-2 border-b-2 border-purple-200 pb-1">Case 1: Protecting Stolen Hardware</h4>
+                        <p class="mb-2">Mobile workforces frequently lose physical hardware, making OS-level encryption the last line of defense against corporate data breaches.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-700">
+                            <li class="mb-2"><strong>Example 1 (BitLocker):</strong> A healthcare worker's laptop is stolen from their car. Because the IT department enabled Windows BitLocker (Full-Disk Encryption), the thief cannot read any of the patient records. Even if they rip the hard drive out and plug it into another computer, it appears as unformatted, scrambled data without the AES decryption key.</li>
+                            <li><strong>Example 2 (EFS):</strong> A user relies on file-level EFS for a specific folder of tax documents. When a malicious sibling logs into the same computer using a different standard user account, the EFS system denies them access because the decryption key is tied exclusively to the primary user's profile.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-purple-800 mb-2 border-b-2 border-purple-200 pb-1">Case 2: The Danger of Cross-Filesystem Transfers</h4>
+                        <p class="mb-2">Security protocols are only as strong as the filesystem hosting the data. Transferring files can unexpectedly alter their security posture.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-700">
+                            <li class="mb-2"><strong>Example 1 (NTFS to FAT32):</strong> An HR manager copies a highly confidential employee payroll document from the secure company server (NTFS) to an older promotional USB thumb drive (FAT32). Because FAT32 cannot understand or store Access Control Lists (ACLs), the file loses all its strict "Admins Only" permissions during the transfer.</li>
+                            <li><strong>Example 2 (Asymmetric Transmission):</strong> A user wants to safely send that payroll file to a remote branch. They use an Asymmetric encryption protocol (like an HTTPS portal). The document is encrypted using the remote server's Public Key, ensuring that as it travels across the public internet, only the remote server's Private Key can decrypt it.</li>
+                        </ul>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-1">Concept: Symmetric Cryptography</p>
+                            <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=600&h=350" alt="Code representing secure encryption" class="w-full h-auto rounded shadow border border-slate-200 object-cover">
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-1">In Use: Physical Theft Defense</p>
+                            <img src="https://images.unsplash.com/photo-1555626906-fcf10d6851b4?auto=format&fit=crop&w=600&h=350" alt="Stolen laptop scenario" class="w-full h-auto rounded shadow border border-slate-200 object-cover">
+                        </div>
+                    </div>
+                `
+            },
+            'meta-details': {
+                title: 'Types, Extensions, Metadata & Journaling',
+                icon: '<i class="fa-solid fa-tags text-amber-600"></i>',
+                html: `
+                    <p class="mb-5">Because every operating system is engineered differently, they have historically relied on distinct, proprietary filesystem architectures. Understanding these formats is crucial for cross-platform compatibility. Microsoft Windows relies heavily on the <strong>New Technology File System (NTFS)</strong>, which offers modern standards like advanced permissions, massive partition sizes, and file-level encryption. For Apple users, the modern standard is the <strong>Apple File System (APFS)</strong>, specifically optimized for the high-speed wear-leveling requirements of Solid State Drives (SSDs). Linux distributions generally default to the <strong>Fourth Extended File System (ext4)</strong>.</p>
+                    
+                    <p class="mb-5">When transferring data between these distinct OS environments, compatibility becomes a massive hurdle. Windows cannot natively read an ext4 Linux drive, and macOS can read but cannot natively write to an NTFS drive. For universal data transfer—such as a portable USB thumb drive that must work on TVs, Macs, and PCs—the industry falls back on the much older <strong>FAT32</strong> format. While universally recognized, FAT32 is severely limited; it cannot support individual files larger than 4GB and lacks any modern security features.</p>
+                    
+                    <p class="mb-5">One of the most critical advancements in modern filesystems (NTFS, APFS, ext4) is <strong>Journaling</strong>. In older filesystems, if a user was in the middle of saving a large file and the power suddenly went out, the drive could become catastrophically corrupted because the OS lost track of where it was writing data. A journaling filesystem prevents this by first recording its "intent" to make a change into a dedicated, safe log (the journal) before ever touching the actual disk data. If a crash occurs, upon reboot, the OS simply reads the journal and either completes the interrupted action or safely rolls it back, ensuring structural integrity.</p>
+                    
+                    <p class="mb-5">Regardless of the filesystem used, the OS must understand what kind of data is contained within a file. It relies heavily on <strong>File Types and Extensions</strong>. The extension is the suffix at the end of a filename (e.g., the ".docx" in Report.docx). Historically restricted by the old DOS 8.3 rule (8 characters for the name, 3 for the extension), modern extensions tell the OS exactly which application to launch when the file is double-clicked. A ".txt" extension routes to Notepad, while an ".exe" tells the OS that the file contains executable binary code.</p>
+                    
+                    <p class="mb-5">However, the extension is simply a label; it does not change the actual mathematical content of the file. If a user renames a "Photo.jpg" to "Photo.txt", the file's data remains image data. The OS will erroneously attempt to open it in a text editor, resulting in a screen full of chaotic, unreadable symbols. Cybercriminals often abuse this, hiding malicious executable files by disguising their extensions to trick untrained users.</p>
+                    
+                    <p class="mb-5">To properly manage files, the filesystem maintains a hidden layer of information known as <strong>Metadata</strong>. Metadata is quite literally "data about the data." When a user looks at a file in Windows Explorer, they aren't looking at the file itself; they are looking at the filesystem's metadata record. Common metadata fields include the exact file size, the creation date, the date it was last modified, the owner's username, and specific file attributes (like marking a critical system file as "Hidden" or "Read-Only").</p>
+                    
+                    <p>Metadata is incredibly powerful for IT administration and cybersecurity forensics. Before even opening a suspicious file, a technician can inspect its metadata. If an email attachment claims to be a simple, one-page text document (.txt), but the metadata reveals the file size is an enormous 15 Megabytes, the technician instantly knows the file is highly suspicious and likely contains hidden executable malware. The filesystem's tracking of this metadata provides the first line of defense in file analysis.</p>
+                `
+            },
+            'meta-usecase': {
+                title: 'Types, Metadata & Journaling: Use Cases',
+                icon: '<i class="fa-solid fa-lightbulb text-yellow-500"></i>',
+                html: `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-amber-800 mb-2 border-b-2 border-amber-200 pb-1">Case 1: Data Integrity and System Crashes</h4>
+                        <p class="mb-2">Power loss during write operations is a primary cause of catastrophic data loss, which modern filesystems mitigate.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-700">
+                            <li class="mb-2"><strong>Example 1 (Journaling Saves Data):</strong> A video editor on an APFS macOS system experiences a total blackout while rendering a massive video. Upon rebooting, the APFS Journal detects the incomplete write operation and cleanly rolls the file back to its last stable state, preventing total corruption of the hard drive directory.</li>
+                            <li><strong>Example 2 (FAT32 Limitations):</strong> A user is copying 200 photos to a cheap FAT32 USB drive and aggressively unplugs it before it finishes. Because FAT32 lacks a journaling log, the filesystem structure is shattered, resulting in a "Drive must be formatted before use" error the next time it is plugged in.</li>
+                        </ul>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-amber-800 mb-2 border-b-2 border-amber-200 pb-1">Case 2: Cybersecurity and File Forensics</h4>
+                        <p class="mb-2">Security analysts rely on file extensions and hidden metadata to detect anomalies and trace malicious activity.</p>
+                        <ul class="list-disc pl-5 mb-4 text-slate-700">
+                            <li class="mb-2"><strong>Example 1 (Metadata Size Mismatch):</strong> An employee receives an email with an attachment named "Invoice.pdf". However, the IT admin checks the file properties (metadata) and notices the size is 250MB. A standard text PDF should be under 1MB. This metadata anomaly alerts them that a massive malware payload is hiding inside.</li>
+                            <li><strong>Example 2 (Extension Spoofing):</strong> A hacker creates a malicious program called "virus.exe" but renames it to "kittens.jpg" to trick a user into opening it. While the extension changed, the actual binary file type remains executable, proving that extensions are just labels that guide the OS, not the actual file structure.</li>
+                        </ul>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-1">Concept: Digital Forensics</p>
+                            <img src="https://images.unsplash.com/photo-1563206767-5b18f218e8de?auto=format&fit=crop&w=600&h=350" alt="Hacker code representing forensic analysis" class="w-full h-auto rounded shadow border border-slate-200 object-cover">
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-center text-slate-500 uppercase tracking-wider mb-1">In Use: USB FAT32 Compatibility</p>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/USB_flash_drive.JPG/1280px-USB_flash_drive.JPG?auto=format&fit=crop&w=600&h=350" alt="USB Flash drives" class="w-full h-auto rounded shadow border border-slate-200 object-cover">
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        // --- UI Modal Controls ---
+        function openBriefing(key) {
+            const modal = document.getElementById('briefing-modal');
+            const data = briefingData[key];
+            if(data) {
+                document.getElementById('briefing-modal-icon').innerHTML = data.icon;
+                document.getElementById('briefing-modal-title').innerText = data.title;
+                document.getElementById('briefing-modal-content').innerHTML = data.html;
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; 
+            }
+        }
+
+        function closeBriefing() {
+            document.getElementById('briefing-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto'; 
+        }
+
+        document.getElementById('briefing-modal').addEventListener('click', function(e) {
+            if(e.target === this) closeBriefing();
+        });
+        
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId + '-section').classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-sky-700'));
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if(activeBtn && tabId !== 'cert') activeBtn.classList.add('bg-sky-700');
+            
+            document.querySelectorAll('.nav-btn-mobile').forEach(btn => btn.classList.remove('bg-sky-700'));
+            const activeMobileBtn = document.getElementById('nav-' + tabId + '-mobile');
+            if(activeMobileBtn && tabId !== 'cert') activeMobileBtn.classList.add('bg-sky-700');
+
+            window.scrollTo(0,0);
+
+            if (tabId === 'game' && !gameRunning) {
+                drawGameStatic();
+            }
+        }
+
+        function showModal(title, message, type = 'info') {
+            const modal = document.getElementById('custom-modal');
+            const icon = document.getElementById('modal-icon');
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-msg').innerText = message;
+            
+            if(type === 'success') {
+                icon.innerHTML = '<i class="fa-solid fa-circle-check text-green-500"></i>';
+            } else if (type === 'error') {
+                icon.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-500"></i>';
+            } else if (type === 'warning') {
+                icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-amber-500"></i>';
+            } else {
+                icon.innerHTML = '<i class="fa-solid fa-circle-info text-blue-500"></i>';
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        // --- LAB 1: Compression Sorter Logic ---
+        let draggedCatItem = null;
+        let lab1Count = 0;
+
+        document.querySelectorAll('#comp-items .io-item').forEach(item => {
+            item.addEventListener('dragstart', function() {
+                draggedCatItem = this;
+                setTimeout(() => this.classList.add('opacity-50'), 0);
+            });
+            item.addEventListener('dragend', function() {
+                setTimeout(() => this.classList.remove('opacity-50'), 0);
+                draggedCatItem = null;
+            });
+        });
+
+        document.querySelectorAll('.io-dropzone').forEach(zone => {
+            zone.addEventListener('dragover', e => e.preventDefault());
+            zone.addEventListener('dragenter', function(e) { e.preventDefault(); this.classList.add('drag-over'); });
+            zone.addEventListener('dragleave', function() { this.classList.remove('drag-over'); });
+            zone.addEventListener('drop', function() {
+                this.classList.remove('drag-over');
+                if(draggedCatItem) {
+                    if(draggedCatItem.dataset.type === this.dataset.target) {
+                        this.appendChild(draggedCatItem);
+                        draggedCatItem.classList.remove('bg-slate-100', 'cursor-grab', 'border-slate-300');
+                        draggedCatItem.classList.add('bg-white', 'text-slate-800', 'cursor-default', 'border-dashed');
+                        draggedCatItem.setAttribute('draggable', 'false');
+                        lab1Count++;
+                        
+                        document.getElementById('lab1-feedback').innerText = "Correct algorithm placement!";
+                        document.getElementById('lab1-feedback').className = "text-center font-bold mt-4 h-6 text-green-600";
+                        
+                        if(lab1Count === 6) {
+                            setTimeout(() => showModal('Lab 1 Complete!', 'You successfully categorized the lossy and lossless algorithms.', 'success'), 500);
+                        }
+                    } else {
+                        document.getElementById('lab1-feedback').innerText = "Incorrect. Think about whether the algorithm permanently discards data.";
+                        document.getElementById('lab1-feedback').className = "text-center font-bold mt-4 h-6 text-red-600";
+                    }
+                }
+            });
+        });
+
+        // --- LAB 2: Metadata Inspector Logic ---
+        let lab2Solved = false;
+        let activeFileIndex = -1;
+        const metadataDB = [
+            { name: 'notes.txt', size: '12 KB', created: '10/12/2024', type: 'Plain Text Document', owner: 'User', sus: false },
+            { name: 'readme.txt', size: '4 KB', created: '09/01/2024', type: 'Plain Text Document', owner: 'System', sus: false },
+            { name: 'invoice_update.txt', size: '18,450 KB (18.4 MB)', created: 'Today', type: 'Executable Application', owner: 'Unknown', sus: true },
+            { name: 'config.txt', size: '2 KB', created: '01/15/2023', type: 'Plain Text Document', owner: 'Admin', sus: false }
+        ];
+
+        function showMetadata(index, element) {
+            if(lab2Solved) return;
+            
+            // UI Selection
+            document.querySelectorAll('#metadata-file-list .process-row').forEach(row => row.classList.remove('active'));
+            element.classList.add('active');
+            activeFileIndex = index;
+
+            const data = metadataDB[index];
+            const display = document.getElementById('meta-display');
+            display.innerHTML = `
+                <div class="mb-2"><span class="text-slate-400">File Name:</span> ${data.name}</div>
+                <div class="mb-2"><span class="text-slate-400">Size:</span> ${data.size}</div>
+                <div class="mb-2"><span class="text-slate-400">Created:</span> ${data.created}</div>
+                <div class="mb-2"><span class="text-slate-400">Detected OS Type:</span> <span class="${data.sus ? 'text-red-400 font-bold' : ''}">${data.type}</span></div>
+                <div class="mb-2"><span class="text-slate-400">Owner:</span> ${data.owner}</div>
+            `;
+            document.getElementById('flag-btn').classList.remove('hidden');
+            document.getElementById('lab2-feedback').innerText = "";
+        }
+
+        function checkLab2() {
+            if(activeFileIndex === -1 || lab2Solved) return;
+            
+            if(metadataDB[activeFileIndex].sus) {
+                lab2Solved = true;
+                document.getElementById('lab2-feedback').innerText = "Threat Neutralized! Excellent OS metadata forensics.";
+                document.getElementById('lab2-feedback').className = "text-center font-bold mt-4 h-6 text-green-600";
+                setTimeout(() => showModal('Lab 2 Complete!', 'You successfully detected the malware. The metadata revealed the file size was massive for a text document, and the OS type was actually Executable, despite the spoofed .txt extension.', 'success'), 500);
+            } else {
+                document.getElementById('lab2-feedback').innerText = "Incorrect. That file's metadata appears completely normal for a text document.";
+                document.getElementById('lab2-feedback').className = "text-center font-bold mt-4 h-6 text-red-600";
+            }
+        }
+
+        // --- LAB 3: Allocation Grid Logic ---
+        const allocGrid = document.getElementById('alloc-grid');
+        let allocBlocks = [];
+        let lab3Solved = false;
+        
+        // Generate 15 blocks (3 rows of 5)
+        for(let i=0; i<15; i++) {
+            let block = document.createElement('div');
+            block.className = "disk-block w-12 h-12 sm:w-16 sm:h-16 bg-slate-300 border-2 border-slate-400 rounded flex items-center justify-center text-xs font-bold text-slate-500";
+            block.innerText = "Empty";
+            block.dataset.index = i;
+            
+            // Randomly pre-allocate some blocks to force user to find a specific contiguous space
+            if([1, 4, 7, 12, 13].includes(i)) {
+                block.classList.add('bg-slate-700', 'border-slate-800', 'text-slate-400', 'cursor-not-allowed');
+                block.innerText = "Data";
+                block.dataset.used = "true";
+            } else {
+                block.dataset.used = "false";
+                block.onclick = function() { toggleAllocBlock(this); };
+            }
+            allocGrid.appendChild(block);
+        }
+
+        function toggleAllocBlock(block) {
+            if(lab3Solved || block.dataset.used === "true") return;
+            block.classList.toggle('allocated');
+            if(block.classList.contains('allocated')) {
+                block.innerText = "File";
+                allocBlocks.push(parseInt(block.dataset.index));
+            } else {
+                block.innerText = "Empty";
+                allocBlocks = allocBlocks.filter(idx => idx !== parseInt(block.dataset.index));
+            }
+            document.getElementById('lab3-feedback').innerText = "";
+        }
+
+        function checkLab3() {
+            if(lab3Solved) return;
+            if(allocBlocks.length !== 4) {
+                document.getElementById('lab3-feedback').innerText = `You must select exactly 4 blocks. Currently selected: ${allocBlocks.length}.`;
+                document.getElementById('lab3-feedback').className = "text-center font-bold mt-4 h-6 text-red-600";
+                return;
+            }
+            
+            // Check if contiguous (horizontal or vertical sequence)
+            allocBlocks.sort((a,b) => a-b);
+            let isContiguous = true;
+            
+            // Check horizontal (must be on same row, diff of 1)
+            let isHoriz = true;
+            let startRow = Math.floor(allocBlocks[0] / 5);
+            for(let i=1; i<allocBlocks.length; i++) {
+                if(allocBlocks[i] - allocBlocks[i-1] !== 1 || Math.floor(allocBlocks[i]/5) !== startRow) {
+                    isHoriz = false; break;
+                }
+            }
+            
+            // Check vertical (diff of 5)
+            let isVert = true;
+            for(let i=1; i<allocBlocks.length; i++) {
+                if(allocBlocks[i] - allocBlocks[i-1] !== 5) {
+                    isVert = false; break;
+                }
+            }
+
+            if(isHoriz || isVert) {
+                lab3Solved = true;
+                document.getElementById('lab3-feedback').innerText = "File committed successfully via Contiguous Allocation.";
+                document.getElementById('lab3-feedback').className = "text-center font-bold mt-4 h-6 text-green-600";
+                setTimeout(() => showModal('Lab 3 Complete!', 'You successfully allocated contiguous disk space. While fast for reading, notice how hard it was to find 4 empty blocks in a row due to fragmentation.', 'success'), 500);
+            } else {
+                // Shake error blocks
+                document.querySelectorAll('.disk-block.allocated').forEach(b => {
+                    b.classList.add('error');
+                    setTimeout(() => b.classList.remove('error'), 400);
+                });
+                document.getElementById('lab3-feedback').innerText = "Error: Blocks are NOT contiguous (adjacent in a single line). This would fragment the file.";
+                document.getElementById('lab3-feedback').className = "text-center font-bold mt-4 h-6 text-red-600";
+            }
+        }
+
+        // --- LAB 4: File Transfer Logic ---
+        function toggleSwitch(btn) {
+            btn.classList.toggle('bg-slate-300');
+            btn.classList.toggle('bg-green-500');
+            const handle = btn.querySelector('span');
+            if(btn.classList.contains('bg-green-500')) {
+                handle.style.transform = 'translateX(1.5rem)';
+            } else {
+                handle.style.transform = 'translateX(0)';
+            }
+        }
+
+        function checkLab4() {
+            const aclOn = document.getElementById('toggle-acl').classList.contains('bg-green-500');
+            const journOn = document.getElementById('toggle-journ').classList.contains('bg-green-500');
+
+            if(!aclOn && !journOn) {
+                document.getElementById('lab4-feedback').innerText = "Transfer verified. Security posture acknowledged.";
+                document.getElementById('lab4-feedback').className = "text-center font-bold mt-4 h-6 text-green-600";
+                setTimeout(() => showModal('Lab 4 Complete!', 'Correct. Because FAT32 is an older, limited filesystem, both Access Control Lists (Permissions) and Journaling crash protection are completely lost when transferring data onto it.', 'success'), 500);
+            } else {
+                document.getElementById('lab4-feedback').innerText = "Transfer failed. FAT32 does NOT support the properties you left toggled ON.";
+                document.getElementById('lab4-feedback').className = "text-center font-bold mt-4 h-6 text-red-600";
+            }
+        }
+
+        // --- QUIZ LOGIC (20 Questions) ---
+        const quizData = [
+            // Original 10 from Answer Key
+            { q: "Which of the following best describes the role of a filesystem in an operating system?", options: ["To increase CPU performance", "To control how files are printed", "To encrypt all data automatically", "To organize and manage data on storage devices"], answer: 3 },
+            { q: "Which of the following are examples of lossless compression? (Select the best pair)", options: ["ZIP and PNG", "JPEG and MP3", "ZIP and MP4", "MP3 and GZIP"], answer: 0 },
+            { q: "True or False: A file that is already compressed, such as a JPEG image, will usually shrink significantly if you compress it again in a ZIP file.", options: ["True", "False"], answer: 1 },
+            { q: "Which type of encryption uses one key to encrypt and a different key to decrypt?", options: ["Symmetric", "Lossless", "Asymmetric", "Indexed"], answer: 2 },
+            { q: "Which of the following filesystems support journaling?", options: ["ext4 and NTFS", "FAT32 and UDF", "FAT32 and NTFS", "ext4 and FAT32"], answer: 0 },
+            { q: "What is the main purpose of journaling in a filesystem?", options: ["To increase compression ratio", "To recover or roll back after a crash", "To encrypt files during transmission", "To store metadata separately from files"], answer: 1 },
+            { q: "True or False: Changing a file's extension from .txt to .jpg will change the file's actual data structure/type.", options: ["True", "False"], answer: 1 },
+            { q: "In the lab, you observed that art-panda.txt (ASCII Art) compressed more than gatsby.txt (Novel text). What is the most likely reason?", options: ["The panda file was smaller to begin with.", "The panda file contained more repetitive patterns and whitespace.", "The panda file was encrypted.", "The panda file used asymmetric encryption."], answer: 1 },
+            { q: "Which of the following sets contains examples of metadata?", options: ["File creation date, file size, permissions", "The first paragraph of a document, file size", "File permissions, the actual image in a .jpg", "The actual image in a .jpg, file size"], answer: 0 },
+            { q: "Why might a file show little to no change in size after compression?", options: ["It's already compressed", "It contains few repeating patterns", "It's encrypted", "All of the above"], answer: 3 },
+            
+            // 10 New Questions from Briefing
+            { q: "Which filesystem structure stores all files in a single-level directory without any subdirectories?", options: ["Hierarchical Filesystem", "Indexed Allocation", "Flat Filesystem", "Contiguous Allocation"], answer: 2 },
+            { q: "Which encryption type is extremely fast and uses the exact same key to both lock and unlock data (like AES)?", options: ["Asymmetric Encryption", "Public Key Cryptography", "Symmetric Encryption", "Hash Encoding"], answer: 2 },
+            { q: "What is a major disadvantage of using Contiguous Allocation for storing files on a hard drive?", options: ["It causes severe disk fragmentation over time.", "It is the slowest method for reading data.", "It requires a master index block.", "It cannot store files larger than 1MB."], answer: 0 },
+            { q: "What happens to the Access Control List (ACL) permissions when a secure file is copied from an NTFS drive to an older FAT32 flash drive?", options: ["The permissions become stronger.", "The file remains secure but is hidden.", "The permissions are completely lost.", "FAT32 converts them to Asymmetric encryption."], answer: 2 },
+            { q: "Which modern filesystem is the default for Apple devices and is specifically optimized for Solid State Drives (SSDs)?", options: ["ext4", "NTFS", "FAT32", "APFS"], answer: 3 },
+            { q: "Which compression algorithm is highly effective for data with long continuous repeating sequences (e.g., storing '100x black pixels' instead of listing every pixel)?", options: ["Huffman Coding", "Run-Length Encoding (RLE)", "Asymmetric Encryption", "RSA Algorithm"], answer: 1 },
+            { q: "What does EFS stand for in the context of Windows operating system security?", options: ["Extended File System", "External Format Structure", "Encrypting File System", "Encoded Folder Security"], answer: 2 },
+            { q: "Instead of linking blocks sequentially, which allocation method uses a master 'table of contents' block containing pointers to all scattered data blocks?", options: ["Linked Allocation", "Indexed Allocation", "Contiguous Allocation", "Flat Allocation"], answer: 1 },
+            { q: "Which of the following offers Full-Disk Encryption (FDE) at the hardware volume level to protect against physical device theft?", options: ["Microsoft BitLocker", "Huffman Coding", "File Allocation Table (FAT)", "Access Control Lists (ACLs)"], answer: 0 },
+            { q: "If an IT administrator inspects the metadata of an email attachment labeled 'Resume.txt' and notices the file is an enormous 15 Megabytes, what should they conclude?", options: ["The file is heavily compressed.", "The text is very short.", "The file is highly suspicious and the extension may be spoofed.", "The file uses Contiguous Allocation."], answer: 2 }
+        ];
+
+        const quizContainer = document.getElementById('quiz-container');
+        
+        quizData.forEach((item, index) => {
+            const qDiv = document.createElement('div');
+            qDiv.className = "bg-slate-50 p-6 rounded-lg border border-slate-200";
+            qDiv.id = `q-block-${index}`;
+            
+            const qTitle = document.createElement('h3');
+            qTitle.className = "font-bold text-lg text-slate-800 mb-4";
+            qTitle.innerText = `${index + 1}. ${item.q}`;
+            qDiv.appendChild(qTitle);
+            
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = "space-y-3";
+            
+            item.options.forEach((opt, optIndex) => {
+                const label = document.createElement('label');
+                label.className = "flex items-center space-x-3 p-3 rounded bg-white border border-slate-300 hover:bg-sky-50 cursor-pointer transition";
+                
+                const radio = document.createElement('input');
+                radio.type = "radio";
+                radio.name = `q${index}`;
+                radio.value = optIndex;
+                radio.className = "form-radio h-5 w-5 text-sky-600";
+                
+                const span = document.createElement('span');
+                span.className = "text-slate-700";
+                span.innerText = opt;
+                
+                label.appendChild(radio);
+                label.appendChild(span);
+                optionsDiv.appendChild(label);
+            });
+            
+            qDiv.appendChild(optionsDiv);
+            quizContainer.appendChild(qDiv);
+        });
+
+        function gradeQuiz() {
+            let score = 0;
+            let allAnswered = true;
+
+            for(let i = 0; i < quizData.length; i++) {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                if(selected) {
+                    if(parseInt(selected.value) === quizData[i].answer) {
+                        score++;
+                    }
+                } else {
+                    allAnswered = false;
+                }
+            }
+            
+            if(!allAnswered) {
+                showModal('Incomplete Quiz', 'Please answer all 20 questions before submitting.', 'warning');
+                return;
+            }
+            
+            const percentage = (score / quizData.length) * 100;
+            
+            if(score >= 18) { 
+                const navGame = document.getElementById('nav-game');
+                const navGameMobile = document.getElementById('nav-game-mobile');
+                
+                navGame.classList.remove('text-slate-500', 'cursor-not-allowed');
+                navGame.classList.add('text-white', 'hover:bg-sky-500');
+                navGame.disabled = false;
+                navGame.innerHTML = '<i class="fa-solid fa-gamepad mr-1"></i>Game';
+                
+                navGameMobile.classList.remove('text-slate-500', 'cursor-not-allowed');
+                navGameMobile.classList.add('text-white', 'hover:bg-sky-500');
+                navGameMobile.disabled = false;
+                navGameMobile.innerHTML = '<i class="fa-solid fa-gamepad"></i> Game';
+
+                document.getElementById('nav-cert').classList.remove('hidden');
+                document.getElementById('nav-cert-mobile').classList.remove('hidden');
+                
+                document.getElementById('proceed-game-btn').classList.remove('hidden');
+                document.getElementById('submit-quiz-btn').classList.add('hidden');
+
+                showModal('Outstanding!', `You scored ${score}/20 (${percentage}%). You have unlocked your Certificate of Mastery AND the Retro Game!`, 'success');
+            } else {
+                quizData.forEach((_, i) => {
+                    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                    if(selected) selected.checked = false;
+                });
+                showModal('Keep Trying!', `You scored ${score}/20 (${percentage}%). You need 90% (18/20) to earn the certificate. Your answers have been reset so you can try again.`, 'error');
+                document.getElementById('quiz-section').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // --- RETRO GAME: "DATA BLASTER" (Galaga-style) ---
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let score = 0;
+        let lives = 3;
+        let gameRunning = false;
+        let animationId;
+        
+        let player = { x: 280, y: 350, w: 40, h: 30, speed: 5, dx: 0 };
+        let bullets = [];
+        let enemies = [];
+        let lastTime = 0;
+        let spawnTimer = 0;
+        
+        const overlay = document.getElementById('game-overlay');
+        const startBtn = document.getElementById('start-game-btn');
+        startBtn.addEventListener('click', startGame);
+
+        // Input
+        let keys = { ArrowLeft: false, ArrowRight: false, Space: false };
+        
+        window.addEventListener('keydown', e => {
+            if(e.code === 'ArrowLeft') keys.ArrowLeft = true;
+            if(e.code === 'ArrowRight') keys.ArrowRight = true;
+            if(e.code === 'Space' && gameRunning && !keys.Space) {
+                keys.Space = true;
+                fireBullet();
+                e.preventDefault();
+            }
+        });
+        window.addEventListener('keyup', e => {
+            if(e.code === 'ArrowLeft') keys.ArrowLeft = false;
+            if(e.code === 'ArrowRight') keys.ArrowRight = false;
+            if(e.code === 'Space') keys.Space = false;
+        });
+
+        // Mobile touch controls
+        document.getElementById('btn-left').addEventListener('touchstart', (e) => { e.preventDefault(); keys.ArrowLeft = true; });
+        document.getElementById('btn-left').addEventListener('touchend', (e) => { e.preventDefault(); keys.ArrowLeft = false; });
+        document.getElementById('btn-right').addEventListener('touchstart', (e) => { e.preventDefault(); keys.ArrowRight = true; });
+        document.getElementById('btn-right').addEventListener('touchend', (e) => { e.preventDefault(); keys.ArrowRight = false; });
+        document.getElementById('btn-fire').addEventListener('touchstart', (e) => { e.preventDefault(); if(gameRunning) fireBullet(); });
+
+        function fireBullet() {
+            bullets.push({ x: player.x + player.w/2 - 2, y: player.y, w: 4, h: 10, speed: 7 });
+        }
+
+        function spawnEnemy() {
+            let isMalware = Math.random() > 0.5;
+            enemies.push({
+                x: Math.random() * (canvas.width - 30),
+                y: -30,
+                w: 30,
+                h: 30,
+                speed: Math.random() * 1.5 + 0.5,
+                type: isMalware ? 'malware' : 'lossy',
+                color: isMalware ? '#ef4444' : '#f97316'
+            });
+        }
+
+        function resetGame() {
+            player.x = 280;
+            bullets = [];
+            enemies = [];
+            score = 0;
+            lives = 3;
+            document.getElementById('game-score').innerText = score;
+            document.getElementById('game-lives').innerText = lives;
+            lastTime = performance.now();
+        }
+
+        function startGame() {
+            overlay.classList.add('hidden');
+            if(!gameRunning) {
+                resetGame();
+                gameRunning = true;
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function loseLife() {
+            lives--;
+            document.getElementById('game-lives').innerText = lives;
+            ctx.fillStyle = "rgba(255,0,0,0.4)";
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            
+            if(lives <= 0) {
+                gameRunning = false;
+                overlay.classList.remove('hidden');
+                startBtn.innerText = "System Compromised! Reboot";
+                startBtn.classList.replace('bg-sky-600', 'bg-red-700');
+                startBtn.classList.replace('border-sky-800', 'border-red-900');
+            }
+        }
+
+        function drawShip(x, y, w, h) {
+            ctx.fillStyle = '#0ea5e9'; // Base
+            ctx.fillRect(x + 5, y + 10, w - 10, h - 10);
+            ctx.fillStyle = '#e0f2fe'; // Cockpit
+            ctx.beginPath();
+            ctx.moveTo(x + w/2, y);
+            ctx.lineTo(x + w - 10, y + 15);
+            ctx.lineTo(x + 10, y + 15);
+            ctx.fill();
+            ctx.fillStyle = '#f59e0b'; // Thrusters
+            ctx.fillRect(x + 10, y + h, 5, 5);
+            ctx.fillRect(x + w - 15, y + h, 5, 5);
+        }
+
+        function drawEnemy(e) {
+            ctx.fillStyle = e.color;
+            ctx.fillRect(e.x, e.y, e.w, e.h);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '10px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(e.type === 'malware' ? 'EXE' : 'MP3', e.x + e.w/2, e.y + e.h/2 + 3);
+        }
+
+        function checkCollision(r1, r2) {
+            return (r1.x < r2.x + r2.w && r1.x + r1.w > r2.x && r1.y < r2.y + r2.h && r1.y + r1.h > r2.y);
+        }
+
+        function gameLoop(time) {
+            if(!gameRunning) return;
+            
+            let dt = time - lastTime;
+            lastTime = time;
+            
+            // Clear
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background stars
+            ctx.fillStyle = '#334155';
+            for(let i=0; i<10; i++) {
+                ctx.fillRect(Math.random()*canvas.width, (time/10 + i*40)%canvas.height, 2, 2);
+            }
+
+            // Player Movement
+            if(keys.ArrowLeft && player.x > 0) player.x -= player.speed;
+            if(keys.ArrowRight && player.x < canvas.width - player.w) player.x += player.speed;
+            
+            drawShip(player.x, player.y, player.w, player.h);
+
+            // Bullets
+            ctx.fillStyle = '#38bdf8';
+            for(let i = bullets.length - 1; i >= 0; i--) {
+                let b = bullets[i];
+                b.y -= b.speed;
+                ctx.fillRect(b.x, b.y, b.w, b.h);
+                if(b.y < 0) bullets.splice(i, 1);
+            }
+
+            // Spawner
+            spawnTimer += dt;
+            if(spawnTimer > 1200 - (score * 2)) { // Speeds up slightly
+                spawnEnemy();
+                spawnTimer = 0;
+            }
+
+            // Enemies
+            for(let i = enemies.length - 1; i >= 0; i--) {
+                let e = enemies[i];
+                e.y += e.speed;
+                drawEnemy(e);
+                
+                // Hit bottom = lost life
+                if(e.y > canvas.height) {
+                    enemies.splice(i, 1);
+                    loseLife();
+                    continue;
+                }
+                
+                // Check bullet collision
+                let hit = false;
+                for(let j = bullets.length - 1; j >= 0; j--) {
+                    if(checkCollision(e, bullets[j])) {
+                        bullets.splice(j, 1);
+                        enemies.splice(i, 1);
+                        score += 10;
+                        document.getElementById('game-score').innerText = score;
+                        hit = true;
+                        
+                        // Explosion particle effect simple
+                        ctx.fillStyle = '#ffffff';
+                        ctx.beginPath(); ctx.arc(e.x+15, e.y+15, 15, 0, Math.PI*2); ctx.fill();
+                        break;
+                    }
+                }
+                if(hit) continue;
+                
+                // Check player collision
+                if(checkCollision(e, player)) {
+                    enemies.splice(i, 1);
+                    loseLife();
+                }
+            }
+
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        function drawGameStatic() {
+            ctx.fillStyle = '#020617';
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            drawShip(canvas.width/2 - 20, 350, 40, 30);
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '20px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('SYSTEM READY. AWAITING INITIALIZATION.', canvas.width/2, canvas.height/2);
+        }
+        
+        window.onload = drawGameStatic;
+
+        // --- CERTIFICATE LOGIC ---
+        function updateCertName() {
+            let name = document.getElementById('student-name-input').value.trim();
+            if(name) {
+                if (name.includes(' ')) {
+                    name = name.split(' ')[0];
+                    document.getElementById('student-name-input').value = name;
+                    showModal('Notice', 'Only your first name has been applied to the certificate for formatting reasons.', 'info');
+                }
+                document.getElementById('cert-student-name').innerText = name;
+            } else {
+                showModal('Wait!', 'Please enter your first name to update the certificate.', 'warning');
+            }
+        }
+
+        const today = new Date();
+        document.getElementById('cert-date').innerText = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        function downloadCert() {
+            const certEl = document.getElementById('certificate');
+            const name = document.getElementById('cert-student-name').innerText;
+            let filename = 'OS_Mastery_Certificate.png';
+            if (name && name !== 'Student') {
+                filename = `${name.replace(/\s+/g, '_')}_OS_Mastery_Certificate.png`;
+            }
+
+            const originalTransform = certEl.style.transform;
+            certEl.style.transform = 'none';
+
+            const btn = document.getElementById('download-btn');
+            const originalBtnText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Generating...';
+            btn.disabled = true;
+
+            html2canvas(certEl, { 
+                scale: 2, 
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                certEl.style.transform = originalTransform;
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+                
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+            }).catch(err => {
+                console.error(err);
+                certEl.style.transform = originalTransform;
+                btn.innerHTML = originalBtnText;
+                btn.disabled = false;
+                showModal('Error', 'Failed to generate image. Try using a desktop browser.', 'error');
+            });
+        }
+    </script>
+</body>
+</html>
